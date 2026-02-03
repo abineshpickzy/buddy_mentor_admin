@@ -1,0 +1,42 @@
+/* 1. External Imports FIRST */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@100..900&display=swap');
+
+/* 2. Tailwind Import SECOND */
+@import "tailwindcss";
+
+/* 3. Theme Customizations */
+@theme {
+  --font-montserrat: "Montserrat", sans-serif;
+  --font-roboto: "Roboto", sans-serif;
+
+  --color-primary: rgba(22, 56, 94, 1);
+  --color-secondary: rgba(255, 166, 0, 1);
+
+}
+
+/* 4. Base Element Styles LAST */
+@layer base {
+  p, li, span, a, button, label, input, textarea {
+    @apply font-roboto;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    /* Use @apply instead of standard CSS to let Tailwind handle precedence */
+    @apply font-montserrat;
+  }
+}
+
+@layer utilities {
+  @keyframes shake {
+    0% { transform: translateX(0); }
+    25% { transform: translateX(-4px); }
+    50% { transform: translateX(4px); }
+    75% { transform: translateX(-4px); }
+    100% { transform: translateX(0); }
+  }
+
+  .animate-shake {
+    animation: shake 0.3s ease-in-out;
+  }
+}
