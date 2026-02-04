@@ -4,17 +4,16 @@ import MenuItem from "@/components/dashboard/product/basis/MenuItem";
 /* ------------------ DATA ------------------ */
 
 const paths = [
-  "/EPC CORE FOUNDATION/module1/chapter1/wisdomtree",
-  "/EPC CORE FOUNDATION/module2/chapter1",
-  "/EPC CORE FOUNDATION/module2/chapter2",
-  "/EPC CORE FOUNDATION/module3/chapter1",
-  "/EPC CORE FOUNDATION/module3/chapter2/section1",
-  "/EPC CORE FOUNDATION/module3/chapter3/section1",
-  "/EPC CORE FOUNDATION/module4/chapter1",
-  "/EPC CORE FOUNDATION/module4/chapter2",
-  "/EPC CORE FOUNDATION/module5/chapter1/section1",
-    "/EPC  FOUNDATION/module5/chapter1/section1",
-      "/EPC /module5/chapter1/section1",
+  "/prog1/module/chapter/wisdomtree",
+        "/prog1/module/chapter/peptalk",
+        "/prog1/module/chapter/lessons",
+        "/prog1/module/chapter/drill",
+        "/prog1/module/chapter/techdiary",
+        "/prog1/module2",
+        "/prog1/module3",
+        "/prog1/module4",
+        "/prog1/module5",
+        "/prog1/module6"
  
 ];
 

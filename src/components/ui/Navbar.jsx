@@ -1,9 +1,12 @@
 import { Menu, LogOut } from "lucide-react";
 import logo  from "@/assets/logo.png";
 import { NavLink, useLocation } from "react-router-dom";
+import {logout} from "@/features/auth/authSlice";
+import { useDispatch } from "react-redux";
 
 const Navbar = ( { onMenuClick } ) => {
-  const location = useLocation();   
+  const location = useLocation();  
+  const dispatch = useDispatch(); 
 
   const isActiveTab = (tabLink) => {
     const basePath = tabLink.split('/').slice(0, 2).join('/');
@@ -73,7 +76,7 @@ const Navbar = ( { onMenuClick } ) => {
             />
 
             {/* Logout */}
-            <button className=" md:flex items-center gap-1 border px-3 py-1 bg-white text-sm">
+            <button className=" md:flex items-center gap-1 border px-3 py-1 bg-white text-sm" onClick={() => dispatch(logout())}>
               <LogOut size={16} />
               Logout
             </button>

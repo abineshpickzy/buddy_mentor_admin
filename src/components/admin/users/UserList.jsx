@@ -1,7 +1,9 @@
 import React from "react";
 import UserRow from "./UserRow";
+import { useSelector } from "react-redux";
 
-const UserList = ({ users }) => {
+const UserList = () => {
+  const {users} = useSelector((state) => state.users);
   return (
     <div className="bg-white border rounded overflow-x-auto">
       <table className="w-full text-sm">
@@ -28,7 +30,7 @@ const UserList = ({ users }) => {
         <tbody>
           {users.map((user, index) => (
             <UserRow
-              key={user.id}
+              key={user._id}
               user={user}
               index={index}
             />

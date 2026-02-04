@@ -1,38 +1,36 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import UserList from "@/components/admin/users/UserList";
 import { Search } from "lucide-react";
 import { NavLink } from "react-router-dom";
-
-/* ---------- DUMMY DATA ---------- */
-const USERS = [
-  {
-    id: 1,
-    profile: "https://cdn-icons-png.flaticon.com/512/8847/8847419.png",
-    firstName: "Ratheesh",
-    lastName: "TR",
-    email: "macratheesh@pickzy.com",
-    adminId: "EC.PM.001",
-    lastConnection: "10/10/2018",
-    created: "10/10/2018",
-    status: "Active"
-  },
-  {
-    id: 2,
-    
-    profile: "https://cdn-icons-png.flaticon.com/512/8847/8847419.png",
-    firstName: "Ratheesh",
-    lastName: "TR",
-    email: "macratheesh@pickzy.com",
-    adminId: "EC.PM.001",
-    lastConnection: "10/10/2018",
-    created: "10/10/2018",
-    status: "Inactive"
-  }
-];
-/* -------------------------------- */
+import { useSelector, useDispatch } from "react-redux";
+import { fetchUsers } from "@/features/users/userThunk";
+import { fetchRoleList } from "@/features/roles/roleThunk";
 
 const Users = () => {
-  const [users, setUsers] = useState(USERS);
+  const dispatch = useDispatch();
+  const [filters, setFilters] = useState({
+    status: '',
+    role: '',
+    text: ''
+  });
+
+  const { rolelist } = useSelector((state) => state.roles);
+
+  useEffect(() => {
+    dispatch(fetchRoleList());
+   
+  }, [dispatch]);
+
+  useEffect(() => {
+    const activeFilters = Object.fromEntries(
+      Object.entries(filters).filter(([_, value]) => value)
+    );
+    dispatch(fetchUsers(activeFilters));
+  }, [filters, dispatch]);
+
+  const handleFilterChange = (key, value) => {
+    setFilters(prev => ({ ...prev, [key]: value }));
+  };
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
@@ -47,29 +45,40 @@ const Users = () => {
 
       {/* Filters */}
       <div className="bg-white border rounded p-4 mb-4 flex flex-wrap gap-4 items-center">
-        <select className="border px-3 py-1 text-sm rounded">
-          <option>Status</option>
-          <option>Active</option>
-          <option>Inactive</option>
+        <select 
+          className="border px-3 py-1 text-sm rounded"
+          value={filters.status}
+          onChange={(e) => handleFilterChange('status', e.target.value)}
+        >
+          <option value="">Status</option>
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
         </select>
 
-        <select className="border px-3 py-1 text-sm rounded">
-          <option>Role</option>
-          <option>Super Admin</option>
-          <option>Program FP</option>
+        <select 
+          className="border px-3 py-1 text-sm rounded"
+          value={filters.role}
+          onChange={(e) => handleFilterChange('role', e.target.value)}
+        >
+          <option value="">All Roles</option>
+          {rolelist.map((role) => (
+            <option key={role._id} value={role._id}>{role.name}</option>
+          ))}
         </select>
 
         <div className="flex items-center border rounded px-2">
           <input
-            placeholder="User"
+            placeholder="Search users..."
             className="outline-none text-sm px-2 py-1"
+            value={filters.text}
+            onChange={(e) => handleFilterChange('text', e.target.value)}
           />
           <Search size={16} className="text-gray-400" />
         </div>
       </div>
 
       {/* User List */}
-      <UserList users={users} />
+      <UserList/>
     </div>
   );
 };

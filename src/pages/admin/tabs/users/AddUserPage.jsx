@@ -1,16 +1,23 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { createUser } from "@/features/users/userThunk";
+import { addToast } from "@/features/toast/toastSlice";
 import Input from "@/components/ui/Input";
 import Select from "../../../../components/ui/Select";
+import md5 from "md5";
 
 const AddUserPage = () => {
     const navigate = useNavigate();
+    const dispatch = useDispatch();
+
+    const [errors, setErrors] = useState({});
 
     const [form, setForm] = useState({
-        firstName: "",
-        lastName: "",
-        email: "",
-        phone: "",
+        first_name: "",
+        last_name: "",
+        email_id: "",
+        mobile_number: "",
         programCode: "",
         country: "",
         state: "",
@@ -26,9 +33,61 @@ const AddUserPage = () => {
         setForm({ ...form, [e.target.name]: e.target.value });
     };
 
+    const validateForm = () => {
+        const newErrors = {};
+        
+        if (!form.first_name.trim()) newErrors.first_name = "First name is required";
+        if (!form.last_name.trim()) newErrors.last_name = "Last name is required";
+        if (!form.email_id.trim()) newErrors.email_id = "Email is required";
+        else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email_id)) newErrors.email_id = "Invalid email format";
+        if (!form.mobile_number.trim()) newErrors.mobile_number = "Mobile number is required";
+        if (!form.programCode.trim()) newErrors.programCode = "Program code is required";
+        if (!form.country) newErrors.country = "Country is required";
+        if (!form.state) newErrors.state = "State is required";
+        if (!form.password) newErrors.password = "Password is required";
+        else if (form.password.length < 6) newErrors.password = "Password must be at least 6 characters";
+        if (form.password !== form.confirmPassword) newErrors.confirmPassword = "Passwords do not match";
+        
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+    const {user} = useSelector((state) => state.auth);
+    
+    console.log("Current user:", user);
+
     const handleCreate = async () => {
-        const createdUserId = "u123";
-        navigate(`/admin/users/${createdUserId}`);
+        console.log("Create button clicked");
+        console.log("Form data:", form);
+        
+        if (!validateForm()) {
+            console.log("Validation failed:", errors);
+            return;
+        }
+        
+        console.log("Validation passed, creating user...");
+        
+        const userData = {
+            first_name: form.first_name,
+            last_name: form.last_name,
+            email_id: form.email_id,
+            mobile_number: form.mobile_number,
+            programCode: form.programCode,
+            country: form.country,
+            state: form.state,
+            password: md5(form.password),
+            forcePasswordChange: form.forcePasswordChange
+        };
+        
+        console.log("User data to send:", userData);
+        
+        try {
+            await dispatch(createUser({...userData})).unwrap();
+            dispatch(addToast({ type: "success", message: "User created successfully!" }));
+            navigate("/admin/users");
+        } catch (error) {
+            console.error("Failed to create user:", error);
+            dispatch(addToast({ type: "error", message: "Failed to create user. Please try again." }));
+        }
     };
 
     const handleImageUpload = (e) => {
@@ -58,31 +117,36 @@ const AddUserPage = () => {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                     {/* LEFT – FORM */}
                     <div className="md:col-span-2 space-y-2">
-                        <Input label="Firstname*" name="firstName" value={form.firstName} onChange={handleChange} layout="row" />
-                        <Input label="Lastname*" name="lastName" value={form.lastName} onChange={handleChange} layout="row" />
-                        <Input label="Email*" name="email" value={form.email} onChange={handleChange} layout="row" />
-                        <Input label="Phone no*" name="phone" value={form.phone} onChange={handleChange} layout="row" />
-                        <Input label="Program code*" name="programCode" value={form.programCode} onChange={handleChange} layout="row" />
+                        <Input label="Firstname*" name="first_name" value={form.first_name} onChange={handleChange} layout="row" error={errors.first_name} />
+                        
+                        <Input label="Lastname*" name="last_name" value={form.last_name} onChange={handleChange} layout="row" error={errors.last_name} />
+                        
+                        <Input label="Email*" name="email_id" value={form.email_id} onChange={handleChange} layout="row" error={errors.email_id} />
+                        
+                        <Input label="Mobile no*" name="mobile_number" value={form.mobile_number} onChange={handleChange} layout="row" error={errors.mobile_number} />
+                        
+                        <Input label="Program code*" name="programCode" value={form.programCode} onChange={handleChange} layout="row" error={errors.programCode} />
 
-                        {/* country */}
                         <Select
                             label="Country*"
                             name="country"
                             value={form.country}
                             onChange={handleChange}
                             layout="row"
+                            error={errors.country}
                             options={[
                                 { label: "India", value: "India" },
                                 { label: "USA", value: "USA" },
                             ]}
                         />
-                        {/* state */}
+                        
                         <Select
                             label="State*"
                             name="state"
                             value={form.state}
                             onChange={handleChange}
                             layout="row"
+                            error={errors.state}
                             options={[
                                 { label: "Tamil Nadu", value: "Tamil Nadu" },
                                 { label: "Karnataka", value: "Karnataka" },
@@ -96,6 +160,7 @@ const AddUserPage = () => {
                             value={form.password}
                             onChange={handleChange}
                             layout="row"
+                            error={errors.password}
                         />
 
                         <Input
@@ -105,6 +170,7 @@ const AddUserPage = () => {
                             value={form.confirmPassword}
                             onChange={handleChange}
                             layout="row"
+                            error={errors.confirmPassword}
                         />
 
                         {/* Checkbox */}

@@ -1,65 +1,61 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Pencil, Trash2 } from "lucide-react";
 import CreateRoleModal from "@/components/admin/roles/CreateRoleModal";
 import AssignAdminModal from "@/components/admin/roles/AssignAdminModal";
 import UnassignConfirmModal from "@/components/admin/roles/UnassignConfirmModal";
-
-/* ------------------ DUMMY ROLES DATA ------------------ */
-const ROLES = [
-  {
-    id: "super_admin",
-    name: "Super Admin",
-    admins: [
-      { id: 1, name: "Ratheesh", email: "ratheesh@pickzy.com" }
-    ]
-  },
-  {
-    id: "program_fp",
-    name: "Program FP",
-    admins: [
-      { id: 2, name: "Test1", email: "test@pickzy.com" }
-    ]
-  },
-  {
-    id: "planning_fp",
-    name: "Planning FP",
-    admins: []
-  },
-  {
-    id: "support_team",
-    name: "Support Team",
-    admins: [
-      { id: 3, name: "Support User", email: "support@pickzy.com" }
-    ]
-  }
-];
-/* ----------------------------------------------------- */
+import Admins from "@/components/admin/roles/tabs/Admins";
+import Privileges from "@/components/admin/roles/tabs/Privileges";
+import { useDispatch,useSelector } from "react-redux";
+import { setActiveRole } from "@/features/roles/roleSlice";
+import { createRole,unassignAdminsFromRole,assignAdminsToRole} from "@/features/roles/roleThunk";
+import { addToast } from "@/features/toast/toastSlice";
 
 const Roles = () => {
-  const [roles] = useState(ROLES);
-  const [activeRole, setActiveRole] = useState(ROLES[0]);
+
+
+  const dispatch = useDispatch();
+  const {roles, activeRole} = useSelector((state) => state.roles);
+
+  const [SystemRoles, setSystemRoles] = useState([]);
+  const [CustomRoles, setCustomRoles] = useState([]);
+
   const [activeTab, setActiveTab] = useState("admins");
   const [showCreate, setShowCreate] = useState(false);
   const [showAssign, setShowAssign] = useState(false);
   const [showUnassign, setShowUnassign] = useState(false);
+  const [selectedAdmins, setSelectedAdmins] = useState([]);
+
+  
+useEffect(() => {
+    const systemRoles = roles?.filter(role => role.is_default) || [];
+    const customRoles = roles?.filter(role => !role.is_default) || [];
+    setSystemRoles(systemRoles);
+    setCustomRoles(customRoles);
+  }, [roles]);
+
+  const user=useSelector((state) => state.auth.user);
 
 
-  const createrole = (roleData) => {
-    console.log("Creating new role:", roleData);
+
+  const createrole = async (roleData) => {
+    const roleWithCreator = { ...roleData, created_by: user._id };
+    dispatch(createRole(roleWithCreator));
+    dispatch(addToast({ type: "success", message: "Role created successfully" }));
     setShowCreate(false);
-    // API call to create role
   };
 
-  const assignAdmin = (admins) => {
-    console.log("Assigning admins: ", admins, "to role", activeRole.name);
+  const assignAdmin = (selectedUserIds) => {
+    console.log("Selected user IDs to assign:", selectedUserIds);
+    dispatch(assignAdminsToRole({ roleId: activeRole._id, users: selectedUserIds }));
     setShowAssign(false);
-    // API call to assign admins to role
+     
   };
 
-  const unassignAdmin = (emails) => {
-    console.log("Unassigning admin from:", emails);
+  const unassignAdmin = () => {
+    console.log("Selected admin IDs to unassign:", selectedAdmins);
     setShowUnassign(false);
-    // API call to unassign admin from role
+    dispatch(unassignAdminsFromRole({ roleId: activeRole._id, users: selectedAdmins }));
+    
   };
 
 
@@ -78,12 +74,44 @@ const Roles = () => {
           </button>
 
           <ul className="text-sm">
-            {roles.map(role => (
+
+            {/* SYSTEM ROLES */}
+                <li
+                className={`px-3 py-2 cursor-pointer bg-gray-200 font-semibold text-gray-700
+                    : "hover:bg-gray-100"
+                  }`}
+              >
+                System Roles
+               </li>
+        
+            {SystemRoles.map(role => (
               <li
-                key={role.id}
-                onClick={() => setActiveRole(role)}
-                className={`px-3 py-2 cursor-pointer ${activeRole.id === role.id
-                    ? "bg-gray-100 font-medium"
+                key={role._id}
+                onClick={() => dispatch(setActiveRole(role))}
+                className={`px-3 py-2 cursor-pointer ${activeRole?._id === role._id
+                    ? "bg-blue-100 "
+                    : "hover:bg-gray-100"
+                  }`}
+              >
+                {role.name}
+              </li>
+            ))}
+
+            {/* User ROLES */}
+                <li
+                className={`px-3 py-2 cursor-pointer bg-gray-200 font-semibold text-gray-700
+                    : "hover:bg-gray-100"
+                  }`}
+              >
+               User Created Roles
+               </li>
+       
+            {CustomRoles.map(role => (
+              <li
+                key={role._id}
+                onClick={() => dispatch(setActiveRole(role))}
+                className={`px-3 py-2 cursor-pointer ${activeRole?._id === role._id
+                    ? "bg-blue-100"
                     : "hover:bg-gray-100"
                   }`}
               >
@@ -108,11 +136,12 @@ const Roles = () => {
           </div>
 
           {/* TABS */}
-          <div className="flex gap-2 mb-4">
+           <div className="border-b border-gray-300 mb-6">
+         <div className="flex ">
             <button
               onClick={() => setActiveTab("admins")}
-              className={`px-4 py-1 text-sm rounded ${activeTab === "admins"
-                  ? "bg-gray-200 font-medium"
+              className={`px-8 py-1 bg-gray-300 text-primary border border-gray-300 border-b-white rounded-t-sm ${activeTab === "admins"
+                  ? "bg-white"
                   : "border"
                 }`}
             >
@@ -121,14 +150,17 @@ const Roles = () => {
 
             <button
               onClick={() => setActiveTab("privileges")}
-              className={`px-4 py-1 text-sm rounded ${activeTab === "privileges"
-                  ? "bg-gray-200 font-medium"
+              className={`px-8 py-1 bg-gray-300 text-primary border border-gray-300 border-b-white rounded-t-sm ${activeTab === "privileges"
+                  ? "bg-white"
                   : "border"
                 }`}
             >
               Privileges
             </button>
           </div>
+          </div>
+
+        
 
           {/* ACTION BUTTONS */}
           {activeTab === "admins" && (
@@ -136,60 +168,33 @@ const Roles = () => {
               <button className="border rounded px-3 py-1 text-sm" onClick={() => setShowAssign(true)}>
                 Assign Admins
               </button>
-              <button className="border rounded px-3 py-1 text-sm" onClick={() => setShowUnassign(true)}>
+              <button 
+                className={`border rounded px-3 py-1 text-sm ${
+                  selectedAdmins.length === 0 
+                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                    : 'hover:bg-gray-50'
+                }`}
+                disabled={selectedAdmins.length === 0}
+                onClick={() => setShowUnassign(true)}
+              >
                 UnAssign Admins
               </button>
             </div>
           )}
 
           {/* ADMINS TABLE */}
-          {activeTab === "admins" && (
-            <div className="border rounded">
-              <table className="w-full text-sm">
-                <thead className="bg-gray-100">
-                  <tr>
-                    <th className="p-2 w-10">
-                      <input type="checkbox" />
-                    </th>
-                    <th className="text-left p-2">Name</th>
-                    <th className="text-left p-2">Email id</th>
-                  </tr>
-                </thead>
-
-                <tbody>
-                  {activeRole.admins.length === 0 ? (
-                    <tr>
-                      <td
-                        colSpan="3"
-                        className="p-4 text-center text-gray-400"
-                      >
-                        No admins assigned
-                      </td>
-                    </tr>
-                  ) : (
-                    activeRole.admins.map(admin => (
-                      <tr key={admin.id} className="border-t">
-                        <td className="p-2 text-center">
-                          <input type="checkbox" />
-                        </td>
-                        <td className="p-2">{admin.name}</td>
-                        <td className="p-2">{admin.email}</td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
+          {activeTab === "admins" && activeRole && (
+            <Admins onSelectionChange={setSelectedAdmins} />
           )}
 
           {/* PRIVILEGES TAB */}
           {activeTab === "privileges" && (
-            <div className="border rounded p-4 text-sm text-gray-500">
-              Privileges UI will be shown here (dummy content)
-            </div>
+            <Privileges/>
           )}
         </div>
       </div>
+
+
 
 
 
@@ -203,14 +208,13 @@ const Roles = () => {
         open={showAssign}
         onClose={() => setShowAssign(false)}
         onAssign={assignAdmin}
-        availableEmails={ROLES.flatMap(role => role.admins)}
       />
 
       <UnassignConfirmModal
         open={showUnassign}
         onCancel={() => setShowUnassign(false)}
         onConfirm={unassignAdmin}
-        availableEmails={activeRole.admins}
+        
       />
     </div>
   );

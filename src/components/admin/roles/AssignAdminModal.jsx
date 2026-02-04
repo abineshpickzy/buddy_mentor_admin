@@ -1,29 +1,61 @@
-import React, { useState } from "react";
-import { X } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { X, Search } from "lucide-react";
+import { useSelector } from "react-redux";
 
-const AssignAdminModal = ({ open, onClose, onAssign, availableEmails = [] }) => {
-  const [selectedEmails, setSelectedEmails] = useState([]);
+const AssignAdminModal = ({ open, onClose, onAssign }) => {
+  const [selectedUsers, setSelectedUsers] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [availableUsers, setAvailableUsers] = useState([]);
+  
+  const { users } = useSelector((state) => state.users);
+  const { activeRole } = useSelector((state) => state.roles);
+
+  useEffect(() => {
+    if (users && activeRole) {
+      // Filter out users who already have this role
+      const unassignedUsers = users.filter(user => 
+        !activeRole.users.includes(user._id)
+      );
+      setAvailableUsers(unassignedUsers);
+    }
+  }, [users, activeRole]);
 
   if (!open) return null;
 
-  const handleEmailToggle = (email) => {
-    setSelectedEmails(prev => 
-      prev.includes(email) 
-        ? prev.filter(e => e !== email)
-        : [...prev, email]
+  const filteredUsers = availableUsers.filter(user => {
+    const searchLower = searchTerm.toLowerCase();
+    return (
+      user.first_name?.toLowerCase().includes(searchLower) ||
+      user.last_name?.toLowerCase().includes(searchLower) ||
+      user.email_id?.toLowerCase().includes(searchLower)
+    );
+  });
+
+  const handleUserToggle = (userId) => {
+    setSelectedUsers(prev => 
+      prev.includes(userId) 
+        ? prev.filter(id => id !== userId)
+        : [...prev, userId]
     );
   };
 
   const handleAssign = () => {
-    if (selectedEmails.length === 0) return;
-    onAssign(selectedEmails);
-    setSelectedEmails([]);
+    if (selectedUsers.length === 0) return;
+    console.log("Selected user IDs to assign:", selectedUsers);
+    onAssign(selectedUsers);
+    setSelectedUsers([]);
+    setSearchTerm("");
+  };
+
+  const handleClose = () => {
+    setSelectedUsers([]);
+    setSearchTerm("");
     onClose();
   };
 
   return (
     <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
-      <div className="bg-white w-[420px] rounded shadow-lg p-5 relative">
+      <div className="bg-white w-[480px] rounded shadow-lg p-5 relative">
 
         {/* Header */}
         <div className="flex justify-between items-center mb-4">
@@ -33,8 +65,22 @@ const AssignAdminModal = ({ open, onClose, onAssign, availableEmails = [] }) => 
           <X
             size={18}
             className="cursor-pointer text-gray-500"
-            onClick={onClose}
+            onClick={handleClose}
           />
+        </div>
+
+        {/* Search */}
+        <div className="mb-4">
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="Search users..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full border rounded px-3 py-2 pl-10 text-sm"
+            />
+            <Search size={16} className="absolute left-3 top-2.5 text-gray-400" />
+          </div>
         </div>
 
         {/* Body */}
@@ -43,23 +89,25 @@ const AssignAdminModal = ({ open, onClose, onAssign, availableEmails = [] }) => 
             Select admin(s) to assign to this role:
           </p>
 
-          {availableEmails.length === 0 ? (
+          {filteredUsers.length === 0 ? (
             <p className="text-sm text-gray-400 text-center py-4">
-              No available admins to assign
+              {searchTerm ? "No users found matching search" : "No available users to assign"}
             </p>
           ) : (
-            <div className="max-h-48 overflow-y-auto border rounded p-2">
-              {availableEmails.map((admin) => (
-                <label key={admin.id} className="flex items-center gap-2 p-2 hover:bg-gray-50 cursor-pointer">
+            <div className="max-h-64 overflow-y-auto border rounded p-2">
+              {filteredUsers.map((user) => (
+                <label key={user._id} className="flex items-center gap-2 p-2 hover:bg-gray-50 cursor-pointer">
                   <input
                     type="checkbox"
-                    checked={selectedEmails.includes(admin.email)}
-                    onChange={() => handleEmailToggle(admin.email)}
+                    checked={selectedUsers.includes(user._id)}
+                    onChange={() => handleUserToggle(user._id)}
                     className="rounded"
                   />
                   <div className="flex-1">
-                    <div className="text-sm font-medium">{admin.name}</div>
-                    <div className="text-xs text-gray-500">{admin.email}</div>
+                    <div className="text-sm font-medium">
+                      {user.first_name} {user.last_name}
+                    </div>
+                    <div className="text-xs text-gray-500">{user.email_id}</div>
                   </div>
                 </label>
               ))}
@@ -70,17 +118,17 @@ const AssignAdminModal = ({ open, onClose, onAssign, availableEmails = [] }) => 
         {/* Footer */}
         <div className="flex justify-end gap-3">
           <button
-            onClick={onClose}
+            onClick={handleClose}
             className="border px-4 py-2 text-sm rounded"
           >
             Cancel
           </button>
           <button
             onClick={handleAssign}
-            disabled={selectedEmails.length === 0}
+            disabled={selectedUsers.length === 0}
             className="bg-blue-600 text-white px-4 py-2 text-sm rounded disabled:bg-gray-300 disabled:cursor-not-allowed"
           >
-            Assign ({selectedEmails.length})
+            Assign ({selectedUsers.length})
           </button>
         </div>
       </div>

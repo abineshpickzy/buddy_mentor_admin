@@ -43,20 +43,20 @@ const MenuItem = ({ label, node, openPaths, setOpenPaths, path = '', isRoot = fa
     <div className="relative">
       <div
         className={`flex items-center justify-between px-4 py-2 mb-2 
-        border border-gray-200 rounded cursor-pointer transition-colors
+        border-2 border-blue-100 rounded cursor-pointer transition-colors
         ${isOpen ? 'bg-blue-100 border-blue-300' : 'bg-white hover:bg-blue-50 hover:border-blue-300'}`}
         onClick={handleClick}
       >
         <span className="text-sm text-blue-700 font-medium">{label}</span>
         {hasChildren && (
-          isOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />
+          isOpen ? <ChevronDown size={20} className="text-blue-700 " /> : <ChevronRight size={20}  className="text-blue-700"/>
         )}
       </div>
 
       {isOpen && hasChildren && (
         <div
           className={`absolute left-full ml-3 w-[220px]
-          border border-gray-200 rounded bg-white shadow-lg p-2 z-50
+          border-2 border-blue-700 rounded bg-white shadow-lg p-2 z-50
           ${isRoot ? 'top-0' : '-top-2'}`}
         >
           {children.map(child => (

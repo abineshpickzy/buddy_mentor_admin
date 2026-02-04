@@ -16,9 +16,9 @@ const Layout = ({ children, sidebarItems }) => {
     dispatch(closeSidebar());
   };
 
-  if (!isAuthenticated) {
-    return children;
-  }
+  // if (!isAuthenticated) {
+  //   return children;
+  // }
 
   return (
     <div className="h-screen flex flex-col">

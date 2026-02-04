@@ -1,11 +1,15 @@
-import { useState } from "react";
+import { use, useState , useEffect} from "react";
 import { useNavigate } from "react-router-dom";
-import { useDispatch } from 'react-redux';
-// import { login } from '@/features/auth/authSlice';
+import { useDispatch, useSelector } from 'react-redux';
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import Alert from "@/components/ui/Alert";
 import CaptchaBox from "./CaptchaBox";
+import { loginAdmin } from "../../features/auth/authThunk";
+import { addToast } from "@/features/toast/toastSlice";
+import { resetBootstrap } from "@/features/app/appSlice";
+import md5 from "md5";
+import axios from "axios";
 
 const generateCaptcha = () =>
   Math.random().toString(36).substring(2, 8).toUpperCase();
@@ -25,16 +29,37 @@ const LoginForm = () => {
   const [captchaInput, setCaptchaInput] = useState("");
   const [captchaError, setCaptchaError] = useState(false);
 
+
+  const { isAuthenticated } = useSelector((state) => state.auth);
+  const {error} = useSelector((state) => state.auth); 
+  const { loading } = useSelector((state) => state.auth);
+
   //  SHAKE STATE
   const [shake, setShake] = useState(false);
 
-  const handleLogin = () => {
-    const isValidUser = email === "a@a.com" && password === "password";
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/dashboard/overview");
+    }
+  }, [isAuthenticated, navigate]);
 
-    if (!isValidUser) {
+  const handleLogin = async () => {
+    const hashedPassword = md5(password);
+
+    console.log("Dispatching login with:", {email_id: email, password: hashedPassword});
+
+    try {
+      await dispatch(loginAdmin({email_id: email, password: hashedPassword})).unwrap();
+      dispatch(resetBootstrap()); // Reset bootstrap to trigger data fetch
+      dispatch(addToast({ type: "success", message: "Login successful!" }));
+      setAttempts(0);
+      setShowCaptcha(false);
+      setLoginError(false);
+      setCaptchaError(false);
+    } catch (error) {
+      dispatch(addToast({ type: "error", message: "Invalid email or password" }));
       setLoginError(true);
-
-      //  trigger shake
+      
       setShake(true);
       setTimeout(() => setShake(false), 300);
 
@@ -42,16 +67,7 @@ const LoginForm = () => {
       setAttempts(newAttempts);
 
       if (newAttempts >= 3) setShowCaptcha(true);
-      return;
     }
-
-    // success
-    setAttempts(0);
-    setShowCaptcha(false);
-    setLoginError(false);
-    setCaptchaError(false);
-    // dispatch(login({ email }));
-    navigate("/dashboard/overview");
   };
 
   const validateCaptcha = () => {
@@ -71,7 +87,9 @@ const LoginForm = () => {
     return true;
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = (e) => {
+
+    e.preventDefault();
     const validationResult = formValidation();
     if (validationResult) {
       setValidationError(validationResult);
@@ -89,7 +107,7 @@ const LoginForm = () => {
     if (!email.trim()) return "Email is required";
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return "Please enter a valid email address";
     if (!password.trim()) return "Password is required";
-    if (password.length < 6) return "Password must be at least 6 characters";
+    if (password.length < 3) return "Password must be at least 6 characters";
     return null;
   };
 
@@ -113,30 +131,34 @@ const LoginForm = () => {
             Login
           </h2>
 
-          <Input
-            label="Email address"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
+          <form onSubmit={handleSubmit}>
+            <div className="space-y-5">
+              <Input
+                label="Email address"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
 
-          <div className="space-y-1 ">
-            <div className="flex justify-between items-center">
-              <label className="text-sm text-gray-700 font-medium">
-                Password
-              </label>
-              <a href="#" className="text-sm text-blue-600 hover:underline font-medium">
-                Forgot Password
-              </a>
+              <div className="space-y-1 ">
+                <div className="flex justify-between items-center">
+                  <label className="text-sm text-gray-700 font-medium">
+                    Password
+                  </label>
+                  <a href="#" className="text-sm text-blue-600 hover:underline font-medium">
+                    Forgot Password
+                  </a>
+                </div>
+
+                <Input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+              </div>
+
+              <Button type="submit" loading={loading} text="Login"/>
             </div>
-
-            <Input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </div>
-
-          <Button text="Login" onClick={handleSubmit} />
+          </form>
         </div>
       </div>
 
