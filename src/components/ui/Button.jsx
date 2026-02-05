@@ -1,12 +1,12 @@
-const Button = ({ text, onClick, disabled }) => {
+const Button = ({ text, onClick,loading, disabled }) => {
   return (
     <button
       onClick={onClick}
-      disabled={disabled}
+      disabled={disabled || loading}
       className={`w-full py-2 rounded text-white text-sm font-medium
-      ${disabled ? "bg-gray-400" : "bg-gray-700 hover:bg-gray-800"}`}
+      ${disabled || loading ? "bg-gray-400" : "bg-gray-700 hover:bg-gray-800"}`}
     >
-      {text}
+      { loading ? "Logging in..." : text}
     </button>
   );
 };

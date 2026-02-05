@@ -9,6 +9,8 @@ import { useDispatch,useSelector } from "react-redux";
 import { setActiveRole } from "@/features/roles/roleSlice";
 import { createRole,unassignAdminsFromRole,assignAdminsToRole} from "@/features/roles/roleThunk";
 import { addToast } from "@/features/toast/toastSlice";
+import {Can} from "@/permissions";
+import { PERMISSIONS } from "@/permissions/permissions";
 
 const Roles = () => {
 
@@ -69,9 +71,11 @@ useEffect(() => {
             Roles & Permissions
           </h2>
 
-          <button className="w-full border border-gray-300 rounded px-3 py-1 text-sm mb-4" onClick={() => setShowCreate(true)}>
+          <Can  permission={PERMISSIONS.ROLES_CREATE}>
+              <button className="w-full border border-gray-300 rounded px-3 py-1 text-sm mb-4" onClick={() => setShowCreate(true)}>
             + New role
           </button>
+          </Can>
 
           <ul className="text-sm">
 
@@ -129,10 +133,12 @@ useEffect(() => {
             <h2 className="text-lg font-semibold text-gray-700">
               Manage User
             </h2>
-            <div className="flex gap-3">
+             <Can permission={PERMISSIONS.ROLES_EDIT}>
+                <div className="flex gap-3">
               <Pencil size={18} className="text-blue-500 cursor-pointer" />
               <Trash2 size={18} className="text-red-500 cursor-pointer" />
             </div>
+             </Can>
           </div>
 
           {/* TABS */}
@@ -164,6 +170,7 @@ useEffect(() => {
 
           {/* ACTION BUTTONS */}
           {activeTab === "admins" && (
+            <Can permission={PERMISSIONS.ROLES_EDIT}>
             <div className="flex gap-3 mb-4">
               <button className="border rounded px-3 py-1 text-sm" onClick={() => setShowAssign(true)}>
                 Assign Admins
@@ -180,6 +187,7 @@ useEffect(() => {
                 UnAssign Admins
               </button>
             </div>
+            </Can>
           )}
 
           {/* ADMINS TABLE */}

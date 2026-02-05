@@ -3,11 +3,11 @@ import { useSelector, useDispatch } from 'react-redux';
 
 const Admins = ({ onSelectionChange }) => {
     const { activeRole } = useSelector((state) => state.roles);
-    const { users } = useSelector((state) => state.users);
+    // const { users } = useSelector((state) => state.users);
     const [admins, setAdmins] = useState([]);
     const [selectedAdmins, setSelectedAdmins] = useState([]);
     const { user } = useSelector((state) => state.auth);
-    const {roles} = useSelector((state) => state.roles);
+    // const roles = useSelector((state) => state.roles.roles);
 
     useEffect(() => {
         if (activeRole){
@@ -15,7 +15,7 @@ const Admins = ({ onSelectionChange }) => {
             setAdmins(activeRole?.users || []);
             setSelectedAdmins([]);
         }
-    }, [activeRole, roles]);
+    }, [activeRole]); // Remove roles dependency
 
     useEffect(() => {
         onSelectionChange?.(selectedAdmins);
@@ -37,7 +37,7 @@ const Admins = ({ onSelectionChange }) => {
     const isIndeterminate = selectedAdmins.length > 0 && selectedAdmins.length < admins.length;
 
     return (
-        <div className="border rounded">
+        <div className="">
             <table className="w-full text-sm">
                 <thead className="bg-gray-100">
                     <tr>
@@ -65,7 +65,7 @@ const Admins = ({ onSelectionChange }) => {
                         </tr>
                     ) : (
                         admins.map(admin => (
-                            <tr key={admin._id} className="border-t">
+                            <tr key={admin._id} className="">
                                 <td className="p-2 text-center">
                                     <input 
                                        disabled={admin._id==user._id}

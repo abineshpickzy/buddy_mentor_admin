@@ -12,7 +12,7 @@ export const fetchUsers = createAsyncThunk("users/fetchUsers", async (filters = 
     
     const queryString = params.toString();
     const url = queryString ? `/user/view?${queryString}` : '/user/view';
-     console.log("🔥 fetchUsers called");
+     console.log("fetchUsers called with URL:", url);
     const response = await axios.get(url);
     return response.data;
   } catch (error) {

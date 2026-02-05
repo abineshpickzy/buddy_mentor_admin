@@ -23,8 +23,11 @@ axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      store.dispatch(logout());
-      window.location.href = "/";
+      // Only logout and redirect if we're not on the login page
+      if (window.location.pathname !== '/') {
+        store.dispatch(logout());
+        window.location.href = "/";
+      }
     }
     return Promise.reject(error);
   }

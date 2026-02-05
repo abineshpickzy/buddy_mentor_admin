@@ -27,6 +27,17 @@ const roleSlice = createSlice({
         .addCase(fetchRoles.fulfilled, (state, action) => {
           state.isLoading = false;
           state.roles = action.payload.roles;
+          
+          // Update activeRole with fresh data if it exists
+          if (state.activeRole) {
+            const updatedActiveRole = action.payload.roles.find(
+              role => role._id === state.activeRole._id
+            );
+            if (updatedActiveRole) {
+              state.activeRole = updatedActiveRole;
+            }
+          }
+          
           // Set first role as active if none selected
           if (!state.activeRole && action.payload.roles?.length > 0) {
             state.activeRole = action.payload.roles[0];

@@ -7,10 +7,11 @@ export const bootstrapApp = createAsyncThunk(
   "app/bootstrap",
   async (_, { dispatch, getState, rejectWithValue }) => {
     try {
-      console.log(localStorage.getItem("admin_user"));
-      console.log(localStorage.getItem("admin_token"));
-      const { auth } = getState();
+     
+       console.log("Bootstrapping app...");
       
+      const { auth } = getState();
+       console.log("Current auth state:", auth.user);
       // If token exists, validate it in background and fetch data
       if (auth.token) {
         // Fetch multiple data sources

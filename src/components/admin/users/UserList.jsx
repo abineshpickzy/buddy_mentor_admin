@@ -1,19 +1,21 @@
 import React from "react";
 import UserRow from "./UserRow";
 import { useSelector } from "react-redux";
+import {Can} from "@/permissions";
+import { PERMISSIONS } from "@/permissions/permissions";
 
 const UserList = () => {
   const {users} = useSelector((state) => state.users);
   return (
-    <div className="bg-white border rounded overflow-x-auto">
-      <table className="w-full text-sm">
+    <div className="bg-white overflow-x-auto">
+      <table className="w-full border-collapse text-sm">
         
         {/* Table Head */}
         <thead className="bg-gray-200 text-gray-700">
           <tr>
             <th className="p-2">S.no</th>
             <th className="p-2">Profile</th>
-            <th className="p-2">Action</th>
+            <Can permission={PERMISSIONS.USERS_EDIT}><th className="p-2">Action</th></Can>
             <th className="p-2 text-left">First name</th>
             <th className="p-2 text-left">Last name</th>
             <th className="p-2 text-left">Email</th>
@@ -22,7 +24,7 @@ const UserList = () => {
             <th className="p-2">Created</th>
             <th className="p-2">Status</th>
             <th className="p-2">Lock</th>
-            <th className="p-2">Delete</th>
+            <Can permission={PERMISSIONS.USERS_DELETE}><th className="p-2">Delete</th></Can>
           </tr>
         </thead>
 

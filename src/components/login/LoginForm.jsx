@@ -1,4 +1,4 @@
-import { use, useState , useEffect} from "react";
+import {  useState , useEffect} from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from 'react-redux';
 import Input from "@/components/ui/Input";
@@ -54,9 +54,10 @@ const LoginForm = () => {
       dispatch(addToast({ type: "success", message: "Login successful!" }));
       setAttempts(0);
       setShowCaptcha(false);
-      setLoginError(false);
+      setLoginError(false); 
       setCaptchaError(false);
     } catch (error) {
+      console.log("Login error occurred, current email:", email, "password length:", password.length);
       dispatch(addToast({ type: "error", message: "Invalid email or password" }));
       setLoginError(true);
       
@@ -67,6 +68,9 @@ const LoginForm = () => {
       setAttempts(newAttempts);
 
       if (newAttempts >= 3) setShowCaptcha(true);
+      
+      // Don't clear email and password on error
+      console.log("After error handling, email:", email, "password length:", password.length);
     }
   };
 

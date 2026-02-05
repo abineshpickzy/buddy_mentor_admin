@@ -9,16 +9,21 @@ const AssignAdminModal = ({ open, onClose, onAssign }) => {
   
   const { users } = useSelector((state) => state.users);
   const { activeRole } = useSelector((state) => state.roles);
+  const {user} = useSelector((state) => state.auth);
 
-  useEffect(() => {
-    if (users && activeRole) {
-      // Filter out users who already have this role
-      const unassignedUsers = users.filter(user => 
-        !activeRole.users.includes(user._id)
-      );
-      setAvailableUsers(unassignedUsers);
-    }
-  }, [users, activeRole]);
+  
+useEffect(() => {
+  if (!users || !activeRole) return;
+
+  const assignedUserIds = new Set(activeRole.users?.map(u => u._id) || []);
+
+  const unassignedUsers = users.filter(
+    u => u._id !== user._id && !assignedUserIds.has(u._id)
+  );
+
+  setAvailableUsers(unassignedUsers);
+
+}, [users, activeRole, user]);
 
   if (!open) return null;
 

@@ -11,20 +11,6 @@ import axios from "@/api/axios";
 import { useDispatch, useSelector } from "react-redux";
 
 
-//  sample data
-// const userDataFromAPI = {
-//   id: 1,
-//   profile: "https://cdn-icons-png.flaticon.com/512/8847/8847419.png",
-//   firstName: "Ratheesh",
-//   lastName: "TR",
-//   email: "macratheesh@pickzy.com",
-//   adminId: "EC.PM.001",
-//   lastConnection: "10/10/2018",
-//   created: "10/10/2018",
-//   status: "Active"
-// };
-
-
 
 
 const TABS = [
@@ -48,19 +34,6 @@ const EditUserPage = () => {
 
 
   useEffect(() => {
-    // // Fetch user data based on userId
-    // const fetchUserData = async () => {
-    //   try {
-    //     const response = await axios.get(`/user/${userId}/vw`);
-    //     console.log("Fetched user data:", response.data);
-    //     const user = response.data;
-    //     setUser(user.data);
-    //   } catch (error) {
-    //     console.error("Error fetching user data:", error);
-    //   }
-    // };
-
-    // fetchUserData();
 
     const user = users.find((u) => u._id === userId || u.id === userId);
     if (user) {
@@ -98,7 +71,7 @@ const EditUserPage = () => {
         {activeTab === "user" && <UserTab  user={user} onSave={(data) =>{ console.log("updated data", data);  
           setActiveTab("roles");
         }} />}
-        {activeTab === "roles" && <RolesTab  userRoles={[]} onSave={(roles) => console.log("Saved roles:", roles)} />}
+        {activeTab === "roles" && <RolesTab onSave={(roles) => console.log("Saved roles:", roles)} />}
         {activeTab === "locations" && <LocationsTab />}
         {activeTab === "mentoring" && <MentoringTab />}
       </div>

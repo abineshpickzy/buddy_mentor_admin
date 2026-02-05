@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
-
+import { useSelector, useDispatch } from "react-redux";
+import { fetchRoleList } from "@/features/roles/roleThunk";
+import { useParams } from "react-router-dom";
 
 //  sample data
 const ROLES = [
@@ -11,13 +13,28 @@ const ROLES = [
   { id: "tech_fp", label: "Tech FP" },
 ];
 
-const RolesTab = ({ userRoles = [], onSave }) => {
+const RolesTab = ({  onSave }) => {
+  const { userId } = useParams();
+  
   const [selectedRoles, setSelectedRoles] = useState([]);
-
+  
+ const dispatch = useDispatch();
+ const {rolelist,roles} = useSelector((state) => state.roles);
+//  console.log("roles",roles , "rolelist",rolelist);
+   
   // set initial roles from user
+
+   useEffect(() => {
+    if (roles && roles.length > 0) {
+      const initialRoles = roles.filter(role => role.users.map(user => user._id).includes(userId)).map(role => role._id);
+      console.log("Initial roles for user:", initialRoles);
+      setSelectedRoles(initialRoles);
+    }
+  }, [roles]);
+
   useEffect(() => {
-    setSelectedRoles(userRoles);
-  }, [userRoles]);
+    dispatch(fetchRoleList());
+  }, []);
 
   const toggleRole = (roleId) => {
     setSelectedRoles((prev) =>
@@ -35,17 +52,17 @@ const RolesTab = ({ userRoles = [], onSave }) => {
     <div className="p-6">
       {/* Roles list */}
       <div className="space-y-3">
-        {ROLES.map((role) => (
+        {rolelist.map((role) => (
           <label
-            key={role.id}
+            key={role._id}
             className="flex items-center gap-2 text-sm cursor-pointer"
           >
             <input
               type="checkbox"
-              checked={selectedRoles.includes(role.id)}
-              onChange={() => toggleRole(role.id)}
+              checked={selectedRoles.includes(role._id)}
+              onChange={() => toggleRole(role._id)}
             />
-            {role.label}
+            {role.name}
           </label>
         ))}
       </div>

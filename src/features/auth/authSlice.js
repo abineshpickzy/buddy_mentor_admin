@@ -1,11 +1,23 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { loginAdmin, validateToken } from "./authThunk";
+import { bootstrapApp } from "@/features/app/appThunk";
 
 const token = localStorage.getItem("admin_token");
 const userData = localStorage.getItem("admin_user");
 
+
+let parsedUser = null;
+if (userData) {
+  try {
+    parsedUser = JSON.parse(userData);
+    console.log("Parsed user data:", parsedUser);
+  } catch (error) {
+    console.error("Error parsing user data:", error);
+  }
+}
+
 const initialState = {
-  user: userData ? JSON.parse(userData) : null,
+  user: parsedUser,
   token: token || null,
   isAuthenticated: !!token,
   loading: false,

@@ -43,8 +43,10 @@
    
   export const updateRole = createAsyncThunk(
     "roles/updateRole",
-    async (dispatch,{ roleId, roleData }, { rejectWithValue }) => {
+    async ({ roleId, roleData }, { dispatch, rejectWithValue }) => {
+
       try {
+        console.log("Updating role with ID:", roleId, "Data:", roleData);
         const response = await axios.put(`/role/${roleId}/ed`, roleData);
         dispatch(fetchRoles());
         return response.data;

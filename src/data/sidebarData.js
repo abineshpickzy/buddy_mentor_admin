@@ -1,17 +1,18 @@
 import { User, Users, Settings, BookOpen, Shield, Calculator } from "lucide-react";
+import { PERMISSIONS } from "@/permissions/permissions";
 
 export const dashboardSidebarItems = [
-  { label: "Dashboard", icon: BookOpen, link: "/dashboard/overview" },
-  { label: "Mentees", icon: Users, link: "/dashboard/mentees" },
+  { label: "Dashboard", icon: BookOpen, link: "/dashboard/overview" ,},
+  { label: "Mentees", icon: Users, link: "/dashboard/mentees" }, 
   { label: "Profile", icon: User, link: "/dashboard/profile" },
   { label: "Settings", icon: Settings, link: "/dashboard/settings" },
 ];
 
 export const adminSidebarItems = [
-  { label: "Mentoring Category", icon: User, link: "/admin/mentoring-category" },
-  { label: "Roles & Permissions", icon: Shield, link: "/admin/roles-permissions" },
-  { label: "Users", icon: Users, link: "/admin/users" },
-  { label: "Settings", icon: Settings, link: "/admin/settings" },
+  { label: "Mentoring Category", icon: User, link: "/admin/mentoring-category", },
+  { label: "Roles & Permissions", icon: Shield, link: "/admin/roles-permissions", },
+  { label: "Users", icon: Users, link: "/admin/users",},
+  { label: "Settings", icon: Settings, link: "/admin/settings",},
 ];
 
 export const accountFPSidebarItems = [

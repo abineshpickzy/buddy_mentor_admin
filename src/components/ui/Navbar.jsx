@@ -2,11 +2,16 @@ import { Menu, LogOut } from "lucide-react";
 import logo  from "@/assets/logo.png";
 import { NavLink, useLocation } from "react-router-dom";
 import {logout} from "@/features/auth/authSlice";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import {PERMISSIONS} from "@/permissions/permissions";
+import { CanModule } from "@/permissions";
+
 
 const Navbar = ( { onMenuClick } ) => {
   const location = useLocation();  
   const dispatch = useDispatch(); 
+
+  const {user} = useSelector((state) => state.auth);
 
   const isActiveTab = (tabLink) => {
     const basePath = tabLink.split('/').slice(0, 2).join('/');
@@ -14,9 +19,9 @@ const Navbar = ( { onMenuClick } ) => {
   };
 
   const tabs = [
-    { label: "Mentees Dashboard", link: "/dashboard/overview" },
-    { label: "Accounting FP", link: "/account" },
-    { label: "Admin", link: "/admin/mentoring-category" }
+    { label: "Mentees Dashboard", link: "/dashboard/overview", module:"admin" },
+    { label: "Accounting FP", link: "/account" ,module:"admin"},
+    { label: "Admin", link: "/admin/mentoring-category" ,module: "admin"}
   ];
 
   return (
@@ -43,18 +48,19 @@ const Navbar = ( { onMenuClick } ) => {
             {/* Tabs (Desktop) */}
             <nav className=" md:flex gap-2 ml-4">
               {tabs.map((tab) => (
-                <NavLink
-                  to={tab.link}
-                  key={tab.label}
-                  className={`px-4 py-1 rounded text-sm font-medium
-                    ${
-                      isActiveTab(tab.link)
-                        ? "bg-blue-500 text-white"
-                        : "bg-white border"
-                    }`}
-                >
-                  {tab.label}
-                </NavLink>
+                <CanModule key={tab.label} module={tab.module}>
+                  <NavLink
+                    to={tab.link}
+                    className={`px-4 py-1 rounded text-sm font-medium
+                      ${
+                        isActiveTab(tab.link)
+                          ? "bg-blue-500 text-white"
+                          : "bg-white border"
+                      }`}
+                  >
+                    {tab.label}
+                  </NavLink>
+                </CanModule>
               ))}
             </nav>
           </div>
@@ -74,6 +80,7 @@ const Navbar = ( { onMenuClick } ) => {
               alt="profile"
               className="w-8 h-8 rounded-full border"
             />
+            {user?.user_name ||"Admin"}
 
             {/* Logout */}
             <button className=" md:flex items-center gap-1 border px-3 py-1 bg-white text-sm" onClick={() => dispatch(logout())}>

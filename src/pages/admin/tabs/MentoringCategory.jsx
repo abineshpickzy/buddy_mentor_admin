@@ -1,8 +1,14 @@
 import React, { useState } from "react";
 import { NavLink } from "react-router-dom";
+import{Can} from '@/permissions';
+import { PERMISSIONS } from "../../../permissions/permissions";
+import {usePermission} from '@/permissions';
 
 const MentoringCategory = () => {
   const [statusFilter, setStatusFilter] = useState("Open");
+   
+  const editPermission=usePermission(PERMISSIONS.MENTORING_PROGRAM_EDIT);
+  const deletePermission=usePermission(PERMISSIONS.MENTORING_PROGRAM_DELETE);
 
   const categories = [
     { id: 1, name: "EPC", status: "live" },
@@ -17,9 +23,11 @@ const MentoringCategory = () => {
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-semibold">Mentoring Category</h2>
 
-        <NavLink to="/admin/mentoring-category/add" className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md text-sm flex items-center gap-1">
+        <Can permission={PERMISSIONS.MENTORING_PROGRAM_CREATE}>
+           <NavLink to="/admin/mentoring-category/add" className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md text-sm flex items-center gap-1">
           <span className="text-lg leading-none">+</span> New
         </NavLink>
+        </Can>
       </div>
 
       {/* Filter */}
@@ -45,7 +53,7 @@ const MentoringCategory = () => {
               <th className="p-2">Icon</th>
               <th className="p-2">Category name</th>
               <th className="p-2">Status</th>
-              <th className="p-2">Action</th>
+              {(editPermission||deletePermission) && <th className="p-2">Action</th>}
               <th></th>
             </tr>
           </thead>
@@ -62,15 +70,17 @@ const MentoringCategory = () => {
                 <td className="p-2 text-green-600 capitalize">
                   {item.status}
                 </td>
-                <td className="p-2 flex gap-4 text-blue-600">
+                {editPermission && <td className="p-2 flex gap-4 text-blue-600">
                   <button className="hover:underline">edit</button>
                   
                 </td>
-                <td>
+                }
+                 {deletePermission && 
+                 <td>
                     <button className="text-red-500 hover:underline">
                     delete
                   </button>
-                </td>
+                </td>}
               </tr>
             ))}
           </tbody>

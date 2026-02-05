@@ -1,5 +1,6 @@
 import { X } from "lucide-react";
 import { NavLink } from "react-router-dom";
+import { CanModule } from "@/permissions";
 
 const Sidebar = ({ open, onClose, items }) => {
   return (
@@ -16,7 +17,11 @@ const Sidebar = ({ open, onClose, items }) => {
       {/* Sidebar items */}
       <nav className="flex flex-col gap-2 p-4">
         {items.map((item) => (
-          <NavLink
+          <div key={item.label}>
+          
+          {
+            item.module ? (   <CanModule module={item.module}>
+            <NavLink
             key={item.label}
             to={item.link}
             className={({ isActive }) =>
@@ -28,6 +33,23 @@ const Sidebar = ({ open, onClose, items }) => {
             {item.icon && <item.icon size={18} />}
             {item.label}
           </NavLink>
+          </CanModule>) : (   
+            <NavLink
+            key={item.label}
+            to={item.link}
+            className={({ isActive }) =>
+              `flex items-center gap-2 px-3 py-2 text-left text-sm rounded transition-colors ${
+                isActive ? 'bg-blue-500 text-white' : 'hover:bg-gray-100'
+              }`
+            }
+          >
+            {item.icon && <item.icon size={18} />}
+            {item.label}
+          </NavLink>
+        )
+          } 
+         
+          </div>
         ))}
       </nav>
     </div>

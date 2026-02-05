@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { ChevronRight, ChevronDown } from "lucide-react";
 import { useEffect } from 'react';
-import { useSelector,useDispatch } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { updateRole } from "@/features/roles/roleThunk";
-
+import { addToast } from "@/features/toast/toastSlice";
+import {Can} from "@/permissions";
+import { PERMISSIONS } from "@/permissions/permissions";
 /* ------------------ DATA (UNCHANGED) ------------------ */
 
 
@@ -277,7 +279,7 @@ const savePrivileges = () => {
     description:activeRole.description,
     modified_by:user?._id,
     privileges:result}}));
-  alert(`Privileges saved! Data: ${JSON.stringify(result, null, 2)}`);
+   dispatch(addToast({ type: "success", message: "Privileges saved successfully" }));
 };
 
 
@@ -294,12 +296,14 @@ const savePrivileges = () => {
 
       {isEditable && (
         <div className="mt-6">
-          <button
+           <Can permission={PERMISSIONS.ROLES_EDIT}>
+            <button
             onClick={savePrivileges}
-            className="px-6 py-2 bg-black text-white rounded-md hover:bg-gray-800"
+            className="px-4 py-1 bg-primary text-white text-base font-medium rounded-md hover:bg-primary-50"
           >
-            Save Privileges
+            Save
           </button>
+           </Can>
         </div>
       )}
     </div>

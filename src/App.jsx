@@ -10,44 +10,72 @@ import Dashboard from '@/pages/dashboard/Dashboard';
 import Admin from '@/pages/admin/Admin';
 import AccountFP from './pages/accountfp/AccountFP';
 import ProtectedRoute from './routes/ProtectedRoute'
-import {addToast} from "@/features/toast/toastSlice";
+import FullScreenLoader from '@/components/ui/FullScreenLoader';
 
 function AppContent() {
   const dispatch = useDispatch();
-  const { isBootstrapped, isBootstrapping } = useSelector((state) => state.app);
-  const { isAuthenticated } = useSelector((state) => state.auth);
+  const { isBootstrapped, isBootstrapping } = useSelector(
+    (state) => state.app
+  );
 
   useEffect(() => {
     if (!isBootstrapped && !isBootstrapping) {
       dispatch(bootstrapApp());
     }
-  }, [dispatch]);
+  }, [isBootstrapped, isBootstrapping, dispatch]);
 
   if (isBootstrapping) {
-    return (
-      <div className="p-4 text-gray-500 flex items-center justify-center h-screen">
-        <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-500"></div>
-      </div>
-    );
+    return <FullScreenLoader />;
   }
 
   return (
-    <Router>
+    <>
       <Toast />
       <Routes>
         <Route path="/" element={<Login />} />
-        <Route path="/dashboard/*" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-        <Route path='/admin/*' element={<ProtectedRoute><Admin /></ProtectedRoute>} />
-        <Route path="/account/*" element={<ProtectedRoute><AccountFP /></ProtectedRoute>} />
+        <Route
+          path="/dashboard/*"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/*"
+          element={
+            <ProtectedRoute>
+              <Admin />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/account/*"
+          element={
+            <ProtectedRoute>
+              <AccountFP />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/no-access"
+          element={
+            <div className="p-4 text-gray-500 flex items-center justify-center h-screen">
+              Access Denied
+            </div>
+          }
+        />
       </Routes>
-    </Router>
+    </>
   );
 }
 
 function App() {
   return (
     <Provider store={store}>
-      <AppContent />
+      <Router>
+        <AppContent />
+      </Router>
     </Provider>
   );
 }
