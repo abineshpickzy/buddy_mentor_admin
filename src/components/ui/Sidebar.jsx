@@ -5,7 +5,7 @@ import { CanModule } from "@/permissions";
 const Sidebar = ({ open, onClose, items }) => {
   return (
     <div
-      className={`w-64 bg-white shadow-lg border-r transition-all duration-300 fixed top-16 left-0 h-[calc(100vh-4rem)] overflow-y-auto z-40 ${open ? 'block' : 'hidden'}`}
+      className={`w-64 bg-white shadow-md border-r border-gray-200  transition-all duration-300  fixed top-18 left-0 h-[calc(100vh-4rem)] overflow-y-auto z-40 ${open ? 'block' : 'hidden'}`}
     >
       {/* Close button for mobile */}
       <div className="flex justify-end p-4 md:hidden">
@@ -20,7 +20,8 @@ const Sidebar = ({ open, onClose, items }) => {
           <div key={item.label}>
           
           {
-            item.module ? (   <CanModule module={item.module}>
+            item.module ? (  
+            <CanModule module={item.module}>
             <NavLink
             key={item.label}
             to={item.link}

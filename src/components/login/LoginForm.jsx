@@ -1,41 +1,31 @@
-import {  useState , useEffect} from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch, useSelector } from "react-redux";
+import ReCAPTCHA from "react-google-recaptcha";
+import md5 from "md5";
+
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
-import Alert from "@/components/ui/Alert";
-import CaptchaBox from "./CaptchaBox";
-import { loginAdmin } from "../../features/auth/authThunk";
+
+import { loginAdmin } from "@/features/auth/authThunk";
 import { addToast } from "@/features/toast/toastSlice";
 import { resetBootstrap } from "@/features/app/appSlice";
-import md5 from "md5";
-import axios from "axios";
 
-const generateCaptcha = () =>
-  Math.random().toString(36).substring(2, 8).toUpperCase();
+const SITE_KEY = "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI";
 
 const LoginForm = () => {
-  const navigate = useNavigate();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const recaptchaRef = useRef(null);
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [captchaToken, setCaptchaToken] = useState("");
 
-  const [attempts, setAttempts] = useState(0);
-  const [showCaptcha, setShowCaptcha] = useState(false);
-  const [loginError, setLoginError] = useState(false);
-  const [validationError, setValidationError] = useState("");
-
-  const [captcha, setCaptcha] = useState(generateCaptcha());
-  const [captchaInput, setCaptchaInput] = useState("");
-  const [captchaError, setCaptchaError] = useState(false);
-
-
-  const { isAuthenticated } = useSelector((state) => state.auth);
-  const {error} = useSelector((state) => state.auth); 
-  const { loading } = useSelector((state) => state.auth);
-
-  //  SHAKE STATE
   const [shake, setShake] = useState(false);
+
+  const { isAuthenticated, loading, captchaRequired, error } =
+    useSelector((state) => state.auth);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -43,140 +33,90 @@ const LoginForm = () => {
     }
   }, [isAuthenticated, navigate]);
 
-  const handleLogin = async () => {
-    const hashedPassword = md5(password);
-
-    console.log("Dispatching login with:", {email_id: email, password: hashedPassword});
-
-    try {
-      await dispatch(loginAdmin({email_id: email, password: hashedPassword})).unwrap();
-      dispatch(resetBootstrap()); // Reset bootstrap to trigger data fetch
-      dispatch(addToast({ type: "success", message: "Login successful!" }));
-      setAttempts(0);
-      setShowCaptcha(false);
-      setLoginError(false); 
-      setCaptchaError(false);
-    } catch (error) {
-      console.log("Login error occurred, current email:", email, "password length:", password.length);
-      dispatch(addToast({ type: "error", message: "Invalid email or password" }));
-      setLoginError(true);
-      
-      setShake(true);
-      setTimeout(() => setShake(false), 300);
-
-      const newAttempts = attempts + 1;
-      setAttempts(newAttempts);
-
-      if (newAttempts >= 3) setShowCaptcha(true);
-      
-      // Don't clear email and password on error
-      console.log("After error handling, email:", email, "password length:", password.length);
-    }
-  };
-
-  const validateCaptcha = () => {
-    if (captchaInput !== captcha) {
-      setCaptchaError(true);
-
-      //  shake on captcha failure
-      setShake(true);
-      setTimeout(() => setShake(false), 300);
-
-      setCaptcha(generateCaptcha());
-      setCaptchaInput("");
-      return false;
-    }
-
-    setCaptchaError(false);
-    return true;
-  };
-
-  const handleSubmit = (e) => {
-
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const validationResult = formValidation();
-    if (validationResult) {
-      setValidationError(validationResult);
-      setShake(true);
-      setTimeout(() => setShake(false), 300);
+
+    // Basic validation → toast
+    if (!email || !password) {
+       setShake(true);
+       setTimeout(() => setShake(false), 300);
+      dispatch(
+        addToast({ type: "error", message: "Email and password are required" })
+      );
       return;
     }
-    
-    setValidationError("");
-    if (showCaptcha && !validateCaptcha()) return;
-    handleLogin();
-  };
 
-  const formValidation = () => {
-    if (!email.trim()) return "Email is required";
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return "Please enter a valid email address";
-    if (!password.trim()) return "Password is required";
-    if (password.length < 3) return "Password must be at least 6 characters";
-    return null;
+    if (captchaRequired && !captchaToken) {
+       setShake(true);
+       setTimeout(() => setShake(false), 300);
+      dispatch(
+        addToast({ type: "error", message: "Please complete the captcha" })
+      );
+      return;
+    }
+
+    try {
+      await dispatch(
+        loginAdmin({
+          email_id: email,
+          password: md5(password),
+          captchaToken: captchaRequired ? captchaToken : "",
+        })
+      ).unwrap();
+
+      dispatch(resetBootstrap());
+      dispatch(addToast({ type: "success", message: "Login successful" }));
+    } catch (err) {
+      // backend error → toast
+      dispatch(
+        addToast({
+          type: "error",
+          message: err?.message || "Login failed",
+        })
+      );
+       setShake(true);
+       setTimeout(() => setShake(false), 300);
+
+
+      // reset captcha on failure
+      recaptchaRef.current?.reset();
+      setCaptchaToken("");
+    }
   };
 
   return (
-    <div className="flex flex-col md:flex-row items-center md:items-start justify-center gap-6 md:gap-12 w-full max-w-5xl px-4">
+<div
+  className={`w-full max-w-md border bg-white shadow-md p-8
+    ${shake ? "animate-shake" : ""}`}
+>
+      <h2 className="text-xl font-semibold text-center mb-4">Login</h2>
 
-      {/* LOGIN CARD */}
-      <div
-        className={`w-full max-w-md border bg-white shadow-md
-        ${shake ? "animate-shake" : ""}`}
-      >
-        <div className="p-8 space-y-5">
-          {validationError && (
-            <Alert text={validationError} />
-          )}
-          {loginError && !showCaptcha && !validationError && (
-            <Alert text="Invalid user name or password" />
-          )}
+      <form onSubmit={handleSubmit} className="space-y-5">
+        <Input
+          label="Email address"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
 
-          <h2 className="text-center text-xl font-semibold">
-            Login
-          </h2>
+        <Input
+          label="Password"
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
 
-          <form onSubmit={handleSubmit}>
-            <div className="space-y-5">
-              <Input
-                label="Email address"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
+        {captchaRequired && (
+          <div className="flex justify-center">
+            <ReCAPTCHA
+              ref={recaptchaRef}
+              sitekey={SITE_KEY}
+              onChange={(token) => setCaptchaToken(token)}
+            />
+          </div>
+        )}
 
-              <div className="space-y-1 ">
-                <div className="flex justify-between items-center">
-                  <label className="text-sm text-gray-700 font-medium">
-                    Password
-                  </label>
-                  <a href="#" className="text-sm text-blue-600 hover:underline font-medium">
-                    Forgot Password
-                  </a>
-                </div>
-
-                <Input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-              </div>
-
-              <Button type="submit" loading={loading} text="Login"/>
-            </div>
-          </form>
-        </div>
-      </div>
-
-      {/* CAPTCHA */}
-      {showCaptcha && (
-        <div className="w-full max-w-md md:mt-6">
-          <CaptchaBox
-            captcha={captcha}
-            captchaInput={captchaInput}
-            setCaptchaInput={setCaptchaInput}
-            captchaError={captchaError}
-          />
-        </div>
-      )}
+        <Button type="submit" loading={loading} text="Login" />
+      </form>
     </div>
   );
 };

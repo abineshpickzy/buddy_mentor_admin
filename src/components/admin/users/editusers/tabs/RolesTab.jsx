@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { fetchRoleList } from "@/features/roles/roleThunk";
+import { fetchRoleList, fetchRoles } from "@/features/roles/roleThunk";
+import { editUser } from "@/features/users/userThunk";
 import { useParams } from "react-router-dom";
+import { addToast } from "@/features/toast/toastSlice";
 
 //  sample data
 const ROLES = [
@@ -13,29 +15,22 @@ const ROLES = [
   { id: "tech_fp", label: "Tech FP" },
 ];
 
-const RolesTab = ({  onSave }) => {
+const RolesTab = ({user,  onSave }) => {
   const { userId } = useParams();
   
   const [selectedRoles, setSelectedRoles] = useState([]);
   
+ const { users } = useSelector((state) => state.users);
+  
  const dispatch = useDispatch();
  const {rolelist,roles} = useSelector((state) => state.roles);
-//  console.log("roles",roles , "rolelist",rolelist);
+  
+ useEffect(()=>{
+     const filtered = rolelist.filter((r)=>user?.roles.includes(r._id));
+     setSelectedRoles(filtered.map(r=>r._id))
+ },[user])
+
    
-  // set initial roles from user
-
-   useEffect(() => {
-    if (roles && roles.length > 0) {
-      const initialRoles = roles.filter(role => role.users.map(user => user._id).includes(userId)).map(role => role._id);
-      console.log("Initial roles for user:", initialRoles);
-      setSelectedRoles(initialRoles);
-    }
-  }, [roles]);
-
-  useEffect(() => {
-    dispatch(fetchRoleList());
-  }, []);
-
   const toggleRole = (roleId) => {
     setSelectedRoles((prev) =>
       prev.includes(roleId)
@@ -44,8 +39,15 @@ const RolesTab = ({  onSave }) => {
     );
   };
 
-  const handleSave = () => {
-    onSave(selectedRoles);
+  const handleSave = async () => {
+    try {
+      await dispatch(editUser({ userId: userId, userData: { roles: selectedRoles } })).unwrap();
+      await dispatch(fetchRoles()).unwrap();
+      dispatch(addToast({ type: "success", message: "User assigned roles successfully!" }));
+      onSave(selectedRoles);
+    } catch (error) {
+      dispatch(addToast({ type: "error", message: "Failed to update roles" }));
+    }
   };
 
   return (
@@ -70,7 +72,7 @@ const RolesTab = ({  onSave }) => {
       {/* Save button */}
       <button
         onClick={handleSave}
-        className="mt-8 px-6 py-2 bg-gray-400 text-white rounded"
+        className="mt-8 px-6 py-2 bg-blue-500 hover:bg-blue-600    text-white rounded"
       >
         Save
       </button>

@@ -1,7 +1,7 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { fetchUsers } from "@/features/users/userThunk";
-import { fetchRoles,defaultPrivilegesStructure } from "@/features/roles/roleThunk";
-import { validateToken } from "@/features/auth/authThunk";
+import { fetchRoles,fetchRoleList,defaultPrivilegesStructure } from "@/features/roles/roleThunk";
+// import { validateToken } from "@/features/auth/authThunk";
 
 export const bootstrapApp = createAsyncThunk(
   "app/bootstrap",
@@ -19,8 +19,8 @@ export const bootstrapApp = createAsyncThunk(
          
           dispatch(fetchUsers()).unwrap(),
           dispatch(fetchRoles()).unwrap(),
+          dispatch(fetchRoleList()).unwrap(),
           dispatch(defaultPrivilegesStructure()).unwrap(),
-         
         ]);
       }
       

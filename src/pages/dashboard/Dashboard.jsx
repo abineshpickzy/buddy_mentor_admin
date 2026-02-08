@@ -43,7 +43,6 @@ const Dashboard = () => {
       <Route path="basis" element={<Basis />} />
       <Route path="program" element={<Program/>} />
       <Route path="settings" element={<Settings/>} />
-
     </Route>
       </Routes>
     </Layout>

@@ -27,7 +27,7 @@ const UserRow = ({ user, index }) => {
 
       {/* Action */}
        <Can permission={PERMISSIONS.USERS_EDIT}>
-        <td className="p-2"  onClick={() => navigate(`/admin/users/${user._id || user.id}`)}>
+        <td className="p-2"  onClick={() => navigate(`/admin/users/${user._id || user.id}/edit`)}>
         <div className="flex justify-center" >
           <Edit size={16} className="text-blue-500 cursor-pointer" />
         </div>

@@ -1,27 +1,17 @@
+// features/auth/authSlice.js
 import { createSlice } from "@reduxjs/toolkit";
-import { loginAdmin, validateToken } from "./authThunk";
-import { bootstrapApp } from "@/features/app/appThunk";
+import { loginAdmin } from "./authThunk";
 
 const token = localStorage.getItem("admin_token");
 const userData = localStorage.getItem("admin_user");
 
-
-let parsedUser = null;
-if (userData) {
-  try {
-    parsedUser = JSON.parse(userData);
-    console.log("Parsed user data:", parsedUser);
-  } catch (error) {
-    console.error("Error parsing user data:", error);
-  }
-}
-
 const initialState = {
-  user: parsedUser,
+  user: userData ? JSON.parse(userData) : null,
   token: token || null,
   isAuthenticated: !!token,
   loading: false,
   error: null,
+  captchaRequired: false, 
 };
 
 const authSlice = createSlice({
@@ -31,14 +21,15 @@ const authSlice = createSlice({
     logout(state) {
       state.user = null;
       state.token = null;
-      state.isAuthenticated = false;
       localStorage.removeItem("admin_token");
       localStorage.removeItem("admin_user");
+      state.isAuthenticated = false;
+      state.captchaRequired = false;
+      localStorage.clear();
     },
   },
   extraReducers: (builder) => {
     builder
-      // Login cases
       .addCase(loginAdmin.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -48,23 +39,15 @@ const authSlice = createSlice({
         state.user = action.payload.data;
         state.token = action.payload.data.auth_token;
         state.isAuthenticated = true;
+        state.captchaRequired = false; 
       })
       .addCase(loginAdmin.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload;
-        state.isAuthenticated = false;
-      })
-      // Token validation cases
-      .addCase(validateToken.fulfilled, (state, action) => {
-        state.isAuthenticated = true;
-        state.user = action.payload.user || state.user;
-      })
-      .addCase(validateToken.rejected, (state) => {
-        state.isAuthenticated = false;
-        state.token = null;
-        state.user = null;
-        localStorage.removeItem("admin_token");
-        localStorage.removeItem("admin_user");
+        state.error = action.payload?.message || "Login failed";
+ 
+        if (action.payload?.captchaRequired === true) {
+          state.captchaRequired = true;
+        }
       });
   },
 });

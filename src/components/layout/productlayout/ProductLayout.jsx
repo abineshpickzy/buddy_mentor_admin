@@ -13,14 +13,14 @@ const ProductLayout = () => {
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
       {/* Tabs */}
-      <div className="border-b border-gray-300 mb-6">
-        <div className="flex gap-1">
+      <div className=" mb-6">
+        <div className="flex">
           {TABS.map(tab => (
             <NavLink
               key={tab.key}
               to={`/dashboard/${productId}/${tab.key}`}
               className={({ isActive }) =>
-                `px-8 py-1 border border-gray-300 border-b-white rounded-t-md font-medium
+                `px-8 py-1 text-primary border border-gray-300 border-b-white rounded-t-sm
                  ${isActive ? "bg-white text-primary" : "bg-gray-200"}`
               }
             >

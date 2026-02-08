@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useParams,NavLink } from "react-router-dom";
 import { useEffect, useState } from "react";
 
 
@@ -42,23 +42,23 @@ const EditUserPage = () => {
       console.warn("User not found in Redux store for ID:", userId);
     }
       
-  },[userId,dispatch]);
+  },[userId,dispatch,users]);
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
       {/* Breadcrumb */}
       <h2 className="text-sm text-gray-500 mb-3">
-        Users &gt; {}{user ? `${user.user_name}` : "Loading..."} &gt; Edit
+        <NavLink to="/admin/users" className="text-primary hover:underline p-2">Users</NavLink > &gt; {}{user ? `${user.user_name}` : "Loading..."} &gt; Edit
       </h2>
 
       {/* Tabs */}
-      <div className="border-b border-gray-300 mb-6">
-        <div className="flex gap-1">
+      <div className="mb-6">
+        <div className="flex">
           {TABS.map((tab) => (
             <button
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
-             className={`px-8 py-1 text-primary border border-gray-300 border-b-white rounded-t-md ${activeTab === tab.key ? "bg-white" : "bg-gray-200"} font-medium`}
+             className={`px-8 py-1 text-primary border border-gray-300 border-b-white rounded-t-sm ${activeTab === tab.key ? "bg-white" : "bg-gray-200"} font-medium`}
             >
               {tab.label}
             </button>
@@ -67,11 +67,11 @@ const EditUserPage = () => {
       </div>
 
       {/* Content */}
-      <div className="bg-white p-6 border border-gray-300">
+      <div className=" p-6 border border-gray-200">
         {activeTab === "user" && <UserTab  user={user} onSave={(data) =>{ console.log("updated data", data);  
           setActiveTab("roles");
         }} />}
-        {activeTab === "roles" && <RolesTab onSave={(roles) => console.log("Saved roles:", roles)} />}
+        {activeTab === "roles" && <RolesTab user={user} onSave={(roles) => console.log("Saved roles:", roles)} />}
         {activeTab === "locations" && <LocationsTab />}
         {activeTab === "mentoring" && <MentoringTab />}
       </div>

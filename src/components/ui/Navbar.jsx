@@ -21,14 +21,14 @@ const Navbar = ( { onMenuClick } ) => {
   const tabs = [
     { label: "Mentees Dashboard", link: "/dashboard/overview", module:"admin" },
     { label: "Accounting FP", link: "/account" ,module:"admin"},
-    { label: "Admin", link: "/admin/mentoring-category" ,module: "admin"}
+    { label: "Admin", link: "/admin" ,module: "admin"}
   ];
 
   return (
     <>
       {/* NAVBAR */}
-      <header className="sticky top-0 z-50 bg-gray-300 border-b">
-        <div className="flex items-center justify-between px-4 py-2">
+      <header className="sticky top-0 z-50 bg-gray-300 border-b max-w-screen">
+        <div className="flex items-center justify-between px-4 py-4">
 
           {/* LEFT */}
           <div className="flex items-center gap-3">
@@ -48,8 +48,9 @@ const Navbar = ( { onMenuClick } ) => {
             {/* Tabs (Desktop) */}
             <nav className=" md:flex gap-2 ml-4">
               {tabs.map((tab) => (
-                <CanModule key={tab.label} module={tab.module}>
+                // <CanModule key={tab.label} module={tab.module}>
                   <NavLink
+                    key={tab.label}
                     to={tab.link}
                     className={`px-4 py-1 rounded text-sm font-medium
                       ${
@@ -60,7 +61,7 @@ const Navbar = ( { onMenuClick } ) => {
                   >
                     {tab.label}
                   </NavLink>
-                </CanModule>
+                // </CanModule>
               ))}
             </nav>
           </div>

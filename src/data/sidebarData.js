@@ -9,10 +9,10 @@ export const dashboardSidebarItems = [
 ];
 
 export const adminSidebarItems = [
-  { label: "Mentoring Category", icon: User, link: "/admin/mentoring-category", },
-  { label: "Roles & Permissions", icon: Shield, link: "/admin/roles-permissions", },
-  { label: "Users", icon: Users, link: "/admin/users",},
-  { label: "Settings", icon: Settings, link: "/admin/settings",},
+  { label: "Mentoring Category", icon: User, link: "/admin/mentoring-category", permission:"admin.mentoring_program.view"  },
+  { label: "Roles & Permissions", icon: Shield, link: "/admin/roles-permissions", permission:"admin.role.view" },
+  { label: "Users", icon: Users, link: "/admin/users", permission:"admin.users.view" },
+  { label: "Settings", icon: Settings, link: "/admin/settings", },
 ];
 
 export const accountFPSidebarItems = [

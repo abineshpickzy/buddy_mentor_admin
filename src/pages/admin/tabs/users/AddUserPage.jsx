@@ -70,7 +70,7 @@ const AddUserPage = () => {
             first_name: form.first_name,
             last_name: form.last_name,
             email_id: form.email_id,
-            mobile_number: form.mobile_number,
+            mobile_number: Number(form.mobile_number),
             programCode: form.programCode,
             country: form.country,
             state: form.state,
@@ -123,7 +123,7 @@ const AddUserPage = () => {
                         
                         <Input label="Email*" name="email_id" value={form.email_id} onChange={handleChange} layout="row" error={errors.email_id} />
                         
-                        <Input label="Mobile no*" name="mobile_number" value={form.mobile_number} onChange={handleChange} layout="row" error={errors.mobile_number} />
+                        <Input label="Mobile no*" name="mobile_number" type="number" value={form.mobile_number} onChange={handleChange} layout="row" error={errors.mobile_number} />
                         
                         <Input label="Program code*" name="programCode" value={form.programCode} onChange={handleChange} layout="row" error={errors.programCode} />
 

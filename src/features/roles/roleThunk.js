@@ -33,14 +33,13 @@
       try {
         const response = await axios.post("/role/ad", roleData);
           dispatch(fetchRoles());
+          dispatch(fetchRoleList());
         return response.data;
       } catch (error) {
         return rejectWithValue(error.response.data);
       }
     }
   );
-
-   
   export const updateRole = createAsyncThunk(
     "roles/updateRole",
     async ({ roleId, roleData }, { dispatch, rejectWithValue }) => {

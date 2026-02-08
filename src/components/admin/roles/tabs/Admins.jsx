@@ -22,8 +22,9 @@ const Admins = ({ onSelectionChange }) => {
     }, [selectedAdmins, onSelectionChange]);
 
     const handleSelectAll = (checked) => {
-        setSelectedAdmins(checked ? admins.filter(admin => admin._id!==user._id).map(admin => admin._id) : []);
+        setSelectedAdmins(checked ? selectableAdmins.map(admin => admin._id) : []);
     };
+
 
     const handleSelectAdmin = (adminId, checked) => {
         setSelectedAdmins(prev => 
@@ -33,13 +34,14 @@ const Admins = ({ onSelectionChange }) => {
         );
     };
 
-    const isAllSelected = admins.length > 0 && selectedAdmins.length === admins.length;
-    const isIndeterminate = selectedAdmins.length > 0 && selectedAdmins.length < admins.length;
+    const selectableAdmins = admins.filter(admin => admin._id !== user._id);
+    const isAllSelected = selectableAdmins.length > 0 && selectedAdmins.length === selectableAdmins.length;
+    const isIndeterminate = selectedAdmins.length > 0 && selectedAdmins.length < selectableAdmins.length;
 
     return (
         <div className="">
-            <table className="w-full text-sm">
-                <thead className="bg-gray-100">
+            <table className="w-full text-sm ">
+                <thead className="bg-gray-200">
                     <tr>
                         <th className="p-2 w-10">
                             <input 
@@ -65,7 +67,7 @@ const Admins = ({ onSelectionChange }) => {
                         </tr>
                     ) : (
                         admins.map(admin => (
-                            <tr key={admin._id} className="">
+                            <tr key={admin._id} className="even:bg-gray-100">
                                 <td className="p-2 text-center">
                                     <input 
                                        disabled={admin._id==user._id}

@@ -4,6 +4,7 @@ import { bootstrapApp } from "./appThunk";
 const initialState = {
   isBootstrapping: false,
   isBootstrapped: false,
+  bootstrapFailed: false,
   error: null,
 };
 
@@ -14,6 +15,7 @@ const appSlice = createSlice({
     resetBootstrap: (state) => {
       state.isBootstrapped = false;
       state.isBootstrapping = false;
+      state.bootstrapFailed = false;
       state.error = null;
     },
   },
@@ -30,6 +32,7 @@ const appSlice = createSlice({
       .addCase(bootstrapApp.rejected, (state, action) => {
         state.isBootstrapped = false;
         state.isBootstrapping = false;
+        state.bootstrapFailed = true;
         state.error = action.payload;
       });
   },

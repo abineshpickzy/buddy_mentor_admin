@@ -11,18 +11,25 @@ import Admin from '@/pages/admin/Admin';
 import AccountFP from './pages/accountfp/AccountFP';
 import ProtectedRoute from './routes/ProtectedRoute'
 import FullScreenLoader from '@/components/ui/FullScreenLoader';
+import {addToast} from '@/features/toast/toastSlice'
 
 function AppContent() {
   const dispatch = useDispatch();
-  const { isBootstrapped, isBootstrapping } = useSelector(
+  const { isBootstrapped, isBootstrapping, bootstrapFailed } = useSelector(
     (state) => state.app
   );
 
   useEffect(() => {
-    if (!isBootstrapped && !isBootstrapping) {
+    if (!isBootstrapped && !isBootstrapping && !bootstrapFailed) {
       dispatch(bootstrapApp());
     }
-  }, [isBootstrapped, isBootstrapping, dispatch]);
+  }, [isBootstrapped, isBootstrapping, bootstrapFailed, dispatch]);
+
+  useEffect(() => {
+    if (bootstrapFailed) {
+      dispatch(addToast({ type: "error", message: "Failed to bootstrap app"}));
+    }
+  }, [bootstrapFailed, dispatch]);
 
   if (isBootstrapping) {
     return <FullScreenLoader />;

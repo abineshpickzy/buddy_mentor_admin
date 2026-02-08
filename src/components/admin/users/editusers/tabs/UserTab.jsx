@@ -5,6 +5,7 @@ import { useParams } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { editUser } from "@/features/users/userThunk";
 import { addToast } from "@/features/toast/toastSlice";
+import { fetchRoles } from "@/features/roles/roleThunk";
 import md5 from "md5";
 
 const UserTab = ({ user, onSave }) => {
@@ -84,18 +85,22 @@ const UserTab = ({ user, onSave }) => {
     } else if (!/\S+@\S+\.\S+/.test(form.email_id)) {
       newErrors.email_id = "Email is invalid";
     }
-    if (!form.mobile_number.trim()) newErrors.mobile_number = "Mobile number is required";
-    if (!form.programCode.trim()) newErrors.programCode = "Program code is required";
-    if (!form.country) newErrors.country = "Country is required";
-    if (!form.state) newErrors.state = "State is required";
+    // if (!form.mobile_number.trim()) newErrors.mobile_number = "Mobile number is required";
+    // if (!form.programCode.trim()) newErrors.programCode = "Program code is required";
+    // if (!form.country) newErrors.country = "Country is required";
+    // if (!form.state) newErrors.state = "State is required";
 
     // Password validation
-    if (form.password) {
-      if (!form.confirmPassword) {
-        newErrors.confirmPassword = "Confirm password is required";
-      } else if (form.password !== form.confirmPassword) {
-        newErrors.confirmPassword = "Passwords do not match";
-      }
+    // if (form.password) {
+    //   if (!form.confirmPassword) {
+    //     newErrors.confirmPassword = "Confirm password is required";
+    //   } else if (form.password !== form.confirmPassword) {
+    //     newErrors.confirmPassword = "Passwords do not match";
+    //   }
+    // }
+
+    if(form.password){
+       newErrors.confirmPassword = form.password === form.confirmPassword ? null : newErrors.confirmPassword = "Passwords do not match";
     }
 
     setErrors(newErrors);
@@ -115,6 +120,9 @@ const UserTab = ({ user, onSave }) => {
     try {
       const userData = { ...form };
 
+      // Convert mobile_number to number
+      userData.mobile_number = Number(userData.mobile_number);
+
       // Hash password with MD5 if provided
       if (form.password) {
         userData.password = md5(form.password);
@@ -128,6 +136,7 @@ const UserTab = ({ user, onSave }) => {
       const result = await dispatch(editUser({ userId: user._id, userData })).unwrap();
       console.log("API result:", result);
       dispatch(addToast({ type: "success", message: "User updated successfully!" }));
+      dispatch(fetchRoles());
       onSave?.(userData);
     } catch (error) {
       console.error("Failed to update user:", error);
@@ -171,6 +180,7 @@ const UserTab = ({ user, onSave }) => {
             />
             <Input
               label="Mobile no*"
+              type="number"
               name="mobile_number"
               value={form.mobile_number}
               onChange={handleChange}

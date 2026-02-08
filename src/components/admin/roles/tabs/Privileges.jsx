@@ -274,11 +274,7 @@ const savePrivileges = () => {
   
   console.log("Saved Privileges:", result);
   // Dispatch updateRole with new privileges
-  dispatch(updateRole({roleId:activeRole._id,roleData:{
-    name:activeRole.name,
-    description:activeRole.description,
-    modified_by:user?._id,
-    privileges:result}}));
+  dispatch(updateRole({roleId:activeRole._id,roleData:{privileges:result}}));
    dispatch(addToast({ type: "success", message: "Privileges saved successfully" }));
 };
 

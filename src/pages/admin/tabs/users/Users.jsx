@@ -7,6 +7,7 @@ import { fetchUsers } from "@/features/users/userThunk";
 import { fetchRoleList } from "@/features/roles/roleThunk";
 import {Can} from "@/permissions";
 import { PERMISSIONS } from "@/permissions/permissions";
+import { ChevronDown } from "lucide-react";
 
 const Users = () => {
   const dispatch = useDispatch();
@@ -17,11 +18,6 @@ const Users = () => {
   });
 
   const { rolelist } = useSelector((state) => state.roles);
-
-  useEffect(() => {
-    dispatch(fetchRoleList());
-   
-  }, [dispatch]);
 
   useEffect(() => {
     const activeFilters = Object.fromEntries(
@@ -35,7 +31,7 @@ const Users = () => {
   };
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
+    <div className="p-6">
       
       {/* Header */}
       <div className="flex justify-between items-center mb-4">
@@ -49,10 +45,10 @@ const Users = () => {
 
       {/* Filters */}
       <div className="bg-gray-100 p-4 flex flex-wrap flex-7 gap-8 items-center">
-        <div className="flex-2 flex items-center" >
-          <label className="text-sm text-gray-600 mr-2">Status</label>
+        <div className="flex-2 flex items-center relative" >
+          <label className="text-sm font-medium text-gray-600 mr-2">Status</label>
            <select 
-          className="border border-gray-300 bg-white px-3 py-1 text-sm w-full"
+          className=" appearance-none border border-gray-300 bg-white px-3 py-2  text-sm w-full focus:outline-none focus:ring-1 focus:ring-gray-500"
           value={filters.status}
           onChange={(e) => handleFilterChange('status', e.target.value)}
         >
@@ -60,12 +56,13 @@ const Users = () => {
           <option value="active">Active</option>
           <option value="inactive">Inactive</option>
         </select>
+        <ChevronDown  className="absolute right-2 pointer-events-none" size={16}  />
         </div>
 
-         <div className="flex-2 flex items-center">
-          <label className="text-sm text-gray-600 mr-2">Role</label>
+         <div className="flex-2 flex items-center relative">
+          <label className="text-sm font-medium text-gray-600 mr-2">Role</label>
           <select 
-          className="border border-gray-300 bg-white px-3 py-1 text-sm w-full"
+          className=" appearance-none border border-gray-300 bg-white px-3 py-2 text-sm w-full focus:outline-none focus:ring-1 focus:ring-gray-500" 
           value={filters.role}
           onChange={(e) => handleFilterChange('role', e.target.value)}
         >
@@ -74,14 +71,15 @@ const Users = () => {
             <option key={role._id} value={role._id}>{role.name}</option>
           ))}
         </select>
+            <ChevronDown  className="absolute right-2 pointer-events-none" size={16}  />
          </div>
 
          <div className="flex items-center gap-2 flex-3">
-          <label className=" text-sm text-gray-600 mr-2">User</label>
-          <div className="flex items-center border border-gray-300 bg-white px-3 py-1 text-sm w-full" >
+          <label className=" text-sm font-medium text-gray-600 mr-2">User</label>
+          <div className="flex items-center border border-gray-300 bg-white px-3  text-base w-full hover:outline-none hover:ring-1 hover:ring-gray-500 " >
           <input
             placeholder="Search users..."
-            className="outline-none text-sm px-2 w-full"
+            className="outline-none  px-2 w-full h-full px-3 py-2 "
             value={filters.text}
             onChange={(e) => handleFilterChange('text', e.target.value)}
           />

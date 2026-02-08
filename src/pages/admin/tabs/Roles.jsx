@@ -62,12 +62,12 @@ useEffect(() => {
 
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="bg-white rounded shadow-sm p-4 flex">
+    <div className=" p-6">
+      <div className=" flex">
 
         {/* LEFT PANEL */}
-        <div className="w-[260px] border-r pr-4">
-          <h2 className="text-sm font-semibold text-gray-600 mb-3">
+        <div className="w-[260px] border-r-2 border-gray-300 pr-4">
+          <h2 className="text-lg font-semibold text-primary mb-3">
             Roles & Permissions
           </h2>
 
@@ -142,11 +142,11 @@ useEffect(() => {
           </div>
 
           {/* TABS */}
-           <div className="border-b border-gray-300 mb-6">
+           <div className=" mb-6">
          <div className="flex ">
             <button
               onClick={() => setActiveTab("admins")}
-              className={`px-8 py-1 bg-gray-300 text-primary border border-gray-300 border-b-white rounded-t-sm ${activeTab === "admins"
+              className={`px-8 py-1 bg-gray-200 text-primary border border-gray-300 border-b-white rounded-t-sm ${activeTab === "admins"
                   ? "bg-white"
                   : "border"
                 }`}
@@ -156,7 +156,7 @@ useEffect(() => {
 
             <button
               onClick={() => setActiveTab("privileges")}
-              className={`px-8 py-1 bg-gray-300 text-primary border border-gray-300 border-b-white rounded-t-sm ${activeTab === "privileges"
+              className={`px-8 py-1 bg-gray-200 text-primary border border-gray-300 border-b-white rounded-t-sm ${activeTab === "privileges"
                   ? "bg-white"
                   : "border"
                 }`}
@@ -172,14 +172,14 @@ useEffect(() => {
           {activeTab === "admins" && (
             <Can permission={PERMISSIONS.ROLES_EDIT}>
             <div className="flex gap-3 mb-4">
-              <button className="border rounded px-3 py-1 text-sm" onClick={() => setShowAssign(true)}>
+              <button className="border border-gray-300 rounded px-3 py-1 text-sm hover:bg-gray-50 cursor-pointer" onClick={() => setShowAssign(true)}>
                 Assign Admins
               </button>
               <button 
-                className={`border rounded px-3 py-1 text-sm ${
+                className={`border border-gray-300 rounded px-3 py-1 text-sm  ${
                   selectedAdmins.length === 0 
                     ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
-                    : 'hover:bg-gray-50'
+                    : 'hover:bg-gray-50 cursor-pointer'
                 }`}
                 disabled={selectedAdmins.length === 0}
                 onClick={() => setShowUnassign(true)}
