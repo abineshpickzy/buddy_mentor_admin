@@ -14,10 +14,7 @@ export const bootstrapApp = createAsyncThunk(
        console.log("Current auth state:", auth.user);
       // If token exists, validate it in background and fetch data
       if (auth.token) {
-        // Fetch multiple data sources
-        await Promise.all([
-          // dispatch(getProfile()),
-        ]);
+        
       }
       
       return { bootstrapped: true };

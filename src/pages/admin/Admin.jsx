@@ -17,29 +17,27 @@ import { useSelector, useDispatch } from 'react-redux';
 import { fetchUsers } from '@/features/users/userThunk';
 import { fetchRoles, defaultPrivilegesStructure,fetchRoleList } from '@/features/roles/roleThunk';
 
-// Global flag to prevent duplicate fetches across component remounts
 let adminDataFetched = false;
-
-
 
 const AdminPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
   
-  const {users} = useSelector((state) => state.users);
+  const {users, initialFetchDone} = useSelector((state) => state.users);
   const {roles, rolelist, defaultPrvillages} = useSelector((state) => state.roles);
 
   
   // Fetch admin data on mount if not already loaded
   useEffect(() => {
-    const fetchdata = async () => {
-    if (users.length === 0) await dispatch(fetchUsers());
-    if (roles.length === 0) await dispatch(fetchRoles());
-    if (rolelist.length === 0) await dispatch(fetchRoleList());
-    if (defaultPrvillages.length === 0) await dispatch(defaultPrivilegesStructure());
-    }
-    fetchdata();
+    if (adminDataFetched) return;
+    adminDataFetched = true;
+    
+    console.log("Fetching admin data...");
+    dispatch(fetchUsers());
+    if (roles.length === 0) dispatch(fetchRoles());
+    if (rolelist.length === 0) dispatch(fetchRoleList());
+    if (defaultPrvillages.length === 0) dispatch(defaultPrivilegesStructure());
   }, [dispatch]);
   
   useEffect(() => {

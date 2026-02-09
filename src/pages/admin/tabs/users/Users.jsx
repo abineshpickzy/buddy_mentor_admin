@@ -3,8 +3,7 @@ import UserList from "@/components/admin/users/UserList";
 import { Search } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { fetchUsers } from "@/features/users/userThunk";
-import { fetchRoleList } from "@/features/roles/roleThunk";
+
 import {Can} from "@/permissions";
 import { PERMISSIONS } from "@/permissions/permissions";
 import { ChevronDown } from "lucide-react";
@@ -18,10 +17,10 @@ const Users = () => {
   });
 
   const { rolelist } = useSelector((state) => state.roles);
-  const allUsers = useSelector((state) => state.users.users);
+  const {users} = useSelector((state) => state.users);
 
   const filteredUsers = React.useMemo(() => {
-    let result = allUsers;
+    let result = users;
 
     if (filters.status) {
       result = result.filter(u => u.log?.is_active === (filters.status === 'active'));
@@ -41,11 +40,12 @@ const Users = () => {
     }
 
     return result;
-  }, [allUsers, filters]);
+  }, [users, filters]);
 
   const handleFilterChange = (key, value) => {
     setFilters(prev => ({ ...prev, [key]: value }));
   };
+
 
   return (
     <div className="p-6">

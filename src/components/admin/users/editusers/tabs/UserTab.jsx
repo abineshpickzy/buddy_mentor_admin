@@ -102,19 +102,18 @@ const UserTab = () => {
     // }
 
     if(form.password){
-       newErrors.confirmPassword = form.password === form.confirmPassword ? null : newErrors.confirmPassword = "Passwords do not match";
+       if(form.password !== form.confirmPassword ){
+        newErrors.confirmPassword = "Passwords do not match";
+       };
     }
 
     setErrors(newErrors);
+    console.log("Errors:", newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSave = async () => {
-    console.log("Save button clicked");
-    console.log("Form validation:", validateForm());
-    console.log("Has changes:", hasChanges);
-    console.log("Form data:", form);
-    console.log("User ID:", user?._id);
+   
     
     if (!validateForm()) return;
 
