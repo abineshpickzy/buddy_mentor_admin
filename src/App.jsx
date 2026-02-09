@@ -1,5 +1,5 @@
 import './App.css'
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { Provider, useDispatch, useSelector } from 'react-redux'
 import store from '@/store'
@@ -18,9 +18,12 @@ function AppContent() {
   const { isBootstrapped, isBootstrapping, bootstrapFailed } = useSelector(
     (state) => state.app
   );
+  const hasBootstrapped = useRef(false);
 
   useEffect(() => {
+    if (hasBootstrapped.current) return;
     if (!isBootstrapped && !isBootstrapping && !bootstrapFailed) {
+      hasBootstrapped.current = true;
       dispatch(bootstrapApp());
     }
   }, [isBootstrapped, isBootstrapping, bootstrapFailed, dispatch]);

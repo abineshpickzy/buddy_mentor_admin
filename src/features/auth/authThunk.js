@@ -19,3 +19,16 @@ export const loginAdmin = createAsyncThunk(
     }
   }
 );
+
+
+ export const getProfile = createAsyncThunk(
+  "auth/getProfile", 
+  async (_, {userId}, { rejectWithValue }) => {
+    try {
+      
+      const response = await axios.get(`user/${userId}/vw`);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data);
+    }
+  });

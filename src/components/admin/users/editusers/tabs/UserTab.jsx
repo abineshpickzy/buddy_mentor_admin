@@ -1,14 +1,16 @@
 import { useState, useEffect } from "react";
 import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
-import { useParams } from "react-router-dom";
+import { useParams, useOutletContext } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { editUser } from "@/features/users/userThunk";
 import { addToast } from "@/features/toast/toastSlice";
 import { fetchRoles } from "@/features/roles/roleThunk";
 import md5 from "md5";
 
-const UserTab = ({ user, onSave }) => {
+const UserTab = () => {
+  const { user} = useOutletContext();
+ 
   const [form, setForm] = useState({
     first_name: user?.first_name || "",
     last_name: user?.last_name || "",
@@ -137,7 +139,6 @@ const UserTab = ({ user, onSave }) => {
       console.log("API result:", result);
       dispatch(addToast({ type: "success", message: "User updated successfully!" }));
       dispatch(fetchRoles());
-      onSave?.(userData);
     } catch (error) {
       console.error("Failed to update user:", error);
       dispatch(addToast({ type: "error", message: "Failed to update user. Please try again." }));

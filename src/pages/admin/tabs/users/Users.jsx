@@ -18,12 +18,37 @@ const Users = () => {
   });
 
   const { rolelist } = useSelector((state) => state.roles);
+  const {users} = useSelector((state) => state.users);
+
+  useEffect(() => {
+    return () => {
+       const activeFilters = Object.fromEntries(
+      Object.entries(filters).filter(([_, value]) => value)
+    );
+        if(Object.keys(activeFilters).length > 0){
+          console.log("activeFilters",activeFilters);
+          dispatch(fetchUsers()); 
+        }
+    }
+  }, [dispatch]);
 
   useEffect(() => {
     const activeFilters = Object.fromEntries(
       Object.entries(filters).filter(([_, value]) => value)
     );
-    dispatch(fetchUsers(activeFilters));
+
+    // Debounce only text search
+    const timeoutId = setTimeout(() => {
+      if (Object.keys(activeFilters).length > 0) {
+        dispatch(fetchUsers(activeFilters));
+      } else {
+        dispatch(fetchUsers());
+      }
+    }, filters.text ? 500 : 0); // 500ms delay for text, instant for dropdowns
+
+    return () =>{ 
+      clearTimeout(timeoutId);
+    }
   }, [filters, dispatch]);
 
   const handleFilterChange = (key, value) => {

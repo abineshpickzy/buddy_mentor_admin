@@ -1,6 +1,6 @@
 // features/auth/authSlice.js
 import { createSlice } from "@reduxjs/toolkit";
-import { loginAdmin } from "./authThunk";
+import { getProfile, loginAdmin } from "./authThunk";
 
 const token = localStorage.getItem("admin_token");
 const userData = localStorage.getItem("admin_user");
@@ -21,8 +21,6 @@ const authSlice = createSlice({
     logout(state) {
       state.user = null;
       state.token = null;
-      localStorage.removeItem("admin_token");
-      localStorage.removeItem("admin_user");
       state.isAuthenticated = false;
       state.captchaRequired = false;
       localStorage.clear();

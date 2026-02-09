@@ -52,6 +52,7 @@ const AddUserPage = () => {
         return Object.keys(newErrors).length === 0;
     };
     const {user} = useSelector((state) => state.auth);
+    const {users} = useSelector((state) => state.users);
     
     console.log("Current user:", user);
 
@@ -81,9 +82,10 @@ const AddUserPage = () => {
         console.log("User data to send:", userData);
         
         try {
-            await dispatch(createUser({...userData})).unwrap();
+            dispatch(createUser({...userData})).unwrap();
             dispatch(addToast({ type: "success", message: "User created successfully!" }));
-            navigate("/admin/users");
+             const user= users?.find((u) => u._email_id ===userData.email_id);
+            navigate(`/admin/users/edit/${user._id}/roles`);
         } catch (error) {
             console.error("Failed to create user:", error);
             dispatch(addToast({ type: "error", message: "Failed to create user. Please try again." }));

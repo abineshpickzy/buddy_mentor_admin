@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { fetchRoleList, fetchRoles } from "@/features/roles/roleThunk";
 import { editUser } from "@/features/users/userThunk";
-import { useParams } from "react-router-dom";
+import { useParams, useOutletContext } from "react-router-dom";
 import { addToast } from "@/features/toast/toastSlice";
 
 //  sample data
@@ -15,8 +15,9 @@ const ROLES = [
   { id: "tech_fp", label: "Tech FP" },
 ];
 
-const RolesTab = ({user,  onSave }) => {
+const RolesTab = () => {
   const { userId } = useParams();
+  const { user } = useOutletContext();
   
   const [selectedRoles, setSelectedRoles] = useState([]);
   
@@ -44,8 +45,9 @@ const RolesTab = ({user,  onSave }) => {
       await dispatch(editUser({ userId: userId, userData: { roles: selectedRoles } })).unwrap();
       await dispatch(fetchRoles()).unwrap();
       dispatch(addToast({ type: "success", message: "User assigned roles successfully!" }));
-      onSave(selectedRoles);
+     
     } catch (error) {
+      console.error("Failed to update roles:", error);
       dispatch(addToast({ type: "error", message: "Failed to update roles" }));
     }
   };

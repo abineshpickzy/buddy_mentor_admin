@@ -1,0 +1,66 @@
+import { useParams, NavLink, Outlet, useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+
+const TABS = [
+  { key: "user", label: "User", path: "user" },
+  { key: "roles", label: "Roles", path: "roles" },
+  { key: "locations", label: "Locations", path: "locations" },
+  { key: "mentoring", label: "Mentoring Category", path: "mentoring" },
+];
+
+const EditUserLayout = () => {
+  const { userId } = useParams();
+  const location = useLocation();
+  const users = useSelector((state) => state.users.users);
+  const [user, setUser] = useState(null);
+ 
+  useEffect(() => {
+    const foundUser = users.find((u) => u._id === userId || u.id === userId);
+    if (foundUser) {
+      setUser(foundUser);
+    }
+  }, [userId, users]);
+
+  const isActiveTab = (tabPath) => {
+    const pathParts = location.pathname.split('/');
+    const lastPart = pathParts[pathParts.length - 1];
+    return lastPart === tabPath;
+  };
+
+  return (
+    <div className="p-6 bg-gray-50 min-h-screen">
+      {/* Breadcrumb */}
+      <h2 className="text-sm text-gray-500 mb-3">
+        <NavLink to="/admin/users" className="text-primary hover:underline p-2">
+          Users
+        </NavLink>
+        &gt; {user ? `${user.user_name}` : "Loading..."} &gt; Edit
+      </h2>
+
+      {/* Tabs */}
+      <div className="mb-6">
+        <div className="flex">
+          {TABS.map((tab) => (
+            <NavLink
+              key={tab.key}
+              to={tab.path}
+              className={`px-8 py-1 text-primary border border-gray-300 border-b-white rounded-t-sm ${
+                isActiveTab(tab.path) ? "bg-white" : "bg-gray-200"
+              } font-medium`}
+            >
+              {tab.label}
+            </NavLink>
+          ))}
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="p-6 border border-gray-200">
+        <Outlet context={{ user }} />
+      </div>
+    </div>
+  );
+};
+
+export default EditUserLayout;

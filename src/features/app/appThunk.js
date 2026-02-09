@@ -1,6 +1,6 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { fetchUsers } from "@/features/users/userThunk";
-import { fetchRoles,fetchRoleList,defaultPrivilegesStructure } from "@/features/roles/roleThunk";
+import { getProfile } from "@/features/auth/authThunk";
+// import { fetchRoles,fetchRoleList,defaultPrivilegesStructure } from "@/features/roles/roleThunk";
 // import { validateToken } from "@/features/auth/authThunk";
 
 export const bootstrapApp = createAsyncThunk(
@@ -16,11 +16,7 @@ export const bootstrapApp = createAsyncThunk(
       if (auth.token) {
         // Fetch multiple data sources
         await Promise.all([
-         
-          dispatch(fetchUsers()).unwrap(),
-          dispatch(fetchRoles()).unwrap(),
-          dispatch(fetchRoleList()).unwrap(),
-          dispatch(defaultPrivilegesStructure()).unwrap(),
+          // dispatch(getProfile()),
         ]);
       }
       
