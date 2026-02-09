@@ -26,10 +26,10 @@ const RolesTab = () => {
  const dispatch = useDispatch();
  const {rolelist,roles} = useSelector((state) => state.roles);
   
- useEffect(()=>{
+ useEffect(()=>{ 
      const filtered = rolelist.filter((r)=>user?.roles.includes(r._id));
      setSelectedRoles(filtered.map(r=>r._id))
- },[user])
+ },[user,roles,rolelist])
 
    
   const toggleRole = (roleId) => {

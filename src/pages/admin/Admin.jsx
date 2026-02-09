@@ -6,7 +6,7 @@ import AddMentoringCategory from '@/components/admin/mentoringcategory/AddMentor
 import Roles from './tabs/Roles';
 import Users from './tabs/users/Users';
 import AddUserPage from './tabs/users/AddUserPage';
-import EditUserLayout from '@/components/admin/users/editusers/EditUserLayout';
+import EditUserPage from './tabs/users/EditUserPage';
 import UserTab from '@/components/admin/users/editusers/tabs/UserTab';
 import RolesTab from '@/components/admin/users/editusers/tabs/RolesTab';
 import LocationsTab from '@/components/admin/users/editusers/tabs/LocationsTab';
@@ -36,8 +36,8 @@ const AdminPage = () => {
     const fetchdata = async () => {
     if (users.length === 0) await dispatch(fetchUsers());
     if (roles.length === 0) await dispatch(fetchRoles());
-    if (defaultPrvillages.length === 0) await dispatch(defaultPrivilegesStructure());
     if (rolelist.length === 0) await dispatch(fetchRoleList());
+    if (defaultPrvillages.length === 0) await dispatch(defaultPrivilegesStructure());
     }
     fetchdata();
   }, [dispatch]);
@@ -59,7 +59,7 @@ const AdminPage = () => {
 
           <Route path="users" element={<Users />} />
           <Route path="users/new" element={<AddUserPage />} />
-          <Route path="users/edit/:userId" element={<EditUserLayout />}>
+          <Route path="users/edit/:userId" element={<EditUserPage />}>
             <Route path="user" element={<UserTab />} />
             <Route path="roles" element={<RolesTab />} />
             <Route path="locations" element={<LocationsTab />} />

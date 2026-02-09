@@ -33,7 +33,7 @@ export const createUser = createAsyncThunk("users/createUser", async (userData, 
 export const editUser = createAsyncThunk("users/editUser", async ({ userId, userData }, { rejectWithValue, dispatch }) => {
   try {
     const response = await axios.put(`/user/${userId}/ed`, userData);
-    dispatch(fetchUsers());
+    await dispatch(fetchUsers());
     return response.data;
   } catch (error) {
     return rejectWithValue(error.message);

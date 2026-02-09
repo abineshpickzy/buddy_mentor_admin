@@ -4,8 +4,7 @@ import { useSelector } from "react-redux";
 import {Can} from "@/permissions";
 import { PERMISSIONS } from "@/permissions/permissions";
 
-const UserList = () => {
-  const {users} = useSelector((state) => state.users);
+const UserList = ({ users }) => {
   return (
     <div className="bg-white overflow-x-auto">
       <table className="w-full border-collapse text-sm">

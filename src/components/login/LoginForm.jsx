@@ -106,7 +106,7 @@ const LoginForm = () => {
         />
 
         {captchaRequired && (
-          <div className="flex justify-center">
+          <div className="flex justify-start ">
             <ReCAPTCHA
               ref={recaptchaRef}
               sitekey={SITE_KEY}

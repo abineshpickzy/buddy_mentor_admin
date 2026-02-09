@@ -18,38 +18,30 @@ const Users = () => {
   });
 
   const { rolelist } = useSelector((state) => state.roles);
-  const {users} = useSelector((state) => state.users);
+  const allUsers = useSelector((state) => state.users.users);
 
-  useEffect(() => {
-    return () => {
-       const activeFilters = Object.fromEntries(
-      Object.entries(filters).filter(([_, value]) => value)
-    );
-        if(Object.keys(activeFilters).length > 0){
-          console.log("activeFilters",activeFilters);
-          dispatch(fetchUsers()); 
-        }
+  const filteredUsers = React.useMemo(() => {
+    let result = allUsers;
+
+    if (filters.status) {
+      result = result.filter(u => u.log?.is_active === (filters.status === 'active'));
     }
-  }, [dispatch]);
 
-  useEffect(() => {
-    const activeFilters = Object.fromEntries(
-      Object.entries(filters).filter(([_, value]) => value)
-    );
-
-    // Debounce only text search
-    const timeoutId = setTimeout(() => {
-      if (Object.keys(activeFilters).length > 0) {
-        dispatch(fetchUsers(activeFilters));
-      } else {
-        dispatch(fetchUsers());
-      }
-    }, filters.text ? 500 : 0); // 500ms delay for text, instant for dropdowns
-
-    return () =>{ 
-      clearTimeout(timeoutId);
+    if (filters.role) {
+      result = result.filter(u => u.roles?.includes(filters.role));
     }
-  }, [filters, dispatch]);
+
+    if (filters.text) {
+      const searchLower = filters.text.toLowerCase();
+      result = result.filter(u => 
+        u.first_name?.toLowerCase().includes(searchLower) ||
+        u.last_name?.toLowerCase().includes(searchLower) ||
+        u.email_id?.toLowerCase().includes(searchLower)
+      );
+    }
+
+    return result;
+  }, [allUsers, filters]);
 
   const handleFilterChange = (key, value) => {
     setFilters(prev => ({ ...prev, [key]: value }));
@@ -114,7 +106,7 @@ const Users = () => {
       </div>
 
       {/* User List */}
-      <UserList/>
+      <UserList users={filteredUsers}/>
     </div>
   );
 };
