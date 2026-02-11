@@ -4,6 +4,7 @@ import { fetchRoleList, fetchRoles } from "@/features/roles/roleThunk";
 import { editUser } from "@/features/users/userThunk";
 import { useParams, useOutletContext } from "react-router-dom";
 import { addToast } from "@/features/toast/toastSlice";
+import { showLoader, hideLoader } from "@/features/loader/loaderSlice";
 
 //  sample data
 const ROLES = [
@@ -41,6 +42,7 @@ const RolesTab = () => {
   };
 
   const handleSave = async () => {
+    dispatch(showLoader());
     try {
       await dispatch(editUser({ userId: userId, userData: { roles: selectedRoles } })).unwrap();
       await dispatch(fetchRoles()).unwrap();
@@ -49,6 +51,8 @@ const RolesTab = () => {
     } catch (error) {
       console.error("Failed to update roles:", error);
       dispatch(addToast({ type: "error", message: "Failed to update roles" }));
+    } finally {
+      dispatch(hideLoader());
     }
   };
 

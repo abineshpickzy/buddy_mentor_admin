@@ -5,6 +5,7 @@ import { useParams, useOutletContext } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { editUser } from "@/features/users/userThunk";
 import { addToast } from "@/features/toast/toastSlice";
+import { showLoader, hideLoader } from "@/features/loader/loaderSlice";
 import { fetchRoles } from "@/features/roles/roleThunk";
 import md5 from "md5";
 
@@ -118,6 +119,7 @@ const UserTab = () => {
     if (!validateForm()) return;
 
     setLoading(true);
+    dispatch(showLoader());
     try {
       const userData = { ...form };
 
@@ -143,6 +145,7 @@ const UserTab = () => {
       dispatch(addToast({ type: "error", message: "Failed to update user. Please try again." }));
     } finally {
       setLoading(false);
+      dispatch(hideLoader());
     }
   };
 

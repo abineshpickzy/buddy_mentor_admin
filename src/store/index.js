@@ -5,6 +5,8 @@ import usersReducer from '@/features/users/userSlice';
 import appReducer from '@/features/app/appSlice';
 import toastReducer from '@/features/toast/toastSlice';
 import rolesReducer from '@/features/roles/roleSlice';
+import loaderReducer from '@/features/loader/loaderSlice';
+import productsReducer from '@/features/products/productSlice';
 
 export const store = configureStore({
   reducer: {
@@ -14,6 +16,8 @@ export const store = configureStore({
     users: usersReducer,
     toast: toastReducer,
     roles: rolesReducer,
+    loader: loaderReducer,
+    products: productsReducer,
   },
 });
 

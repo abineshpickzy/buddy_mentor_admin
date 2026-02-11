@@ -5,6 +5,7 @@ import { Provider, useDispatch, useSelector } from 'react-redux'
 import store from '@/store'
 import { bootstrapApp } from '@/features/app/appThunk'
 import Toast from '@/components/ui/Toast'
+import Loader from '@/components/ui/Loader'
 import Login from '@/pages/login/Login'
 import Dashboard from '@/pages/dashboard/Dashboard';
 import Admin from '@/pages/admin/Admin';
@@ -34,13 +35,11 @@ function AppContent() {
     }
   }, [bootstrapFailed, dispatch]);
 
-  if (isBootstrapping) {
-    return <FullScreenLoader />;
-  }
 
   return (
     <>
       <Toast />
+      <Loader />
       <Routes>
         <Route path="/" element={<Login />} />
         <Route

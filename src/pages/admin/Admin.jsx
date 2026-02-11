@@ -17,6 +17,8 @@ import { useSelector, useDispatch } from 'react-redux';
 import { fetchUsers } from '@/features/users/userThunk';
 import { fetchRoles, defaultPrivilegesStructure,fetchRoleList } from '@/features/roles/roleThunk';
 
+import { showLoader,hideLoader } from '@/features/loader/loaderSlice';
+
 let adminDataFetched = false;
 
 const AdminPage = () => {
@@ -30,14 +32,21 @@ const AdminPage = () => {
   
   // Fetch admin data on mount if not already loaded
   useEffect(() => {
-    if (adminDataFetched) return;
-    adminDataFetched = true;
+ 
     
-    console.log("Fetching admin data...");
-    dispatch(fetchUsers());
-    if (roles.length === 0) dispatch(fetchRoles());
-    if (rolelist.length === 0) dispatch(fetchRoleList());
-    if (defaultPrvillages.length === 0) dispatch(defaultPrivilegesStructure());
+    const fetchData = async () => {
+      dispatch(showLoader());
+      try {
+        if (users.length === 0) await dispatch(fetchUsers());
+        if (roles.length === 0) await dispatch(fetchRoles());
+        if (rolelist.length === 0) await dispatch(fetchRoleList());
+        if (defaultPrvillages.length === 0) await dispatch(defaultPrivilegesStructure());
+      } finally {
+        dispatch(hideLoader());
+      }
+    };
+    
+    fetchData();
   }, [dispatch]);
   
   useEffect(() => {

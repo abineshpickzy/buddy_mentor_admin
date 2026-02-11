@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { createUser } from "@/features/users/userThunk";
 import { addToast } from "@/features/toast/toastSlice";
+import { showLoader, hideLoader } from "@/features/loader/loaderSlice";
 import Input from "@/components/ui/Input";
 import Select from "../../../../components/ui/Select";
 import md5 from "md5";
@@ -33,6 +34,23 @@ const AddUserPage = () => {
         setForm({ ...form, [e.target.name]: e.target.value });
     };
 
+ const handleImageUpload = (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  setProfileImage(file);
+  setPreview(URL.createObjectURL(file));
+
+  const fd = new FormData();
+
+  // add normal form as JSON
+  fd.append("inputs", JSON.stringify(form));
+
+  // add image as binary
+  fd.append("image", file);
+  console.log(fd.get("image"));
+};
+
     const validateForm = () => {
         const newErrors = {};
         
@@ -54,7 +72,7 @@ const AddUserPage = () => {
     const {user} = useSelector((state) => state.auth);
     const {users} = useSelector((state) => state.users);
     
-    console.log("Current user:", user);
+
 
     const handleCreate = async () => {
         console.log("Create button clicked");
@@ -80,25 +98,25 @@ const AddUserPage = () => {
         };
         
         console.log("User data to send:", userData);
-        
+         const fd = new FormData();
+        fd.append("inputs", JSON.stringify(userData));
+        fd.append("image", profileImage);
+         console.log(fd)
+        dispatch(showLoader());
         try {
-            dispatch(createUser({...userData})).unwrap();
+            await dispatch(createUser({...userData})).unwrap();
             dispatch(addToast({ type: "success", message: "User created successfully!" }));
              const user= users?.find((u) => u._email_id ===userData.email_id);
             navigate(`/admin/users/edit/${user._id}/roles`);
         } catch (error) {
             console.error("Failed to create user:", error);
             dispatch(addToast({ type: "error", message: "Failed to create user. Please try again." }));
+        } finally {
+            dispatch(hideLoader());
         }
     };
 
-    const handleImageUpload = (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
 
-        setProfileImage(file);
-        setPreview(URL.createObjectURL(file));
-    };
 
 
     return (

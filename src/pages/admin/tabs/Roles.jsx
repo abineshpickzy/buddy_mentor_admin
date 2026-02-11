@@ -9,6 +9,7 @@ import { useDispatch,useSelector } from "react-redux";
 import { setActiveRole } from "@/features/roles/roleSlice";
 import { createRole,unassignAdminsFromRole,assignAdminsToRole} from "@/features/roles/roleThunk";
 import { addToast } from "@/features/toast/toastSlice";
+import { showLoader, hideLoader } from "@/features/loader/loaderSlice";
 import {Can} from "@/permissions";
 import { PERMISSIONS } from "@/permissions/permissions";
 
@@ -46,18 +47,26 @@ useEffect(() => {
     setShowCreate(false);
   };
 
-  const assignAdmin = (selectedUserIds) => {
+  const assignAdmin = async (selectedUserIds) => {
     console.log("Selected user IDs to assign:", selectedUserIds);
-    dispatch(assignAdminsToRole({ roleId: activeRole._id, users: selectedUserIds }));
-    setShowAssign(false);
-     
+    dispatch(showLoader());
+    try {
+      await dispatch(assignAdminsToRole({ roleId: activeRole._id, users: selectedUserIds })).unwrap();
+      setShowAssign(false);
+    } finally {
+      dispatch(hideLoader());
+    }
   };
 
-  const unassignAdmin = () => {
+  const unassignAdmin = async () => {
     console.log("Selected admin IDs to unassign:", selectedAdmins);
     setShowUnassign(false);
-    dispatch(unassignAdminsFromRole({ roleId: activeRole._id, users: selectedAdmins }));
-    
+    dispatch(showLoader());
+    try {
+      await dispatch(unassignAdminsFromRole({ roleId: activeRole._id, users: selectedAdmins })).unwrap();
+    } finally {
+      dispatch(hideLoader());
+    }
   };
 
 

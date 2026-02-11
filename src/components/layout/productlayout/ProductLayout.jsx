@@ -1,4 +1,7 @@
+
 import { NavLink, useParams, Outlet } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { useState, useEffect } from "react";
 
 const TABS = [
   { key: "overview", label: "Overview" },
@@ -9,6 +12,13 @@ const TABS = [
 
 const ProductLayout = () => {
   const { productId } = useParams();
+  const productlist = useSelector((state) => state.products.productlist);
+  const [product, setProduct] = useState(null);
+
+  useEffect(() => {
+    const foundProduct = productlist?.find(p => p._id === productId);
+    setProduct(foundProduct);
+  }, [productId, productlist]);
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
@@ -32,7 +42,7 @@ const ProductLayout = () => {
 
       {/* Child route renders here */}
       <div className="bg-gray-50 p-6 ">
-        <Outlet />
+        <Outlet context={{product}} />
       </div>
     </div>
   );

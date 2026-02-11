@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { updateRole } from "@/features/roles/roleThunk";
 import { addToast } from "@/features/toast/toastSlice";
+import { showLoader, hideLoader } from "@/features/loader/loaderSlice";
 import {Can} from "@/permissions";
 import { PERMISSIONS } from "@/permissions/permissions";
 /* ------------------ DATA (UNCHANGED) ------------------ */
@@ -251,7 +252,7 @@ const Privileges = () => {
 
 /* ------------------ SAVE (FULL STRUCTURED JSON LIKE defaultPrivileges) ------------------ */
 
-const savePrivileges = () => {
+const savePrivileges = async () => {
   const buildResult = (node, parentPath = "") => {
     if (Array.isArray(node)) {
       // Include only checked actions, empty array if none
@@ -273,9 +274,13 @@ const savePrivileges = () => {
   const result = buildResult(defaultPrivileges);
   
   console.log("Saved Privileges:", result);
-  // Dispatch updateRole with new privileges
-  dispatch(updateRole({roleId:activeRole._id,roleData:{privileges:result}}));
-   dispatch(addToast({ type: "success", message: "Privileges saved successfully" }));
+  dispatch(showLoader());
+  try {
+    await dispatch(updateRole({roleId:activeRole._id,roleData:{privileges:result}})).unwrap();
+    dispatch(addToast({ type: "success", message: "Privileges saved successfully" }));
+  } finally {
+    dispatch(hideLoader());
+  }
 };
 
 

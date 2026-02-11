@@ -25,6 +25,24 @@
     /* Use @apply instead of standard CSS to let Tailwind handle precedence */
     @apply font-montserrat;
   }
+
+  *::-webkit-scrollbar {
+    width: 8px;
+    height: 6px;
+  }
+
+  *::-webkit-scrollbar-track {
+    background: #ffffff;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background: #dadadb;
+    border-radius: 4px;
+  }
+
+  *::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
+  }
 }
 
 @layer utilities {

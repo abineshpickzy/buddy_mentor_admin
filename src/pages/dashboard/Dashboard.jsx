@@ -2,34 +2,38 @@ import Layout from '@/components/layout/Layout';
 // import { dashboardSidebarItems } from '@/data/sidebarData';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import {  useEffect, useState } from 'react';
+import { useDispatch,useSelector } from 'react-redux';
 import { Box ,LayoutDashboard,} from 'lucide-react';
 import ProductLayout from '../../components/layout/productlayout/ProductLayout';
 import Overview from './product/Overview';
 import Basis from './product/Basis';
 import Program from './product/Program';
 import Settings from './product/Settings';
-
-const products=[
-    {id:"1", name:"Product 1"},
-    {id:"2", name:"Product 2"},
-    {id:"3", name:"Product 3"},
-];
-
-
+import { listProducts } from '@/features/products/productThunk';
 
 const Dashboard = () => {
+ 
+  const dispatch = useDispatch();
+  const { productlist } = useSelector((state) => state.products);
+
   const dashboardSidebarItems = [
     {
       label: "Dashboard",
       icon: LayoutDashboard,
       link: "/dashboard/overview",
     },
-    ...products.map(product => ({
+    ...productlist.map(product => ({
       label: product.name,
       icon: Box,
-      link: `/dashboard/${product.id}`,
+      link: `/dashboard/${product._id}`,
     }))
   ];
+
+  useEffect(() => {
+    if (productlist.length === 0) {
+       dispatch(listProducts());
+    }
+  }, [dispatch]);
 
   return (
     <Layout sidebarItems={dashboardSidebarItems}>

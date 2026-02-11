@@ -1,6 +1,6 @@
 // features/auth/authSlice.js
 import { createSlice } from "@reduxjs/toolkit";
-import { getProfile, loginAdmin } from "./authThunk";
+import {  loginAdmin } from "./authThunk";
 
 const token = localStorage.getItem("admin_token");
 const userData = localStorage.getItem("admin_user");
