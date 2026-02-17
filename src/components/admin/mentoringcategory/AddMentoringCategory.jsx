@@ -35,20 +35,17 @@ const AddMentoringCategory = () => {
   }, [categoryName, dispatch]);
 
   const addOrderNumbers = (nodes) => {
-    return nodes.map((node, index) => ({
-      name: node.name,
-      order_no: index + 1,
-      children: node.children?.length ? addOrderNumbers(node.children) : []
-    }));
+    return nodes.map((node, index) => {
+      const result = {
+        name: node.name,
+        order_no: index + 1,
+        children: node.children?.length ? addOrderNumbers(node.children) : []
+      };
+      if (node._id) result._id = node._id;
+      return result;
+    });
   };
 
-  // const addIds = (nodes) => {
-  //   return nodes.map((node) => ({
-  //     ...node,
-  //     id: node.id || crypto.randomUUID(),
-  //     children: node.children?.length ? addIds(node.children) : []
-  //   }));
-  // };
 
  
 
@@ -56,12 +53,15 @@ const handleProductNameChange = (e) => {
   setCategoryName(e.target.value);
 }
   const handleCreate = async () => {
-   
+   console.log("basis :", basis,"program :",program,"categoryName :",categoryName);
     const payload = {
+       
       product_name: categoryName,
       basics: addOrderNumbers(basis),
       programs: addOrderNumbers(program)
     };
+
+     console.log("payload :",payload);
      
     if(!payload.product_name.trim()){
       dispatch(addToast({message:"Product name is required",type:"error"}));

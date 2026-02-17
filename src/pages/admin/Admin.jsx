@@ -18,6 +18,7 @@ import { fetchUsers } from '@/features/users/userThunk';
 import { fetchRoles, defaultPrivilegesStructure,fetchRoleList } from '@/features/roles/roleThunk';
 
 import { showLoader,hideLoader } from '@/features/loader/loaderSlice';
+import EditMentoringCategory from '../../components/admin/mentoringcategory/EditMentoringCategory';
 
 let adminDataFetched = false;
 
@@ -61,7 +62,8 @@ const AdminPage = () => {
        <Routes>
           <Route path="mentoring-category" element={<MentoringCategory />} />
           <Route path="mentoring-category/add" element={<AddMentoringCategory />} />
-
+          <Route path="mentoring-category/edit/:productId" element={<EditMentoringCategory />} />
+          
           <Route path="roles-permissions" element={<Roles />} />
 
           <Route path="users" element={<Users />} />

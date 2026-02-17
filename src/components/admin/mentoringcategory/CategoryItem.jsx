@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Plus, Pencil, Trash2, ChevronDown, ChevronRight } from "lucide-react";
 
-const CategoryItem = ({ node, onAdd, onEdit, onDelete }) => {
+const CategoryItem = ({ node, path, editMode, onAdd, onEdit, onDelete }) => {
   const [open, setOpen] = useState(true);
   const [isAdding, setIsAdding] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -42,7 +42,7 @@ const CategoryItem = ({ node, onAdd, onEdit, onDelete }) => {
               onBlur={() => setIsEditing(false)}
               onKeyDown={(e) => {
                 if (e.key === "Enter" && editValue.trim()) {
-                  onEdit(node.id, editValue);
+                  onEdit(path, editValue);
                   setIsEditing(false);
                 }
                 if (e.key === "Escape") setIsEditing(false);
@@ -74,7 +74,7 @@ const CategoryItem = ({ node, onAdd, onEdit, onDelete }) => {
             size={15}
             strokeWidth={2.5}
             className="text-red-600 cursor-pointer"
-            onClick={() => onDelete(node.id, node.name)}
+            onClick={() => onDelete(path, node.name, node._id)}
           />
         </div>
       </div>
@@ -95,7 +95,7 @@ const CategoryItem = ({ node, onAdd, onEdit, onDelete }) => {
             }}
             onKeyDown={(e) => {
               if (e.key === "Enter" && addValue.trim()) {
-                onAdd(node.id, addValue);
+                onAdd(path, addValue);
                 setAddValue("");
                 setIsAdding(false);
               }
@@ -110,7 +110,7 @@ const CategoryItem = ({ node, onAdd, onEdit, onDelete }) => {
             onMouseDown={(e) => e.preventDefault()}
             onClick={() => {
               if (addValue.trim()) {
-                onAdd(node.id, addValue);
+                onAdd(path, addValue);
                 setAddValue("");
                 setIsAdding(false);
               }
@@ -121,10 +121,12 @@ const CategoryItem = ({ node, onAdd, onEdit, onDelete }) => {
 
       {/* Children */}
       {open &&
-        node.children.map((child) => (
+        node.children.map((child, index) => (
           <CategoryItem
-            key={child.id}
+            key={index}
             node={child}
+            path={[...path, index]}
+            editMode={editMode}
             onAdd={onAdd}
             onEdit={onEdit}
             onDelete={onDelete}

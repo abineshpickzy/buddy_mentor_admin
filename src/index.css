@@ -45,6 +45,7 @@
   }
 }
 
+
 @layer utilities {
   @keyframes shake {
     0% { transform: translateX(0); }
@@ -54,7 +55,22 @@
     100% { transform: translateX(0); }
   }
 
+  @keyframes slide-in {
+    0% {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    100% {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
   .animate-shake {
     animation: shake 0.3s ease-in-out;
+  }
+
+  .animate-slide-in {
+    animation: slide-in 0.3s ease-out;
   }
 }

@@ -10,7 +10,7 @@ const toastSlice = createSlice({
   reducers: {
     addToast: (state, action) => {
       const toast = {
-        id: Date.now(),
+        id: Date.now() + Math.random(),
         type: action.payload.type || "info",
         message: action.payload.message,
         duration: action.payload.duration || 3000,

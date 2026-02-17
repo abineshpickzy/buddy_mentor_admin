@@ -1,7 +1,9 @@
 
 import { NavLink, useParams, Outlet } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { useState, useEffect } from "react";
+import {fetchProductById} from "@/features/products/productThunk";
+
 
 const TABS = [
   { key: "overview", label: "Overview" },
@@ -12,18 +14,27 @@ const TABS = [
 
 const ProductLayout = () => {
   const { productId } = useParams();
-  const productlist = useSelector((state) => state.products.productlist);
+  const dispatch = useDispatch();
+ 
   const [product, setProduct] = useState(null);
 
+  const fetchProduct = async () => {
+    try {
+      const result = await dispatch(fetchProductById(productId)).unwrap();
+      setProduct(result.data);
+    } catch (error) {
+      console.error("Failed to fetch product:", error);
+    }
+  };
+
   useEffect(() => {
-    const foundProduct = productlist?.find(p => p._id === productId);
-    setProduct(foundProduct);
-  }, [productId, productlist]);
+    fetchProduct();
+  }, [productId]);
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
+    <div className="p-6 bg-gray-50 min-h-screen relative">
       {/* Tabs */}
-      <div className=" mb-6">
+      <div className=" sticky top-0 ">
         <div className="flex">
           {TABS.map(tab => (
             <NavLink
@@ -42,7 +53,7 @@ const ProductLayout = () => {
 
       {/* Child route renders here */}
       <div className="bg-gray-50 p-6 ">
-        <Outlet context={{product}} />
+        <Outlet context={{product, refetchProduct: fetchProduct}} />
       </div>
     </div>
   );

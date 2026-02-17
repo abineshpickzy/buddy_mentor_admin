@@ -7,6 +7,7 @@ import toastReducer from '@/features/toast/toastSlice';
 import rolesReducer from '@/features/roles/roleSlice';
 import loaderReducer from '@/features/loader/loaderSlice';
 import productsReducer from '@/features/products/productSlice';
+import uploadReducer from '@/features/upload/uploadSlice';
 
 export const store = configureStore({
   reducer: {
@@ -18,6 +19,7 @@ export const store = configureStore({
     roles: rolesReducer,
     loader: loaderReducer,
     products: productsReducer,
+    upload: uploadReducer
   },
 });
 

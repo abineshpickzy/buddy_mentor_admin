@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
 import CategoryItem from "./CategoryItem";
 import { Plus } from "lucide-react";
+import ConfirmModal from "./ConfirmModel";
 
-const CategoryTree = ({ value = [], onChange }) => {
+const CategoryTree = ({ value = [], onChange, editMode = false, onDeleteNode, nodeType }) => {
   const [rootName, setRootName] = useState("");
+  const [deleteModal, setDeleteModal] = useState({ open: false, path: null, name: "", nodeId: null });
 
   // Parent is the source of truth
   const categories = value;
@@ -22,7 +24,6 @@ const CategoryTree = ({ value = [], onChange }) => {
     setCategories([
       ...categories,
       {
-        id: crypto.randomUUID(),
         name: rootName,
         children: []
       }
@@ -31,44 +32,66 @@ const CategoryTree = ({ value = [], onChange }) => {
     setRootName("");
   };
 
-  const addChild = (tree, id, name) =>
-    tree.map((node) =>
-      node.id === id
+  const addChild = (tree, path, name) => {
+    if (path.length === 0) return tree;
+    const [index, ...rest] = path;
+    return tree.map((node, i) =>
+      i === index
+        ? rest.length === 0
+          ? {
+              ...node,
+              children: [...node.children, { name, children: [] }]
+            }
+          : {
+              ...node,
+              children: addChild(node.children, rest, name)
+            }
+        : node
+    );
+  };
+
+  const editNode = (tree, path, name) => {
+    if (path.length === 0) return tree;
+    const [index, ...rest] = path;
+    return tree.map((node, i) =>
+      i === index
+        ? rest.length === 0
+          ? { ...node, name }
+          : {
+              ...node,
+              children: editNode(node.children, rest, name)
+            }
+        : node
+    );
+  };
+
+  const deleteNode = (tree, path) => {
+    if (path.length === 0) return tree;
+    const [index, ...rest] = path;
+    if (rest.length === 0) {
+      return tree.filter((_, i) => i !== index);
+    }
+    return tree.map((node, i) =>
+      i === index
         ? {
             ...node,
-            children: [
-              ...node.children,
-              { id: crypto.randomUUID(), name, children: [] }
-            ]
+            children: deleteNode(node.children, rest)
           }
-        : {
-            ...node,
-            children: addChild(node.children, id, name)
-          }
+        : node
     );
+  };
 
-  const editNode = (tree, id, name) =>
-    tree.map((node) =>
-      node.id === id
-        ? { ...node, name }
-        : {
-            ...node,
-            children: editNode(node.children, id, name)
-          }
-    );
+  const handleDelete = (path, name, nodeId) => {
+    setDeleteModal({ open: true, path, name, nodeId });
+  };
 
-  const deleteNode = (tree, id) =>
-    tree
-      .filter((node) => node.id !== id)
-      .map((node) => ({
-        ...node,
-        children: deleteNode(node.children, id)
-      }));
-
-  const handleDelete = (id, name) => {
-    if (window.confirm(`Delete "${name}"?`)) {
-      setCategories(deleteNode(categories, id));
+  const confirmDelete = async () => {
+    const { path, nodeId } = deleteModal;
+    if (editMode && nodeId && onDeleteNode) {
+      await onDeleteNode(nodeId, nodeType);
     }
+    setCategories(deleteNode(categories, path));
+    setDeleteModal({ open: false, path: null, name: "", nodeId: null });
   };
 
   return (
@@ -100,20 +123,29 @@ const CategoryTree = ({ value = [], onChange }) => {
       </div>
         )}
 
-        {categories.map((cat) => (
+        {categories.map((cat, index) => (
           <CategoryItem
-            key={cat.id}
+            key={index}
             node={cat}
-            onAdd={(id, name) =>
-              setCategories(addChild(categories, id, name))
+            path={[index]}
+            editMode={editMode}
+            onAdd={(path, name) =>
+              setCategories(addChild(categories, path, name))
             }
-            onEdit={(id, name) =>
-              setCategories(editNode(categories, id, name))
+            onEdit={(path, name) =>
+              setCategories(editNode(categories, path, name))
             }
             onDelete={handleDelete}
           />
         ))}
       </div>
+
+      <ConfirmModal
+        name={deleteModal.name}
+        open={deleteModal.open}
+        onCancel={() => setDeleteModal({ open: false, path: null, name: "", nodeId: null })}
+        onConfirm={confirmDelete}
+      />
     </div>
   );
 };

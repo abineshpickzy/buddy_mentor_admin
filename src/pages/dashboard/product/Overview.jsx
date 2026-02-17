@@ -6,10 +6,8 @@ const Overview = () => {
       const { product } = useOutletContext();
     return (
         <div>
-            <h1 className=' text-lg font-normal'>Product Overview id : {product?._id}</h1>
-            <p  className=' text-lg font-normal' >Product Name : {product?.name}</p>
-            
-            < p className=' text-lg font-normal'>Product Status : {product?.status}</ p>
+            <h1 className=' text-lg font-normal'>Product Overview id : {product?.product._id}</h1>
+            <p  className=' text-lg font-normal' >Product Name : {product?.product.name}</p>
         </div>
     );
 };

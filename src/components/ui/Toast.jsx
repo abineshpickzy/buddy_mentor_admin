@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { removeToast } from "@/features/toast/toastSlice";
+import { CheckCircle2, XCircle, AlertTriangle, Info, X } from "lucide-react";
 
 const Toast = () => {
   const dispatch = useDispatch();
@@ -16,35 +17,69 @@ const Toast = () => {
     });
   }, [toasts, dispatch]);
 
-  const getToastStyles = (type) => {
-    const baseStyles = "px-4 py-3 rounded shadow-lg text-white mb-2 transition-all z-100";
+  const getToastConfig = (type) => {
     switch (type) {
       case "success":
-        return `${baseStyles} bg-green-500`;
+        return {
+          icon: CheckCircle2,
+          bgColor: "bg-white",
+          borderColor: "border-l-4 border-green-500",
+          iconColor: "text-green-500",
+          textColor: "text-gray-800"
+        };
       case "error":
-        return `${baseStyles} bg-red-500`;
+        return {
+          icon: XCircle,
+          bgColor: "bg-white",
+          borderColor: "border-l-4 border-red-500",
+          iconColor: "text-red-500",
+          textColor: "text-gray-800"
+        };
       case "warning":
-        return `${baseStyles} bg-yellow-500`;
+        return {
+          icon: AlertTriangle,
+          bgColor: "bg-white",
+          borderColor: "border-l-4 border-yellow-500",
+          iconColor: "text-yellow-500",
+          textColor: "text-gray-800"
+        };
       default:
-        return `${baseStyles} bg-blue-500`;
+        return {
+          icon: Info,
+          bgColor: "bg-white",
+          borderColor: "border-l-4 border-blue-500",
+          iconColor: "text-blue-500",
+          textColor: "text-gray-800"
+        };
     }
   };
 
   return (
-    <div className="fixed top-[100px] left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 space-y-2">
-      {toasts.map((toast) => (
-        <div key={toast.id} className={getToastStyles(toast.type)}>
-          <div className="flex justify-between items-center">
-            <span>{toast.message}</span>
+    <div className="fixed top-20 right-6 z-50 space-y-3 min-w-[320px] max-w-md">
+      {toasts.map((toast) => {
+        const config = getToastConfig(toast.type);
+        const Icon = config.icon;
+        
+        return (
+          <div
+            key={toast.id}
+            className={`${config.bgColor} ${config.borderColor} rounded-lg shadow-lg p-4 flex items-start gap-3 animate-slide-in`}
+          >
+            <Icon className={`${config.iconColor} flex-shrink-0 mt-0.5`} size={20} />
+            <div className="flex-1">
+              <p className={`${config.textColor} text-sm font-medium leading-relaxed`}>
+                {toast.message}
+              </p>
+            </div>
             <button
               onClick={() => dispatch(removeToast(toast.id))}
-              className="ml-4 text-white hover:text-gray-200"
+              className="text-gray-400 hover:text-gray-600 flex-shrink-0 transition-colors"
             >
-              ×
+              <X size={18} />
             </button>
           </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 };

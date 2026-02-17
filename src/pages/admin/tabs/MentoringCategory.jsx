@@ -13,6 +13,7 @@ const MentoringCategory = () => {
   const productlist  = useSelector((state) => state.products.productlist);
 
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const editPermission = usePermission(PERMISSIONS.MENTORING_PROGRAM_EDIT);
   const deletePermission = usePermission(PERMISSIONS.MENTORING_PROGRAM_DELETE);
@@ -96,13 +97,13 @@ const MentoringCategory = () => {
                   {item.status == 1 ? "live" : "open"}
                 </td>
                 {editPermission && <td className="p-2 flex gap-4 text-blue-600">
-                  <button className="hover:underline">edit</button>
+                  <button className="hover:underline cursor-pointer" onClick={()=>navigate(`/admin/mentoring-category/edit/${item._id}`) }>edit</button>
 
                 </td>
                 }
                 {deletePermission &&
                   <td>
-                    <button className="text-red-500 hover:underline">
+                    <button className="text-red-500 hover:underline cursor-pointer">
                       delete
                     </button>
                   </td>}
