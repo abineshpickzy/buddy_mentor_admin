@@ -4,7 +4,7 @@ import TreeMenu from "@/components/dashboard/product/TreeMenu";
 import NewModel from "@/components/dashboard/product/NewModel";
 import UploadModel from "@/components/dashboard/product/upload/UploadModel";
 import { useDispatch, useSelector } from "react-redux";
-import { addNode } from "@/features/products/productThunk";
+import { addNode,getAssertFiles } from "@/features/products/productThunk";
 import { showLoader, hideLoader } from "@/features/loader/loaderSlice";
 import { addToast } from "@/features/toast/toastSlice";
 import { addFile, setStatus, deleteFile } from "@/features/upload/uploadSlice";
@@ -16,23 +16,6 @@ import CancelConfirmModal from "@/components/dashboard/product/CancelConfirmMode
 import * as tus from "tus-js-client";
 
 // sample data
-const assets = [
-
-
-  {
-    id: 1,
-    name: 'test1.png',
-    type: 'image/',
-    src: 'https://picsum.photos/200',
-  },
-  {
-
-    id: 3,
-    name: 'test3.pdf',
-    type: 'other/',
-
-  }
-]
 
 const BasisDetail = () => {
   const { nodeId } = useParams();
@@ -47,7 +30,7 @@ const BasisDetail = () => {
   const currentFiles = useSelector((state) => state.upload.currentFiles);
 
   const [uploadingFile, setUploadingFile] = useState([]);
-  const [assertFiles, setAssertFiles] = useState(assets || []);
+  const [assertFiles, setAssertFiles] = useState([]);
   const activeUploadsRef = useRef({});
 
   const [nodename, setnodename] = useState("");
@@ -133,7 +116,7 @@ const BasisDetail = () => {
           try {
             const payload = {
               parent_id: nodeId,
-              cloudflare_uid: uid,
+              cloudflare_uid: uid,  
               file_name: file.name,
               type: "video",
               product_type: 0,
@@ -169,7 +152,7 @@ const BasisDetail = () => {
       try {
         await dispatch(saveAssert(formData)).unwrap();
         dispatch(addToast({ message: `File ${file.name} Uploaded Successfully`, type: "success" }));
-        setAssertFiles((prevFiles) => [...prevFiles, { id: file.name, name: file.name, type: file.type, src: URL.createObjectURL(file) }]);
+        setAssertFiles((prevFiles) => [...prevFiles, { _id: file.name, name: file.name, type: file.type, src: URL.createObjectURL(file) }]);
          setIsUploadModelOpen(false);
       } catch (error) {
         console.error("Error uploading file:", error);
@@ -182,12 +165,13 @@ const BasisDetail = () => {
   }
 
 
-  // cancel upload
+  // cancel upload click
   const handleCancelClick = (uid) => {
     setCancellingUid(uid);
     setIsCancelModalOpen(true);
   }
 
+  // cancel upload
   const handleCancelUpload = async () => {
     const upload = activeUploadsRef.current[cancellingUid];
     if (upload) {
@@ -261,6 +245,20 @@ const BasisDetail = () => {
     const path = findBreadcrumbs(product.basics, nodeId);
     setBreadcrumbs(path);
   }, [product, nodeId]);
+
+  // get Assert Files
+  useEffect(() => {
+      if (nodeId){
+       try {
+         dispatch(getAssertFiles({id:nodeId,type:0})).unwrap()
+         .then(res=>{console.log(res);
+          setAssertFiles(res.data);
+         })
+       } catch (error) {
+        console.error("Error getting files:", error);
+       }
+      }
+  }, [nodeId, dispatch]);
 
 
   // set current files in uploading

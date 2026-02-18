@@ -1,10 +1,11 @@
 import React from 'react';
-import { Outlet, useNavigate, useLocation, useParams } from 'react-router-dom';
+import { Outlet, useNavigate, useLocation, useParams, useOutletContext } from 'react-router-dom';
 
 const Settings = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const { productId } = useParams();
+    const context = useOutletContext();
 
     const tabs = [
         { name: 'Core Foundation', path: 'core-foundation' },
@@ -34,7 +35,7 @@ const Settings = () => {
 
             {/* Tab Content */}
             <div>
-                <Outlet />
+                <Outlet context={context} />
             </div>
         </div>
     );

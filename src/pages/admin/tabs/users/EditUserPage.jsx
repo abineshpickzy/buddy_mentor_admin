@@ -9,7 +9,7 @@ const TABS = [
   { key: "user", label: "User" },
   { key: "roles", label: "Roles" },
   { key: "locations", label: "Locations" },
-  { key: "mentoring", label: "Mentoring Category" },
+  { key: "mentoring", label: "Mentoring Product" },
 ];
 
 const EditUserPage = () => {

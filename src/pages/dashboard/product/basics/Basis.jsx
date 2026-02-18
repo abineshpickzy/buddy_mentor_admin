@@ -44,7 +44,7 @@ const Basis = () => {
       <h1 className="text-2xl font-semibold text-primary mb-4">Basic Programs  </h1>
 
       <div className=" max-w-lg flex items-center justify-between gap-8 pb-4 mb-4  border-b border-gray-200">
-        <button className="bg-blue-500 text-white py-1 px-6 rounded" >Add / Upload</button>
+      
         <button
           className=" bg-blue-500 text-white py-1 px-6 rounded"
           onClick={() => setIsNewModelOpen(true)}

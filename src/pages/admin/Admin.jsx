@@ -52,7 +52,7 @@ const AdminPage = () => {
   
   useEffect(() => {
     if (location.pathname === '/admin' || location.pathname === '/admin/') {
-      navigate('/admin/mentoring-category', { replace: true });
+      navigate('/admin/mentoring-product', { replace: true });
     }
   }, [location.pathname, navigate]);
 
@@ -60,9 +60,9 @@ const AdminPage = () => {
   return (
     <Layout sidebarItems={adminSidebarItems}>
        <Routes>
-          <Route path="mentoring-category" element={<MentoringCategory />} />
-          <Route path="mentoring-category/add" element={<AddMentoringCategory />} />
-          <Route path="mentoring-category/edit/:productId" element={<EditMentoringCategory />} />
+          <Route path="mentoring-product" element={<MentoringCategory />} />
+          <Route path="mentoring-product/add" element={<AddMentoringCategory />} />
+          <Route path="mentoring-product/edit/:productId" element={<EditMentoringCategory />} />
           
           <Route path="roles-permissions" element={<Roles />} />
 

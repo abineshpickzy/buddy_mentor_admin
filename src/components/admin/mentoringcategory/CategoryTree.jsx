@@ -95,7 +95,7 @@ const CategoryTree = ({ value = [], onChange, editMode = false, onDeleteNode, no
   };
 
   return (
-    <div className="w-full md:min-w-[400px] lg:min-w-[550px]">
+    <div className="w-full md:min-w-[300px] lg:min-w-[400px] ">
       {/* Add root */}
       <div className="flex items-center gap-2 mb-2">
         <input

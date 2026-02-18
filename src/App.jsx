@@ -13,6 +13,7 @@ import AccountFP from './pages/accountfp/AccountFP';
 import ProtectedRoute from './routes/ProtectedRoute'
 import FullScreenLoader from '@/components/ui/FullScreenLoader';
 import {addToast} from '@/features/toast/toastSlice'
+import ScrollToTop from '@/components/ScrollToTop'
 
 function AppContent() {
   const dispatch = useDispatch();
@@ -65,6 +66,7 @@ function AppContent() {
 
   return (
     <>
+      <ScrollToTop />
       <Toast />
       <Loader />
       <Routes>

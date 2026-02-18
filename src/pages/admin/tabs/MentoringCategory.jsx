@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown,Box } from "lucide-react";
 import { Can } from '@/permissions';
 import { PERMISSIONS } from "../../../permissions/permissions";
 import { usePermission } from '@/permissions';
@@ -35,7 +35,7 @@ const MentoringCategory = () => {
     <div className="w-full bg-white rounded-md  p-6">
       {/* Header */}
       <div className="flex items-center text-gray-600 justify-between mb-4">
-        <h2 className="text-lg font-semibold">Mentoring Category</h2>
+        <h2 className="text-lg font-semibold">Mentoring Products</h2>
       </div>
 
       <div className="flex justify-between items-center bg-gray-100 p-4 mb-2 ">
@@ -62,7 +62,7 @@ const MentoringCategory = () => {
         {/* Add Button */}
         <div>
           <Can permission={PERMISSIONS.MENTORING_PROGRAM_CREATE}>
-            <NavLink to="/admin/mentoring-category/add" className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md text-sm flex items-center gap-1">
+            <NavLink to="/admin/mentoring-product/add" className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md text-sm flex items-center gap-1">
               <span className="text-lg leading-none">+</span> New
             </NavLink>
           </Can>
@@ -91,13 +91,15 @@ const MentoringCategory = () => {
                 className=" text-sm even:bg-gray-100"
               >
                 <td className="p-2">{index + 1}</td>
-                <td className="p-2 font-medium">{item.name.charAt(0)}</td>
+                <td className="p-2 font-medium">
+                  <Box size={20} />
+                </td>
                 <td className="p-2">{item.name}</td>
                 <td className="p-2 text-green-600 capitalize">
                   {item.status == 1 ? "live" : "open"}
                 </td>
                 {editPermission && <td className="p-2 flex gap-4 text-blue-600">
-                  <button className="hover:underline cursor-pointer" onClick={()=>navigate(`/admin/mentoring-category/edit/${item._id}`) }>edit</button>
+                  <button className="hover:underline cursor-pointer" onClick={()=>navigate(`/admin/mentoring-product/edit/${item._id}`) }>edit</button>
 
                 </td>
                 }

@@ -81,3 +81,15 @@ export const addNode = createAsyncThunk("products/addNode", async (payload, { di
         return rejectWithValue(error.message);
     }
 });
+
+// get Assert Files
+
+export const getAssertFiles = createAsyncThunk("products/getAssertFiles", async ({id,type}, { rejectWithValue }) => {
+    try {
+        
+        const response = await axios.get(`/prd/${id}/lst?type=${type}`);
+        return response.data;
+    } catch (error) {
+        return rejectWithValue(error.message);
+    }
+});

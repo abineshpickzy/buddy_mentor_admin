@@ -6,7 +6,7 @@ const TABS = [
   { key: "user", label: "User", path: "user" },
   { key: "roles", label: "Roles", path: "roles" },
   { key: "locations", label: "Locations", path: "locations" },
-  { key: "mentoring", label: "Mentoring Category", path: "mentoring" },
+  { key: "mentoring", label: "Mentoring Product", path: "mentoring" },
 ];
 
 const EditUserLayout = () => {

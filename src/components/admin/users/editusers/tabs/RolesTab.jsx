@@ -28,7 +28,7 @@ const RolesTab = () => {
  const {rolelist,roles} = useSelector((state) => state.roles);
   
  useEffect(()=>{ 
-     const filtered = rolelist.filter((r)=>user?.roles.includes(r._id));
+     const filtered = rolelist.filter((r)=>user?.roles?.includes(r._id));
      setSelectedRoles(filtered.map(r=>r._id))
  },[user,roles,rolelist])
 

@@ -61,7 +61,7 @@ const MentoringTab = () => {
           <div className="flex items-center justify-between">
             <button
               onClick={openAddMode}
-              className="px-4 py-1 border rounded bg-white text-sm"
+              className="px-4 py-1 border-2 border-gray-300 rounded bg-white text-sm"
             >
               + Add
             </button>
@@ -72,18 +72,18 @@ const MentoringTab = () => {
                 <input
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  className="border px-3 py-1 text-sm"
+                  className="border-2 border-gray-300 focus:outline-none px-3 py-1 text-sm"
                 />
                 <Search
                   size={14}
-                  className="absolute right-2 top-2 text-gray-400"
+                  className="absolute right-2 top-2  text-gray-400 pointer-events-none "
                 />
               </div>
             </div>
           </div>
 
           {/* Table */}
-          <table className="w-full border mt-4 text-sm">
+          <table className="w-full mt-4 text-sm even:bg-gray-100">
             <thead className="bg-gray-300 text-left">
               <tr>
                 <th className="p-2">Sno</th>
@@ -125,7 +125,7 @@ const MentoringTab = () => {
       {mode === "add" && (
         <>
           <p className="text-sm text-gray-500">
-            Mentoring Category &gt; Add
+            Mentoring Products &nbsp;&gt; Add
           </p>
 
           <div className="space-y-3 mt-4">

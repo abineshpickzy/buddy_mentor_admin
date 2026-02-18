@@ -4,31 +4,18 @@ import TreeMenu from "@/components/dashboard/product/TreeMenu";
 import NewModel from "@/components/dashboard/product/NewModel";
 import UploadModel from "@/components/dashboard/product/upload/UploadModel";
 import { useDispatch, useSelector } from "react-redux";
-import { addNode } from "@/features/products/productThunk";
+import { addNode ,getAssertFiles} from "@/features/products/productThunk";
 import { showLoader, hideLoader } from "@/features/loader/loaderSlice";
 import { addToast } from "@/features/toast/toastSlice";
 import { addFile, setStatus, deleteFile } from "@/features/upload/uploadSlice";
 import { uploadFile, saveVideoFile, cancelUpload } from "@/features/upload/uploadThunk";
+import { saveAssert } from "@/features/upload/uploadThunk";
 import UploadList from "@/components/dashboard/product/upload/UploadList";
 import AssertList from "@/components/dashboard/product/upload/AssertList";
 import CancelConfirmModal from "@/components/dashboard/product/CancelConfirmModel";
 
 import * as tus from "tus-js-client";
 
-// sample data
-const assets = [
-  {
-    id: 1,
-    name: 'test1.png',
-    type: 'image/',
-    src: 'https://picsum.photos/200',
-  },
-  {
-    id: 3,
-    name: 'test3.pdf',
-    type: 'other/',
-  }
-]
 
 const ProgramDetails = () => {
   const { nodeId } = useParams();
@@ -43,7 +30,7 @@ const ProgramDetails = () => {
   const currentFiles = useSelector((state) => state.upload.currentFiles);
 
   const [uploadingFile, setUploadingFile] = useState([]);
-  const [assertFiles, setAssertFiles] = useState(assets || []);
+  const [assertFiles, setAssertFiles] = useState([]);
   const activeUploadsRef = useRef({});
 
   const [nodename, setnodename] = useState("");
@@ -53,6 +40,7 @@ const ProgramDetails = () => {
   const [isUploadModelOpen, setIsUploadModelOpen] = useState(false);
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [cancellingUid, setCancellingUid] = useState(null);
+  const [isDownloadable, setIsDownloadable] = useState(false);
 
 
   const handleNewSubmit = async (data) => {
@@ -80,7 +68,7 @@ const ProgramDetails = () => {
 
 
   // Upload file
-  const handleUploadSubmit = async (file) => {
+  const handleUploadSubmit = async (file, isDownloadable = false) => {
     if (!file) return;
 
     if (file.type.startsWith('video/')) {
@@ -122,7 +110,8 @@ const ProgramDetails = () => {
               cloudflare_uid: uid,
               file_name: file.name,
               type: "video",
-              product_type: 1
+              product_type: 1,
+              is_downloadable: isDownloadable
             }
             await dispatch(saveVideoFile(payload)).unwrap();
             dispatch(setStatus({ uid: uid, status: "Completed", progress: 100 }));
@@ -135,12 +124,30 @@ const ProgramDetails = () => {
 
           } catch (error) {
             console.error("Error saving file:", error);
+            dispatch(addToast({ message: `Failed to upload file ${file.name}`, type: "error" }));
           }
         },
       });
 
       activeUploadsRef.current[uid] = upload;
       upload.start();
+    }
+
+    else {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("parent_id", nodeId);
+      formData.append("product_type", 1);
+      try {
+        await dispatch(saveAssert(formData)).unwrap();
+        dispatch(addToast({ message: `File ${file.name} Uploaded Successfully`, type: "success" }));
+        setAssertFiles((prevFiles) => [...prevFiles, { _id: file.name, name: file.name, type: file.type, src: URL.createObjectURL(file) }]);
+        setIsUploadModelOpen(false);
+      } catch (error) {
+        console.error("Error uploading file:", error);
+        dispatch(addToast({ message: `Failed to upload file ${file.name}`, type: "error" }));
+        setIsUploadModelOpen(false);
+      }
     }
   }
 
@@ -216,6 +223,21 @@ const ProgramDetails = () => {
     const path = findBreadcrumbs(product.programs, nodeId);
     setBreadcrumbs(path);
   }, [product, nodeId]);
+
+  // get Assert Files
+  useEffect(() => {
+    if (nodeId) {
+      try {
+        dispatch(getAssertFiles({ id: nodeId, type: 1 })).unwrap()
+          .then(res => {
+            console.log(res);
+            setAssertFiles(res.data);
+          })
+      } catch (error) {
+        console.error("Error getting files:", error);
+      }
+    }
+  }, [nodeId, dispatch]);
 
 
   // set current files in uploading

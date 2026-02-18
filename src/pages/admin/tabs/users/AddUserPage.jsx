@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate ,NavLink } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { createUser } from "@/features/users/userThunk";
 import { addToast } from "@/features/toast/toastSlice";
@@ -104,10 +104,11 @@ const AddUserPage = () => {
          console.log(fd)
         dispatch(showLoader());
         try {
-            await dispatch(createUser({...userData})).unwrap();
+            const response = await dispatch(createUser({...userData})).unwrap();
             dispatch(addToast({ type: "success", message: "User created successfully!" }));
-             const user= users?.find((u) => u._email_id ===userData.email_id);
-            navigate(`/admin/users/edit/${user._id}/roles`);
+            console.log("API response:", response);
+            const id=response.data.user_id;
+            navigate(`/admin/users/edit/${id}/roles`);
         } catch (error) {
             console.error("Failed to create user:", error);
             dispatch(addToast({ type: "error", message: "Failed to create user. Please try again." }));
@@ -120,20 +121,23 @@ const AddUserPage = () => {
 
 
     return (
-        <div className="p-6 bg-gray-50">
+        <div className="p-6 bg-gray-50 min-h-screen">
             {/* Breadcrumb */}
-            <h2 className="text-sm text-gray-500 mb-4 ">Users &gt; New user</h2>
+            <h2 className="text-sm text-gray-500 mb-3">
+                <NavLink to="/admin/users" className="text-primary hover:underline p-2">Users</NavLink> &gt; New user
+            </h2>
 
-            {/* Card */}
-            <div className="  p-6 ">
-                {/* Top Tab */}
-                <div className="mb-6 border-b border-gray-300">
-                    <button className="px-8 py-1 text-primary border border-gray-300 border-b-white rounded-t-md bg-white font-medium">
+            {/* Tabs */}
+            <div className="mb-6">
+                <div className="flex">
+                    <button className="px-8 py-1 text-primary border border-gray-300 border-b-white rounded-t-sm bg-white font-medium">
                         User
                     </button>
                 </div>
+            </div>
 
-                {/* Content */}
+            {/* Content */}
+            <div className="p-6 border border-gray-200">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                     {/* LEFT – FORM */}
                     <div className="md:col-span-2 space-y-2">
@@ -208,7 +212,7 @@ const AddUserPage = () => {
                         {/* Create Button */}
                         <button
                             onClick={handleCreate}
-                            className="mt-6 px-6 py-2 bg-blue-600 text-white rounded"
+                            className="mt-6 px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
                         >
                             Create user
                         </button>

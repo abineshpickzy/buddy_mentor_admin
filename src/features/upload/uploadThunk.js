@@ -55,3 +55,28 @@ export const cancelUpload = createAsyncThunk(
     }
   }
 )
+
+// preview file
+
+export const previewFile = createAsyncThunk(
+  "upload/previewFile",
+  async (payload, { rejectWithValue }) => {
+    const { file, type, width, height } = payload;
+
+    const params = new URLSearchParams();
+    params.append("file", file);
+    params.append("type", type);
+    if (width) params.append("width", width);
+    if (height) params.append("height", height);
+
+    try {
+      const response = await axios.get(
+        "/ast/pvw/?" + params.toString(),{
+          responseType: "blob"
+        })
+      return response.data; 
+    } catch (error) {
+      return rejectWithValue(error.response?.data);
+    }
+  }
+);
