@@ -1,53 +1,107 @@
-import { useState } from "react";
-import { Trash2, Search } from "lucide-react";
-
-const ALL_CATEGORIES = [
-  { id: 1, name: "EPC Core Foundation", status: "live" },
-  { id: 2, name: "Production", status: "live" },
-  { id: 3, name: "Manufacturing", status: "live" },
-];
+import { useEffect, useState } from "react";
+import { Trash2, Search, Edit } from "lucide-react";
+import { useSelector } from "react-redux";
+import { useOutletContext } from "react-router-dom";
+import {editUser} from "@/features/users/userThunk";
+import { useDispatch } from "react-redux";
+import { addToast } from "@/features/toast/toastSlice";
+import {listProducts} from "@/features/products/productThunk";
+import { updateUserProduct } from "@/features/auth/authSlice";
 
 const MentoringTab = () => {
-  const [mode, setMode] = useState("list"); // list | add
+  const [mode, setMode] = useState("list"); 
   const [search, setSearch] = useState("");
+  
+ const dispatch = useDispatch();
+  
+ const { user, refetchUser } = useOutletContext();
 
-  //  Assigned categories (final saved state)
+  const { productlist } = useSelector((state) => state.products);
+  const currentUser = useSelector((state) => state.auth.user);
+
+  // Final saved categories
   const [assignedCategories, setAssignedCategories] = useState([]);
 
-  //  Temporary selection state (Add mode only)
+  // Temporary selection (store full objects)
   const [selected, setSelected] = useState([]);
+  const [originalProducts, setOriginalProducts] = useState([]);
+  const [hasChanges, setHasChanges] = useState(false);
+
+
+  useEffect(() => {
+    if (user) {
+      setAssignedCategories(user.product || []);
+    }
+    if (productlist.length === 0) {
+      dispatch(listProducts());
+      
+    }
+  }, [user]);
+
 
   /* -------------------- HELPERS -------------------- */
 
   const openAddMode = () => {
-    // pre-check already assigned categories
-    setSelected(assignedCategories.map((c) => c.id));
+    const assignedIds = user.product || [];
+    const preSelected = productlist.filter(p => assignedIds.includes(p._id));
+    setSelected(preSelected);
+    setOriginalProducts(preSelected);
     setMode("add");
   };
 
-  const toggleSelect = (id) => {
+  const toggleSelect = (product) => {
     setSelected((prev) =>
-      prev.includes(id)
-        ? prev.filter((x) => x !== id)
-        : [...prev, id]
+      prev.some((p) => p._id === product._id)
+        ? prev.filter((p) => p._id !== product._id)
+        : [...prev, product]
     );
   };
 
-  const handleAdd = () => {
-    // Assigned categories = exactly what is checked
-    const newAssigned = ALL_CATEGORIES.filter((cat) =>
-      selected.includes(cat.id)
-    );
+  useEffect(() => {
+    const selectedIds = selected.map(p => p._id).sort();
+    const originalIds = originalProducts.map(p => p._id).sort();
+    setHasChanges(JSON.stringify(selectedIds) !== JSON.stringify(originalIds));
+  }, [selected, originalProducts]);
 
-    setAssignedCategories(newAssigned);
+
+  const handleAdd = async () => {
+    console.log("Selected Products:", selected);
+    
+    try {
+      await dispatch(
+        editUser({
+          userId: user._id,
+          userData: {
+            product: selected.map((p) => p._id),
+          },
+        })
+      ).unwrap();
+      await refetchUser();
+      dispatch(addToast({ type: "success", message: "User updated successfully!" }));
+      if(user._id== currentUser._id){
+        dispatch(updateUserProduct(selected.map((p) => p._id)));
+      }
+    } catch (error) {
+      console.error("Failed to save user:", error);
+    }
     setMode("list");
   };
 
   const handleDelete = (id) => {
-    setAssignedCategories((prev) =>
-      prev.filter((c) => c.id !== id)
-    );
+   
   };
+
+  /* -------------------- FILTER -------------------- */
+
+  const assignedProductObjects = productlist.filter(p => assignedCategories.includes(p._id));
+
+  const filteredAssignedCategories = assignedProductObjects.filter((product) =>
+    product?.name?.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const filteredProducts = productlist?.filter((product) =>
+    product?.name?.toLowerCase().includes(search.toLowerCase())
+  );
 
   /* -------------------- UI -------------------- */
 
@@ -76,16 +130,16 @@ const MentoringTab = () => {
                 />
                 <Search
                   size={14}
-                  className="absolute right-2 top-2  text-gray-400 pointer-events-none "
+                  className="absolute right-2 top-2 text-gray-400 pointer-events-none"
                 />
               </div>
             </div>
           </div>
 
           {/* Table */}
-          <table className="w-full mt-4 text-sm even:bg-gray-100">
+          <table className="w-full mt-4 text-sm ">
             <thead className="bg-gray-300 text-left">
-              <tr>
+              <tr className="">
                 <th className="p-2">Sno</th>
                 <th className="p-2">Category Name</th>
                 <th className="p-2">Status</th>
@@ -94,23 +148,25 @@ const MentoringTab = () => {
             </thead>
 
             <tbody>
-              {assignedCategories.length === 0 ? (
+              {filteredAssignedCategories.length === 0 ? (
                 <tr>
                   <td colSpan={4} className="p-4 text-center text-gray-500">
-                    No categories assigned
+                    {search ? "No matching categories found" : "No categories assigned"}
                   </td>
                 </tr>
               ) : (
-                assignedCategories.map((cat, i) => (
-                  <tr key={cat.id} className="border-t bg-gray-100">
+                filteredAssignedCategories.map((cat, i) => (
+                  <tr key={cat._id} className=" bg-gray-100 even:bg-gray-200">
                     <td className="p-2">{i + 1}</td>
                     <td className="p-2">{cat.name}</td>
-                    <td className="p-2">{cat.status}</td>
                     <td className="p-2">
-                      <Trash2
+                      {cat.is_active ? "Active" : "Inactive"}
+                    </td>
+                    <td className="p-2">
+                      <Edit
                         size={18}
-                        className="text-red-500 cursor-pointer"
-                        onClick={() => handleDelete(cat.id)}
+                        className="text-blue-500 cursor-pointer"
+                        onClick={openAddMode}
                       />
                     </td>
                   </tr>
@@ -129,17 +185,19 @@ const MentoringTab = () => {
           </p>
 
           <div className="space-y-3 mt-4">
-            {ALL_CATEGORIES.map((cat) => (
+            {filteredProducts?.map((product) => (
               <label
-                key={cat.id}
+                key={product._id}
                 className="flex items-center gap-2 text-sm"
               >
                 <input
                   type="checkbox"
-                  checked={selected.includes(cat.id)}
-                  onChange={() => toggleSelect(cat.id)}
+                  checked={selected.some(
+                    (p) => p._id === product._id
+                  )}
+                  onChange={() => toggleSelect(product)}
                 />
-                {cat.name}
+                {product.name}
               </label>
             ))}
           </div>
@@ -153,7 +211,8 @@ const MentoringTab = () => {
             </button>
             <button
               onClick={handleAdd}
-              className="px-6 py-2 bg-blue-600 text-white rounded"
+              disabled={!hasChanges}
+              className="px-6 py-2 bg-blue-600 text-white rounded disabled:bg-gray-300 disabled:cursor-not-allowed"
             >
               Add
             </button>

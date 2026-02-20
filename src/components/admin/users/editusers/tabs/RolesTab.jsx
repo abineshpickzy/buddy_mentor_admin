@@ -1,38 +1,44 @@
 import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { fetchRoleList, fetchRoles } from "@/features/roles/roleThunk";
+import {  fetchRoles } from "@/features/roles/roleThunk";
 import { editUser } from "@/features/users/userThunk";
 import { useParams, useOutletContext } from "react-router-dom";
 import { addToast } from "@/features/toast/toastSlice";
 import { showLoader, hideLoader } from "@/features/loader/loaderSlice";
 
-//  sample data
-const ROLES = [
-  { id: "super_admin", label: "Super Admin" },
-  { id: "program_fp", label: "Program FP" },
-  { id: "planning_fp", label: "Planning FP" },
-  { id: "accounting_fp", label: "Accounting FP" },
-  { id: "mentor_fp", label: "Mentor FP" },
-  { id: "tech_fp", label: "Tech FP" },
-];
 
 const RolesTab = () => {
   const { userId } = useParams();
-  const { user } = useOutletContext();
+  const { user, refetchUser } = useOutletContext();
+  console.log(user)
   
   const [selectedRoles, setSelectedRoles] = useState([]);
+  const [originalRoles, setOriginalRoles] = useState([]);
+  const [hasChanges, setHasChanges] = useState(false);
   
- const { users } = useSelector((state) => state.users);
   
  const dispatch = useDispatch();
- const {rolelist,roles} = useSelector((state) => state.roles);
+ const {roles} = useSelector((state) => state.roles);
   
  useEffect(()=>{ 
-     const filtered = rolelist.filter((r)=>user?.roles?.includes(r._id));
-     setSelectedRoles(filtered.map(r=>r._id))
- },[user,roles,rolelist])
+     const filtered = roles.filter((r)=>user?.roles?.includes(r._id));
+     const roleIds = filtered.map(r=>r._id);
+     setSelectedRoles(roleIds);
+     setOriginalRoles(roleIds);
+ },[roles,user]);
+
+ useEffect(() => {
+    if(!roles.length)
+     dispatch(fetchRoles());
+  }, [dispatch]);
 
    
+  useEffect(() => {
+    const selectedSorted = [...selectedRoles].sort();
+    const originalSorted = [...originalRoles].sort();
+    setHasChanges(JSON.stringify(selectedSorted) !== JSON.stringify(originalSorted));
+  }, [selectedRoles, originalRoles]);
+
   const toggleRole = (roleId) => {
     setSelectedRoles((prev) =>
       prev.includes(roleId)
@@ -45,9 +51,9 @@ const RolesTab = () => {
     dispatch(showLoader());
     try {
       await dispatch(editUser({ userId: userId, userData: { roles: selectedRoles } })).unwrap();
-      await dispatch(fetchRoles()).unwrap();
       dispatch(addToast({ type: "success", message: "User assigned roles successfully!" }));
-     
+      await refetchUser();
+      await dispatch(fetchRoles());
     } catch (error) {
       console.error("Failed to update roles:", error);
       dispatch(addToast({ type: "error", message: "Failed to update roles" }));
@@ -60,7 +66,7 @@ const RolesTab = () => {
     <div className="p-6">
       {/* Roles list */}
       <div className="space-y-3">
-        {rolelist.map((role) => (
+        {roles.map((role) => (
           <label
             key={role._id}
             className="flex items-center gap-2 text-sm cursor-pointer"
@@ -78,7 +84,8 @@ const RolesTab = () => {
       {/* Save button */}
       <button
         onClick={handleSave}
-        className="mt-8 px-6 py-2 bg-blue-500 hover:bg-blue-600    text-white rounded"
+        disabled={!hasChanges}
+        className="mt-8 px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded disabled:bg-gray-300 disabled:cursor-not-allowed"
       >
         Save
       </button>

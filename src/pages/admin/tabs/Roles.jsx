@@ -8,16 +8,18 @@ import Privileges from "@/components/admin/roles/tabs/Privileges";
 import { useDispatch,useSelector } from "react-redux";
 import { setActiveRole } from "@/features/roles/roleSlice";
 import { createRole,unassignAdminsFromRole,assignAdminsToRole} from "@/features/roles/roleThunk";
+import {fetchRoles,defaultPrivilegesStructure} from "@/features/roles/roleThunk";
 import { addToast } from "@/features/toast/toastSlice";
 import { showLoader, hideLoader } from "@/features/loader/loaderSlice";
 import {Can} from "@/permissions";
 import { PERMISSIONS } from "@/permissions/permissions";
 
+
 const Roles = () => {
 
 
   const dispatch = useDispatch();
-  const {roles, activeRole} = useSelector((state) => state.roles);
+  const {roles, activeRole, defaultPrvillages} = useSelector((state) => state.roles);
 
   const [SystemRoles, setSystemRoles] = useState([]);
   const [CustomRoles, setCustomRoles] = useState([]);
@@ -27,6 +29,17 @@ const Roles = () => {
   const [showAssign, setShowAssign] = useState(false);
   const [showUnassign, setShowUnassign] = useState(false);
   const [selectedAdmins, setSelectedAdmins] = useState([]);
+
+useEffect(() => {
+  if (!roles.length) {
+    dispatch(fetchRoles());
+  }
+  if (defaultPrvillages.length === 0) {
+       dispatch(defaultPrivilegesStructure());
+  }
+
+  
+}, [dispatch]);
 
   
 useEffect(() => {
@@ -38,10 +51,12 @@ useEffect(() => {
 
   const user=useSelector((state) => state.auth.user);
 
-
+  console.log("Roles",roles)
+  console.log ("Active Role",activeRole)
 
   const createrole = async (roleData) => {
     const roleWithCreator = { ...roleData, created_by: user._id };
+    // console.log(roleWithCreator);
     dispatch(createRole(roleWithCreator));
     dispatch(addToast({ type: "success", message: "Role created successfully" }));
     setShowCreate(false);

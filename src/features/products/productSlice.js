@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import {  listProducts } from "./productThunk";
+import { listProducts, viewProductImage } from "./productThunk";
 
 const initialState = {
     products: [],
@@ -24,6 +24,16 @@ const productSlice = createSlice({
                 state.productlist = action.payload.data;
             })
             .addCase(listProducts.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload;
+            })
+            .addCase(viewProductImage.pending, (state) => {
+                state.loading = true;
+            })
+            .addCase(viewProductImage.fulfilled, (state) => {
+                state.loading = false;
+            })
+            .addCase(viewProductImage.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.payload;
             });

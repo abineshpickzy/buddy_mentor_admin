@@ -3,13 +3,14 @@ import { NavLink, useParams, Outlet } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { useState, useEffect } from "react";
 import {fetchProductById} from "@/features/products/productThunk";
+import {CanModule} from "@/permissions";
 
 
 const TABS = [
-  { key: "overview", label: "Overview" },
-  { key: "basis", label: "Basis" },
-  { key: "program", label: "Program" },
-  { key: "settings", label: "Settings" },
+  { key: "overview", label: "Overview", module:"mentoring_product.overview" },
+  { key: "basis", label: "Basis" ,module:"mentoring_product.core_foundation" },
+  { key: "program", label: "Program" ,module:"mentoring_product.program" },
+  { key: "settings", label: "Settings" ,module:"mentoring_product.settings" },
 ];
 
 const ProductLayout = () => {
@@ -37,8 +38,8 @@ const ProductLayout = () => {
       <div className=" sticky top-0 ">
         <div className="flex">
           {TABS.map(tab => (
-            <NavLink
-              key={tab.key}
+             <CanModule key={tab.key} module={tab.module}>
+              <NavLink
               to={`/dashboard/${productId}/${tab.key}`}
               className={({ isActive }) =>
                 `px-8 py-1 text-primary border border-gray-300 border-b-white rounded-t-sm
@@ -47,6 +48,7 @@ const ProductLayout = () => {
             >
               {tab.label}
             </NavLink>
+             </CanModule>
           ))}
         </div>
       </div>

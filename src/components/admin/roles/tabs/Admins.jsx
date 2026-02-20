@@ -3,11 +3,10 @@ import { useSelector, useDispatch } from 'react-redux';
 
 const Admins = ({ onSelectionChange }) => {
     const { activeRole } = useSelector((state) => state.roles);
-    // const { users } = useSelector((state) => state.users);
     const [admins, setAdmins] = useState([]);
     const [selectedAdmins, setSelectedAdmins] = useState([]);
     const { user } = useSelector((state) => state.auth);
-    // const roles = useSelector((state) => state.roles.roles);
+    
 
     useEffect(() => {
         if (activeRole){
@@ -24,7 +23,6 @@ const Admins = ({ onSelectionChange }) => {
     const handleSelectAll = (checked) => {
         setSelectedAdmins(checked ? selectableAdmins.map(admin => admin._id) : []);
     };
-
 
     const handleSelectAdmin = (adminId, checked) => {
         setSelectedAdmins(prev => 

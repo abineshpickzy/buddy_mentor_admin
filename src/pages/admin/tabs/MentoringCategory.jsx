@@ -1,12 +1,46 @@
 import React, { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
-import { ChevronDown,Box } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import { Can } from '@/permissions';
 import { PERMISSIONS } from "../../../permissions/permissions";
 import { usePermission } from '@/permissions';
 import { useNavigate } from "react-router-dom";
 import { useDispatch,useSelector } from "react-redux";
-import { listProducts } from "@/features/products/productThunk";
+import { listProducts, viewProductImage } from "@/features/products/productThunk";
+
+const ProductIcon = ({ product_icon }) => {
+  const [iconUrl, setIconUrl] = useState("https://cdn-icons-png.flaticon.com/512/3875/3875172.png");
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (product_icon && product_icon !== 'null' && product_icon !== null) {
+      dispatch(viewProductImage({ file: product_icon, width: 100, height: 100 })).unwrap()
+        .then(blob => {
+          if (blob) {
+            const imageUrl = URL.createObjectURL(blob);
+            setIconUrl(imageUrl);
+          }
+        })
+        .catch(() => {
+          setIconUrl("https://cdn-icons-png.flaticon.com/512/3875/3875172.png");
+        });
+    }
+
+    return () => {
+      if (iconUrl !== "https://cdn-icons-png.flaticon.com/512/3875/3875172.png") {
+        URL.revokeObjectURL(iconUrl);
+      }
+    };
+  }, [product_icon, dispatch]);
+
+  return (
+    <img
+      src={iconUrl}
+      alt="Product icon"
+      className="w-8 h-8 object-cover rounded"
+    />
+  );
+};
 
 const MentoringCategory = () => {
   const [statusFilter, setStatusFilter] = useState("Open");
@@ -92,13 +126,13 @@ const MentoringCategory = () => {
               >
                 <td className="p-2">{index + 1}</td>
                 <td className="p-2 font-medium">
-                  <Box size={20} />
+                  <ProductIcon product_icon={item.image} />
                 </td>
                 <td className="p-2">{item.name}</td>
                 <td className="p-2 text-green-600 capitalize">
                   {item.status == 1 ? "live" : "open"}
                 </td>
-                {editPermission && <td className="p-2 flex gap-4 text-blue-600">
+                {editPermission && <td className="p-2 flrx text-blue-600">
                   <button className="hover:underline cursor-pointer" onClick={()=>navigate(`/admin/mentoring-product/edit/${item._id}`) }>edit</button>
 
                 </td>

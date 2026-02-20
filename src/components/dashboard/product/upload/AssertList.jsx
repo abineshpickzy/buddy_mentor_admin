@@ -1,11 +1,13 @@
 
-import React, { useEffect, useState } from 'react';
-import { FileText, VideoIcon, Loader2, CheckCircle2, AlertCircle, SquarePen, Image, FileSearchCorner } from 'lucide-react';
+import React, {  useState } from 'react';
+import { FileText, VideoIcon,Image, } from 'lucide-react';
 import PreviewModal from './PreviewModal';
+import {Can} from "@/permissions";
+import {PERMISSIONS} from "@/permissions/permissions";
 
 
 
-const AssertList = ({ assets }) => {
+const AssertList = ({ assets, onReplace, productType }) => {
   const [previewFile, setPreviewFile] = useState(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
@@ -14,87 +16,128 @@ const AssertList = ({ assets }) => {
     setIsPreviewOpen(true);
   };
 
-  const getStatusBadge = (file) => {
-    if (file.type.startsWith("video")) {
-      return (
-        <span className="flex items-center justify-between px-2 text-xs font-medium py-1">
-          <div className="flex items-center gap-2 text-primary font-semibold text-base"> <VideoIcon size={24} fill="rgba(22, 56, 94, 1)" />{file.file_name ? file.file_name : file.name}</div>
-          <span className='text-primary/90 cursor-pointer '><SquarePen className="" size={18} strokeWidth={2.5} /></span>
-        </span>
-      );
-    }
-
-    if (file.type==="image") {
-      console.log(file);
-      return (
-        <span className="flex items-center justify-between px-2 text-xs font-medium py-1" >
-          <div className="flex items-center gap-2 text-primary font-semibold text-base cursor-pointer" onClick={() => handleFileClick(file)}> <Image size={24} className="black " />{file.original_name? file.original_name : file.name}</div>
-          <span className='text-primary/90 cursor-pointer'> <SquarePen className="" size={18} strokeWidth={2.5} /></span>
-        </span>
-      );
-    }
-    console.log(file.original_name);
-    return (
-      
-      <span className="flex items-center justify-between px-2 text-xs font-medium py-1" >
-        <div className="flex items-center gap-2 text-primary font-semibold text-base cursor-pointer" onClick={() => handleFileClick(file)}> <FileText size={24} className="black" />{file.original_name? file.original_name : file.name}</div>
-        <span className='text-primary/90 cursor-pointer flex items-center gap-6'> <FileSearchCorner className="text-primary/50" size={18} strokeWidth={2.5} />  <SquarePen size={18} strokeWidth={2.5} /></span>
-      </span>
-    );
+ const handleEdit = (file, e) => {
+    e.stopPropagation();
+    setPreviewFile(file);
+    setIsPreviewOpen(true);
   };
 
 
-  return (
-    <div className="flex flex-col ">
-      {/* <h3 className=' text-xl font-semibold text-primary '>Assets</h3> */}
-      {assets.map((file, index) => (
-        <div
-          key={file._id}
-          className=" px-4 flex flex-col  max-w-sm"
-        >
-          {file.type?.startsWith("video") ?
+return (
+  <div className="overflow-x-auto">
+    <table className="w-full text-sm text-left">
+      <thead className="bg-gray-300 text-gray-600 uppercase text-xs">
+        <tr>
+          <th className="px-6 py-3">Sno</th>
+          <th className="px-6 py-3">Icon</th>
+          <th className="px-6 py-3">Asset Name</th>
+          <th className="px-6 py-3">Asset Type</th>
+          <th className="px-6 py-3 text-center">Is Downloadable</th>
+          <th className="px-6 py-3">Status</th>
+         <Can permissions={productType === 0 ? PERMISSIONS.MENTORING_PRODUCT_CORE_FOUNDATION_EDIT : PERMISSIONS.MENTORING_PRODUCT_PROGRAM_EDIT}> <th className="px-6 py-3">Action</th></Can>
+        </tr>
+      </thead>
 
-            // video
-            (
+      <tbody className=''>
+        {assets.length === 0 ? (
+          <tr>
+            <td colSpan="7" className="px-6 py-2 text-center text-gray-500">
+              No assets found
+            </td>
+          </tr>
+        ) : (
+          assets.map((file, index) => (
+          <tr
+            key={file._id || index}
+            className="even:bg-gray-200 "
+          >
+            {/* Sno */}
+            <td className="px-6 py-4">{index + 1}</td>
 
-              <div >
-                {getStatusBadge(file)}
-                <iframe
-                  src={file.cloudflare_uid?`https://videodelivery.net/${file.cloudflare_uid}/iframe` : file.src}
-                  loading="lazy"
-                  title={file.file_name}
-                  allowFullScreen
-                  className="w-full h-32 rounded-md"
-                  frameBorder="0"
-                />
+            {/* Icon */}
+            <td className="px-6 py-4">
+              {file.type?.startsWith("video") && (
+                <VideoIcon size={20} className="text-blue-600" />
+              )}
 
-              </div>
-            )
-            :
+              {file.type.startsWith("image") && (
+                <Image size={20} className="text-green-600" />
+              )}
 
-        
+              {!file.type?.startsWith("video") &&
+                !file.type.startsWith("image") && (
+                  <FileText size={20} className="text-gray-600" />
+                )}
+            </td>
 
-              //  file
-              (
-                <div>
-                  {getStatusBadge(file)}
-                </div>
-              )
-          }
+            {/* Asset Name */}
+            <td
+              className="px-6 py-4 font-medium text-primary cursor-pointer hover:underline"
+              onClick={() => handleFileClick(file)}
+            >
+              {file.original_name ||
+                file.file_name ||
+                file.name}
+            </td>
 
-          {index !== assets.length - 1 && (
-            <div className=" h-[1.5px] w-full my-4 bg-gray-200" />
+            {/* Asset Type */}
+            <td className="px-6 py-4 capitalize">
+              {file.type?.startsWith("video")
+                ? "Video"
+                : file.type?.startsWith("image")
+                ? "Image"
+                : "File"}
+            </td>
 
-          )}
-        </div>
-      ))}
-      <PreviewModal 
-        open={isPreviewOpen} 
-        onClose={() => setIsPreviewOpen(false)} 
-        file={previewFile} 
-      />
-    </div>
-  );
+            {/* Is Downloadable */}
+            <td className="px-6 py-4 text-center ">
+            
+              {file.is_downloadable ? (
+                <span className="py-1 text-xs rounded-full text-green-600">
+                  Yes
+                </span>
+              ) : (
+                <span className="py-1 text-xs rounded-full text-red-600">
+                  No
+                </span>
+              )}
+              
+            </td>
+
+            {/* Status */}
+            <td className="px-6 py-4">
+              <span className=" py-1 text-xs rounded-full ">
+                {file.status || "Approved"}
+              </span>
+            </td>
+
+            {/* Action */}
+              <Can permissions={productType === 0 ? PERMISSIONS.MENTORING_PRODUCT_CORE_FOUNDATION_EDIT : PERMISSIONS.MENTORING_PRODUCT_PROGRAM_EDIT}>
+                  <td className="px-6 py-4 text-blue-600 cursor-pointer hover:underline" onClick={(e) => handleEdit(file, e)}>
+              Edit
+            </td>
+              </Can>
+          
+          </tr>
+          ))
+        )}
+      </tbody>
+    </table>
+
+    {/* Preview Modal */}
+    <PreviewModal
+      open={isPreviewOpen}
+      onClose={() => setIsPreviewOpen(false)}
+      file={previewFile}
+      onReplace={() => {
+        setIsPreviewOpen(false);
+        onReplace(previewFile);
+      }}
+      productType={productType}
+    />
+  </div>
+);
+
 };
 
 export default AssertList;

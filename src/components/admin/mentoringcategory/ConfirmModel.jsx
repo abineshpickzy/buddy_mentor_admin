@@ -16,9 +16,16 @@ const ConfirmModal = ({ name, open, onCancel, onConfirm }) => {
         
         {/* Header */}
         <div className="flex justify-between items-center mb-4">
+         {
+          name&&name=="Logout"?
           <h2 className="text-sm font-semibold text-gray-700">
+            {name}
+          </h2>
+          :
+           <h2 className="text-sm font-semibold text-gray-700">
             Delete "{name}"
           </h2>
+         }
           <X
             size={18}
             className="cursor-pointer text-gray-500"
@@ -28,9 +35,15 @@ const ConfirmModal = ({ name, open, onCancel, onConfirm }) => {
 
         {/* Body */}
         <div className="mb-6">
+         {name&&name=="Logout"?
+          <p className="text-sm text-gray-600 mb-3">
+            Are you sure you want to logout ?
+          </p>
+          :
           <p className="text-sm text-gray-600 mb-3">
            Are you sure you want to delete {name} and all its inner nodes ?
           </p>
+         }
 
          
         </div>

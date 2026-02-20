@@ -6,11 +6,11 @@ import { useDispatch } from "react-redux";
 import { editUser } from "@/features/users/userThunk";
 import { addToast } from "@/features/toast/toastSlice";
 import { showLoader, hideLoader } from "@/features/loader/loaderSlice";
-import { fetchRoles } from "@/features/roles/roleThunk";
+import { viewUserImage } from "@/features/users/userThunk";
 import md5 from "md5";
 
 const UserTab = () => {
-  const { user} = useOutletContext();
+  const { user, refetchUser } = useOutletContext();
  
   const [form, setForm] = useState({
     first_name: user?.first_name || "",
@@ -55,8 +55,17 @@ const UserTab = () => {
       setInitialForm(formData);
       setHasChanges(false);
 
-      if (user.photo) {
-        setPreview(user.photo);
+      if (user.profile_image) {
+        dispatch(viewUserImage({file:user.profile_image})).unwrap()
+          .then(blob => {
+            if (blob) {
+              const imageUrl = URL.createObjectURL(blob);
+              setPreview(imageUrl);
+            }
+          })
+          .catch(error => {
+            console.error("Error loading profile image:", error);
+          });
       }
     }
   }, [user]);
@@ -122,6 +131,7 @@ const UserTab = () => {
     dispatch(showLoader());
     try {
       const userData = { ...form };
+      delete userData.forcePasswordChange;
 
       // Convert mobile_number to number
       userData.mobile_number = Number(userData.mobile_number);
@@ -135,11 +145,17 @@ const UserTab = () => {
         delete userData.confirmPassword;
       }
 
-      console.log("Sending userData:", userData);
-      const result = await dispatch(editUser({ userId: user._id, userData })).unwrap();
+      const fd = new FormData();
+      fd.append("profile_image", profileImage);
+       Object.keys(userData).forEach(key => {
+            fd.append(key, userData[key]);
+      });
+
+      const result = await dispatch(editUser({ userId: user._id, userData: fd})).unwrap();
       console.log("API result:", result);
       dispatch(addToast({ type: "success", message: "User updated successfully!" }));
-      dispatch(fetchRoles());
+      await refetchUser();
+      setHasChanges(false);
     } catch (error) {
       console.error("Failed to update user:", error);
       dispatch(addToast({ type: "error", message: "Failed to update user. Please try again." }));

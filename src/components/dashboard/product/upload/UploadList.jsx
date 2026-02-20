@@ -67,11 +67,13 @@ const UploadList = ({ uploadingFile, handleCancelUpload }) => {
 
   return (
     <div className="flex flex-col py-4">
-      <h3  className=' text-xl font-semibold text-primary leading-tight'>Uploading Files</h3>
+     <div className=" py-4 border-gray-200 text-lg font-semibold text-primary">
+        Uploading Files
+      </div>
       {uploadingFile.map((file) => (
         <div
           key={file.uid}
-          className=" p-4 flex flex-col border-b-2 border-gray-200 max-w-sm"
+          className=" py-2 flex flex-col  max-w-sm"
         >
           { file.fileType?.startsWith("video/")? (
            

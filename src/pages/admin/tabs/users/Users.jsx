@@ -3,7 +3,8 @@ import UserList from "@/components/admin/users/UserList";
 import { Search } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-
+import { fetchUsers } from "@/features/users/userThunk";
+import { fetchRoleList } from "@/features/roles/roleThunk";
 import {Can} from "@/permissions";
 import { PERMISSIONS } from "@/permissions/permissions";
 import { ChevronDown } from "lucide-react";
@@ -16,6 +17,7 @@ const Users = () => {
     text: ''
   });
 
+  
   const { rolelist } = useSelector((state) => state.roles);
   const {users} = useSelector((state) => state.users);
 
@@ -38,7 +40,6 @@ const Users = () => {
         u.email_id?.toLowerCase().includes(searchLower)
       );
     }
-
     return result;
   }, [users, filters]);
 
@@ -46,7 +47,14 @@ const Users = () => {
     setFilters(prev => ({ ...prev, [key]: value }));
   };
 
-
+  useEffect (() => {
+     if(users.length === 0){
+       dispatch(fetchUsers());
+     }
+     if(rolelist.length === 0){
+       dispatch(fetchRoleList());
+     }
+  }, [dispatch]);
   return (
     <div className="p-6">
       

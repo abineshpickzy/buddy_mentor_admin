@@ -62,9 +62,10 @@ export const deleteProgramNode = createAsyncThunk("products/deleteProgramNode", 
 });
 
 
-export const updateProduct = createAsyncThunk("products/updateProduct", async (payload, { dispatch, rejectWithValue }) => {
+export const updateProduct = createAsyncThunk("products/updateProduct", async ({id,data}, { dispatch, rejectWithValue }) => {
     try {
-        const response = await axios.put(`/prd/${payload._id}/ed`, payload);
+        const response = await axios.put(`/prd/${id}/ed`, data);
+        dispatch(listProducts());
         return response.data;
     } catch (error) {
         return rejectWithValue(error.message);
@@ -88,6 +89,40 @@ export const getAssertFiles = createAsyncThunk("products/getAssertFiles", async 
     try {
         
         const response = await axios.get(`/prd/${id}/lst?type=${type}`);
+        return response.data;
+    } catch (error) {
+        return rejectWithValue(error.message);
+    }
+});
+
+// view Product Image
+export const viewProductImage = createAsyncThunk(
+  "upload/viewProductImage",
+  async (payload, { rejectWithValue }) => {
+    const { file, width, height } = payload;
+
+    const params = new URLSearchParams();
+    params.append("file", file);
+
+    if (width) params.append("width", width);
+    if (height) params.append("height", height);
+
+    try {
+      const response = await axios.get(
+        "prd/img/vw?" + params.toString(),{
+          responseType: "blob"
+        })
+      return response.data; 
+    } catch (error) {
+      return rejectWithValue(error.response?.data);
+    }
+  }
+);
+
+// edit Node
+export const editNode = createAsyncThunk("products/editNode", async (payload, { dispatch, rejectWithValue }) => {
+    try {
+        const response = await axios.put(`prd/${payload.id}/edt`, payload.data);
         return response.data;
     } catch (error) {
         return rejectWithValue(error.message);

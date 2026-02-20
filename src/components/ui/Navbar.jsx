@@ -5,6 +5,9 @@ import {logout} from "@/features/auth/authSlice";
 import { useDispatch, useSelector } from "react-redux";
 import {PERMISSIONS} from "@/permissions/permissions";
 import { CanModule } from "@/permissions";
+import {viewUserImage} from "@/features/users/userThunk";
+import { useState, useEffect } from "react";
+import ConfirmModal from "@/components/admin/mentoringcategory/ConfirmModel";
 
 
 const Navbar = ( { onMenuClick } ) => {
@@ -12,6 +15,29 @@ const Navbar = ( { onMenuClick } ) => {
   const dispatch = useDispatch(); 
 
   const {user} = useSelector((state) => state.auth);
+  const [profileImage, setProfileImage] = useState("https://i.pravatar.cc/40");
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+
+  useEffect(() => {
+    if (user?.profile_image && user.profile_image !== 'null' && user.profile_image !== null) {
+      dispatch(viewUserImage({ file: user.profile_image, width: 100 })).unwrap()
+        .then(blob => {
+          if (blob) {
+            const imageUrl = URL.createObjectURL(blob);
+            setProfileImage(imageUrl);
+          }
+        })
+        .catch(() => {
+          setProfileImage("https://i.pravatar.cc/40");
+        });
+    }
+
+    return () => {
+      if (profileImage !== "https://i.pravatar.cc/40") {
+        URL.revokeObjectURL(profileImage);
+      }
+    };
+  }, [user?.profile_image, dispatch]);
 
   const isActiveTab = (tabLink) => {
     const basePath = tabLink.split('/').slice(0, 2).join('/');
@@ -20,7 +46,7 @@ const Navbar = ( { onMenuClick } ) => {
 
   const tabs = [
     { label: "Mentees Dashboard", link: "/dashboard/overview", module:"admin" },
-    { label: "Accounting FP", link: "/account" ,module:"admin"},
+    { label: "Accounting FP", link: "/account" ,module:"accounting"},
     { label: "Admin", link: "/admin" ,module: "admin"}
   ];
 
@@ -48,9 +74,9 @@ const Navbar = ( { onMenuClick } ) => {
             {/* Tabs (Desktop) */}
             <nav className=" md:flex gap-2 ml-4">
               {tabs.map((tab) => (
-                // <CanModule key={tab.label} module={tab.module}>
+                <CanModule key={tab.label} module={tab.module}>
                   <NavLink
-                    key={tab.label}
+                    // key={tab.label}
                     to={tab.link}
                     className={`px-4 py-1 rounded text-sm font-medium
                       ${
@@ -61,7 +87,7 @@ const Navbar = ( { onMenuClick } ) => {
                   >
                     {tab.label}
                   </NavLink>
-                // </CanModule>
+                 </CanModule>
               ))}
             </nav>
           </div>
@@ -77,20 +103,31 @@ const Navbar = ( { onMenuClick } ) => {
 
             {/* Avatar */}
             <img
-              src="https://i.pravatar.cc/40"
+              src={profileImage}
               alt="profile"
-              className="w-8 h-8 rounded-full border"
+              className="w-8 h-8 rounded-full border object-fill"
             />
             {user?.user_name ||"Admin"}
 
             {/* Logout */}
-            <button className=" md:flex items-center gap-1 border px-3 py-1 bg-white text-sm" onClick={() => dispatch(logout())}>
+            <button className=" md:flex items-center gap-1 border px-3 py-1 bg-white text-sm" onClick={() => setShowLogoutModal(true)}>
               <LogOut size={16} />
               Logout
             </button>
           </div>
         </div>
       </header>
+
+      <ConfirmModal
+        
+        name="Logout"
+        open={showLogoutModal}
+        onCancel={() => setShowLogoutModal(false)}
+        onConfirm={() => {
+          dispatch(logout());
+          setShowLogoutModal(false);
+        }}
+      />
 
    
     </>

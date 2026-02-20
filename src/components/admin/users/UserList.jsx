@@ -29,7 +29,7 @@ const UserList = ({ users }) => {
 
         {/* Table Body */}
         <tbody>
-          {users.map((user, index) => (
+          {users?.map((user, index) => (
             <UserRow
               key={user._id}
               user={user}

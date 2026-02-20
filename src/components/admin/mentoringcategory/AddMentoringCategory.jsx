@@ -4,9 +4,11 @@ import CategoryTree from "./CategoryTree";
 import { checkAvailability,createProduct } from "../../../features/products/productThunk";
 import {addToast} from "@/features/toast/toastSlice";
 import {showLoader,hideLoader} from "@/features/loader/loaderSlice";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 
 const AddMentoringCategory = () => {
+  
+  const navigator = useNavigate();
   const dispatch = useDispatch();
   const [categoryName, setCategoryName] = useState("");
   const [basis, setBasis] = useState([]);
@@ -64,8 +66,7 @@ const handleImageUpload = (e) => {
 };
   const handleCreate = async () => {
    console.log("basis :", basis,"program :",program,"categoryName :",categoryName);
-    const payload = {
-       
+    const payload = { 
       product_name: categoryName,
       basics: addOrderNumbers(basis),
       programs: addOrderNumbers(program)
@@ -86,9 +87,17 @@ const handleImageUpload = (e) => {
       return;
     };
 
+    const fd = new FormData();
+    fd.append("product_icon", profileImage);
+    fd.append("product_name", payload.product_name);
+    fd.append("basics", JSON.stringify(payload.basics));
+    fd.append("programs", JSON.stringify(payload.programs));
+
+     console.log("fd :",fd);
      try {
+  
       dispatch(showLoader());
-      await dispatch(createProduct(payload)).unwrap();
+      await dispatch(createProduct(fd)).unwrap();
       dispatch(addToast({message:"Product Created Successfully",type:"success"}));
       setCategoryName("");
       navigator("/admin/mentoring-product");

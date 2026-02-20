@@ -1,14 +1,47 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ChevronRight, ChevronDown } from "lucide-react";
-const TreeNode = ({ node }) => {
+import {Can} from "@/permissions";
+import { PERMISSIONS } from "@/permissions/permissions";
+const TreeNode = ({ node, editNodeHandler, type }) => {
   const [open, setOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
 
-  const [price, setPrice] = useState(0);
-  const [trialDays, setTrialDays] = useState(0);
-  const [duration, setDuration] = useState(0);
-  const [isActive, setIsActive] = useState(true);
+  const [price, setPrice] = useState(node.price || 0);
+  const [trialDays, setTrialDays] = useState(node.trial_days || 0);
+  const [duration, setDuration] = useState(node.duration || 0);
+  const [isActive, setIsActive] = useState(node.is_active ?? true);
+
+  const [hasChanges, setHasChanges] = useState(false);
+
+  // Update local state when node prop changes (after save)
+  useEffect(() => {
+    setPrice(node.price || 0);
+    setTrialDays(node.trial_days || 0);
+    setDuration(node.duration || 0);
+    setIsActive(node.is_active ?? true);
+  }, [node]);
+
+  useEffect(() => {
+    const changed = 
+      price !== (node.price || 0) ||
+      trialDays !== (node.trial_days || 0) ||
+      duration !== (node.duration || 0) ||
+      isActive !== (node.is_active ?? true);
+    setHasChanges(changed);
+  }, [price, trialDays, duration, isActive, node]);
+
+  const handleSave = () => {
+    const data = {
+      type,
+      price: Number(price),
+      trial_days: Number(trialDays),
+      duration: Number(duration),
+      is_active: isActive,
+      nodeid: node._id
+    };
+    editNodeHandler(data);
+  };
 
   return (
     <div className="relative pl-4">
@@ -30,7 +63,7 @@ const TreeNode = ({ node }) => {
 
             {(settingsOpen && open && node.children?.length > 0) && (
               <div className="flex-1">
-                 <div className="w-[4px] min-h-44 bg-red-500 ml-12"/>
+                 <div className="w-[4px] min-h-60 bg-red-500 ml-12"/>
               </div>
             )}
           </div>
@@ -80,7 +113,7 @@ const TreeNode = ({ node }) => {
 
                 {/* Price */}
                 <div className="flex items-center gap-3">
-                  <p className="w-24 text-right font-medium">Price:</p>
+                  <p className="w-24 text-left font-medium">Price:</p>
                   <input
                     type="text"
                     value={price}
@@ -115,7 +148,7 @@ const TreeNode = ({ node }) => {
 
                 {/* Trial Days */}
                 <div className="flex items-center gap-3">
-                  <p className="w-24 text-right font-medium">Trial Days:</p>
+                  <p className="w-24 text-left font-medium">Trial Days:</p>
                   <input
                     type="text"
                     value={trialDays}
@@ -147,6 +180,19 @@ const TreeNode = ({ node }) => {
                 </div>
 
               </div>
+
+              {/* Save Button */}
+              <div className=" mt-6 flex justify-end ">
+               <Can permission={PERMISSIONS.MENTORING_PRODUCT_SETTINGS_EDIT}>
+                 <button
+                  onClick={handleSave}
+                  disabled={!hasChanges}
+                  className="px-6 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 cursor-pointer disabled:bg-gray-300 disabled:cursor-not-allowed"
+                >
+                  Save
+                </button>
+               </Can>
+              </div>
             </div>
           )}
         </div>
@@ -176,7 +222,7 @@ const TreeNode = ({ node }) => {
 
             {/* CHILD CONTENT */}
             <div className="pl-22"> 
-              <TreeNode node={child} isLast={isLastChild} />
+              <TreeNode node={child} isLast={isLastChild} editNodeHandler={editNodeHandler} type={type} />
             </div>
 
             {/* STOP VERTICAL LINE AFTER LAST CHILD */}

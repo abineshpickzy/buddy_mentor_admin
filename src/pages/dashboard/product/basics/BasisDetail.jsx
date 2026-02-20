@@ -4,14 +4,16 @@ import TreeMenu from "@/components/dashboard/product/TreeMenu";
 import NewModel from "@/components/dashboard/product/NewModel";
 import UploadModel from "@/components/dashboard/product/upload/UploadModel";
 import { useDispatch, useSelector } from "react-redux";
-import { addNode,getAssertFiles } from "@/features/products/productThunk";
+import { addNode, getAssertFiles } from "@/features/products/productThunk";
 import { showLoader, hideLoader } from "@/features/loader/loaderSlice";
 import { addToast } from "@/features/toast/toastSlice";
 import { addFile, setStatus, deleteFile } from "@/features/upload/uploadSlice";
-import { uploadFile, saveVideoFile, saveAssert, cancelUpload } from "@/features/upload/uploadThunk";
+import { uploadFile, saveVideoFile, saveAssert, cancelUpload, replaceAssetFile } from "@/features/upload/uploadThunk";
 import UploadList from "@/components/dashboard/product/upload/UploadList";
 import AssertList from "@/components/dashboard/product/upload/AssertList";
 import CancelConfirmModal from "@/components/dashboard/product/CancelConfirmModel";
+import { PERMISSIONS } from "@/permissions/permissions";
+import { Can } from "@/permissions";
 
 import * as tus from "tus-js-client";
 
@@ -40,6 +42,8 @@ const BasisDetail = () => {
   const [isUploadModelOpen, setIsUploadModelOpen] = useState(false);
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [cancellingUid, setCancellingUid] = useState(null);
+  const [replaceMode, setReplaceMode] = useState(false);
+  const [replacingFile, setReplacingFile] = useState(null);
 
 
   const handleNewSubmit = async (data) => {
@@ -74,7 +78,115 @@ const BasisDetail = () => {
     console.log("Uploaded file:", file);
 
     if (!file) return;
-    // 1️ Ask backend for TUS upload URL
+
+    // Replace mode
+    if (replaceMode && replacingFile) {
+
+      console.log("Replacing file:", replacingFile);
+      if (file.type.startsWith('video')) {
+        const payload = {
+          file_name: file.name,
+          file_size: file.size,
+          file_type: file.type
+        }
+
+        const res = await dispatch(uploadFile(payload)).unwrap();
+        const { uploadURL, uid } = res;
+
+        const previewURL = URL.createObjectURL(file);
+        const newFile = { name: file.name, nodeId: nodeId, uploadURL: uploadURL, status: "Uploading", uid: uid, progress: 0, fileType: file.type, previewURL }
+
+        dispatch(addFile(newFile));
+        setIsUploadModelOpen(false);
+        dispatch(addToast({ message: "File Replacing Started", type: "success" }));
+
+        const upload = new tus.Upload(file, {
+          uploadUrl: uploadURL,
+          chunkSize: 5 * 1024 * 1024,
+          retryDelays: [0, 3000, 5000, 10000],
+          onError: async function (error) {
+            console.error(error);
+            dispatch(setStatus({ uid: uid, status: "Failed", progress: 0 }));
+            delete activeUploadsRef.current[uid];
+          },
+          onProgress: function (bytesUploaded, bytesTotal) {
+            const percentage = Math.round((bytesUploaded / bytesTotal) * 100);
+            dispatch(setStatus({ uid: uid, status: "Uploading", progress: percentage }));
+          },
+          onSuccess: async function () {
+            try {
+              const replacePayload = {
+                nodeId: nodeId,
+                assetId: replacingFile._id,
+                payload: {
+                  cloudflare_uid: uid,
+                  file_name: file.name,
+                  type: "video",
+                  product_type: 0
+                }
+              };
+              await dispatch(replaceAssetFile(replacePayload)).unwrap();
+              dispatch(setStatus({ uid: uid, status: "Completed", progress: 100 }));
+              dispatch(addToast({ message: `File ${file.name} Replaced Successfully`, type: "success" }));
+              if (currentNodeIdRef.current === newFile.nodeId) {
+                setAssertFiles((prevFiles) => [
+                  ...prevFiles.filter(f => f._id !== replacingFile._id),
+                  { id: uid, name: file.name, type: file.type, src: URL.createObjectURL(file) }
+                ]);
+              }
+              dispatch(deleteFile({ uid: uid }));
+              delete activeUploadsRef.current[uid];
+            } catch (error) {
+              console.error("Error replacing file:", error);
+              dispatch(addToast({ message: `Failed to replace file ${file.name}`, type: "error" }));
+            }
+          },
+        });
+
+        activeUploadsRef.current[uid] = upload;
+        upload.start();
+
+      }
+      //  if (file.type.startsWith('image'))
+      else {
+
+        console.log("Replace assert file:", replacingFile, "with:", file);
+
+        try {
+
+          const fd = new FormData();
+          fd.append('file', file);
+          fd.append('type', 'file');
+          fd.append('product_type', 0);
+
+          const replacePayload = {
+            nodeId: nodeId,
+            assetId: replacingFile._id,
+            payload: fd
+          };
+
+          await dispatch(replaceAssetFile(replacePayload)).unwrap();
+          dispatch(addToast({ message: `File ${file.name} Replaced Successfully`, type: "success" }));
+          setAssertFiles((prevFiles) => [
+            ...prevFiles.filter(f => f._id !== replacingFile._id),
+            { _id: file.name, name: file.name, type: file.type, src: URL.createObjectURL(file) }
+          ]);
+          setIsUploadModelOpen(false); 
+        } catch (error) {
+          console.error("Error replacing file:", error);
+          dispatch(addToast({ message: `Failed to replace file ${file.name}`, type: "error" }));
+        }
+
+
+      }
+      setReplaceMode(false);
+      setReplacingFile(null);
+      return;
+    }
+
+
+    // Normal upload mode
+    // 1 Ask backend for TUS upload URL
 
     if (file.type.startsWith('video/')) {
       const payload = {
@@ -97,7 +209,7 @@ const BasisDetail = () => {
       dispatch(addToast({ message: "File Uploading Started", type: "success" }));
 
 
-      // 2️ Upload in chunks
+      // 2 Upload in chunks
       const upload = new tus.Upload(file, {
         uploadUrl: uploadURL,
         chunkSize: 5 * 1024 * 1024, // 5MB chunks
@@ -116,7 +228,7 @@ const BasisDetail = () => {
           try {
             const payload = {
               parent_id: nodeId,
-              cloudflare_uid: uid,  
+              cloudflare_uid: uid,
               file_name: file.name,
               type: "video",
               product_type: 0,
@@ -153,7 +265,7 @@ const BasisDetail = () => {
         await dispatch(saveAssert(formData)).unwrap();
         dispatch(addToast({ message: `File ${file.name} Uploaded Successfully`, type: "success" }));
         setAssertFiles((prevFiles) => [...prevFiles, { _id: file.name, name: file.name, type: file.type, src: URL.createObjectURL(file) }]);
-         setIsUploadModelOpen(false);
+        setIsUploadModelOpen(false);
       } catch (error) {
         console.error("Error uploading file:", error);
         dispatch(addToast({ message: `Failed to upload file ${file.name}`, type: "error" }));
@@ -161,9 +273,23 @@ const BasisDetail = () => {
       }
 
     }
-    
+
   }
 
+
+  // Handle replace from AssertList
+  const handleReplace = (file) => {
+    setReplacingFile(file);
+    setReplaceMode(true);
+    setIsUploadModelOpen(true);
+  };
+
+  // Handle toggle downloadable
+  const handleToggleDownloadable = (fileId, newValue) => {
+    setAssertFiles(prevFiles => 
+      prevFiles.map(f => f._id === fileId ? { ...f, is_downloadable: newValue } : f)
+    );
+  };
 
   // cancel upload click
   const handleCancelClick = (uid) => {
@@ -246,18 +372,20 @@ const BasisDetail = () => {
     setBreadcrumbs(path);
   }, [product, nodeId]);
 
+
   // get Assert Files
   useEffect(() => {
-      if (nodeId){
-       try {
-         dispatch(getAssertFiles({id:nodeId,type:0})).unwrap()
-         .then(res=>{console.log(res);
-          setAssertFiles(res.data);
-         })
-       } catch (error) {
+    if (nodeId) {
+      try {
+        dispatch(getAssertFiles({ id: nodeId, type: 0 })).unwrap()
+          .then(res => {
+            console.log(res);
+            setAssertFiles(res.data);
+          })
+      } catch (error) {
         console.error("Error getting files:", error);
-       }
       }
+    }
   }, [nodeId, dispatch]);
 
 
@@ -278,10 +406,11 @@ const BasisDetail = () => {
   }, [loading, dispatch]);
 
   return (
-    <div className="">
+    <div className="space-y-8">
 
+      {/* ================= BREADCRUMBS ================= */}
       {breadcrumbs.length > 0 && (
-        <div className="py-2 mb-4">
+        <div className="py-2">
           <span
             className="text-primary/75 cursor-pointer hover:underline pr-2"
             onClick={() => navigate(`/dashboard/${product.product._id}/basis`)}
@@ -289,76 +418,115 @@ const BasisDetail = () => {
             Basic
           </span>
           <span className="text-primary/75 pr-2"> &gt; </span>
+
           {breadcrumbs.map((node, index) => {
             const isLast = index === breadcrumbs.length - 1;
+
             return (
               <span key={node._id}>
                 <span
-                  className={isLast ? "font-semibold text-primary" : "text-primary/75 cursor-pointer hover:underline pr-2"}
-                  onClick={isLast ? undefined : () => navigate(`/dashboard/${product.product._id}/basis/${node._id}`)}
+                  className={
+                    isLast
+                      ? "font-semibold text-primary"
+                      : "text-primary/75 cursor-pointer hover:underline pr-2"
+                  }
+                  onClick={
+                    isLast
+                      ? undefined
+                      : () =>
+                        navigate(
+                          `/dashboard/${product.product._id}/basis/${node._id}`
+                        )
+                  }
                 >
                   {node.name}
                 </span>
-                {!isLast && <span className="text-primary/75 pr-2"> &gt; </span>}
+                {!isLast && (
+                  <span className="text-primary/75 pr-2"> &gt; </span>
+                )}
               </span>
             );
           })}
         </div>
       )}
-      <h3 className="text-xl text-primary font-semibold mb-4">{nodename}</h3>
 
-      {/* Buttons */}
-      <div className="flex items-center mb-6">
-        <div className="w-md "><button className="bg-blue-500 text-white py-1 px-8 rounded" onClick={() => setIsUploadModelOpen(true)}>Add / Upload</button></div>
-        <div className="flex-1 ml-4">
+
+
+      {/* ================= ASSETS TABLE SECTION ================= */}
+      <div className=" rounded-lg ">
+
+        <div className="flex items-center justify-between">
+          <div className=" py-4 border-b border-gray-200 text-lg font-semibold text-primary">
+            Assets
+          </div>
+         <Can permission={PERMISSIONS.MENTORING_PRODUCT_CORE_FOUNDATION_EDIT}>
+           <button
+            className="bg-blue-500 text-sm font-semibold  hover:bg-blue-600 text-white px-10 py-[6px] rounded-md"
+            onClick={() => setIsUploadModelOpen(true)}
+          >
+            Add / Upload
+          </button>
+         </Can>
+        </div>
+
+        <AssertList assets={assertFiles} onReplace={handleReplace} productType={0} onToggleDownloadable={handleToggleDownloadable} />
+
+        {/* Uploading Files */}
+        {uploadingFile.length > 0 && (
+          <div className="pb-4">
+            <UploadList
+              uploadingFile={uploadingFile}
+              handleCancelUpload={handleCancelClick}
+            />
+          </div>
+        )}
+      </div>
+
+      {/* ================= TREE SECTION ================= */}
+      <div className="pt-6  border-t-2 border-gray-300">
+
+        <div>
+          <h4 className="text-lg font-semibold text-primary mb-4">
+            {nodename || "Select a node to view details"}
+          </h4>
+           <Can permission={PERMISSIONS.MENTORING_PRODUCT_CORE_FOUNDATION_CREATE}>
           <button
-            className="bg-blue-500 text-white py-1 px-8 rounded"
+            className="bg-blue-500 text-sm font-semibold  hover:bg-blue-600 text-white px-10 py-[6px] rounded-md"
             onClick={() => setIsNewModelOpen(true)}
           >
             New
-          </button></div>
-      </div>
-
-      {/* content block */}
-      <div className="flex gap-4">
-
-        {/* left media block */}
-        <div className="w-md border-r-2 border-gray-200">
-          {/* media assets list  */}
-
-          <AssertList assets={assertFiles} />
-
-
-
-          {/* uploading files */}
-          <UploadList uploadingFile={uploadingFile} handleCancelUpload={handleCancelClick} />
-
+          </button>
+           </Can>
 
         </div>
 
-        {/* right tree block */}
-        <div className="flex-1">
-          {/* tree */}
-          {nodes.length > 0 ? (
-            <TreeMenu nodes={nodes} />
-          ) : (
-            <p className="text-gray-500 mt-4">No basic nodes available</p>
-          )}
-        </div>
+
+        {nodes.length > 0 ? (
+          <TreeMenu nodes={nodes} />
+        ) : (
+          <p className="text-gray-500">No basic nodes available</p>
+        )}
       </div>
 
-
-
+      {/* ================= MODALS ================= */}
       <NewModel
         open={isNewModelOpen}
         onCancel={() => setIsNewModelOpen(false)}
         onSubmit={handleNewSubmit}
       />
+
       <UploadModel
         open={isUploadModelOpen}
-        onCancel={() => setIsUploadModelOpen(false)}
+        onCancel={() => {
+          setIsUploadModelOpen(false);
+          setReplaceMode(false);
+          setReplacingFile(null);
+        }}
         onSubmit={handleUploadSubmit}
+        replaceMode={replaceMode}
+        originalFile={replacingFile}
       />
+
       <CancelConfirmModal
         name={currentFiles.find(f => f.uid === cancellingUid)?.name || ""}
         open={isCancelModalOpen}
@@ -367,6 +535,7 @@ const BasisDetail = () => {
       />
     </div>
   );
+
 };
 
 export default BasisDetail;

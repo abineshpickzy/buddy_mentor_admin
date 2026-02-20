@@ -69,8 +69,6 @@ const AddUserPage = () => {
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
-    const {user} = useSelector((state) => state.auth);
-    const {users} = useSelector((state) => state.users);
     
 
 
@@ -94,17 +92,19 @@ const AddUserPage = () => {
             country: form.country,
             state: form.state,
             password: md5(form.password),
-            forcePasswordChange: form.forcePasswordChange
+            // forcePasswordChange: form.forcePasswordChange
         };
         
         console.log("User data to send:", userData);
-         const fd = new FormData();
-        fd.append("inputs", JSON.stringify(userData));
-        fd.append("image", profileImage);
+        const fd = new FormData();
+        Object.keys(userData).forEach(key => {
+            fd.append(key, userData[key]);
+        });
+        fd.append("profile_image", profileImage);
          console.log(fd)
         dispatch(showLoader());
         try {
-            const response = await dispatch(createUser({...userData})).unwrap();
+            const response = await dispatch(createUser(fd)).unwrap();
             dispatch(addToast({ type: "success", message: "User created successfully!" }));
             console.log("API response:", response);
             const id=response.data.user_id;

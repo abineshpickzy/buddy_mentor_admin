@@ -1,5 +1,5 @@
 import { createSlice, current } from "@reduxjs/toolkit";
-import { uploadFile, saveVideoFile, cancelUpload, saveAssert } from "./uploadThunk";
+import { uploadFile, saveVideoFile, cancelUpload, saveAssert, previewFile, replaceAssetFile } from "./uploadThunk";
 
 const initialState = {
   currentFiles: [],
@@ -67,6 +67,26 @@ const uploadSlice = createSlice({
         state.loading = false;
       })
       .addCase(saveAssert.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(previewFile.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(previewFile.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(previewFile.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(replaceAssetFile.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(replaceAssetFile.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(replaceAssetFile.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { X, Upload } from "lucide-react";
 
-const UploadModel = ({ open, onCancel, onSubmit }) => {
+const UploadModel = ({ open, onCancel, onSubmit, replaceMode = false, originalFile = null }) => {
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
   const [downloadable,setDownloadable] = useState(false);
@@ -18,7 +18,7 @@ const UploadModel = ({ open, onCancel, onSubmit }) => {
 
   const handleSubmit = () => {
     if (file) {
-      onSubmit(file);
+      onSubmit(file, downloadable);
       setFile(null);
       setPreview(null);
       setDownloadable(false);
@@ -38,7 +38,7 @@ const UploadModel = ({ open, onCancel, onSubmit }) => {
       <div className="bg-white w-[480px] rounded shadow-lg p-6">
         {/* Header */}
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-sm font-semibold text-gray-700">Upload File</h2>
+          <h2 className="text-sm font-semibold text-gray-700">{replaceMode ? 'Replace File' : 'Upload File'}</h2>
           <X
             size={18}
             className="cursor-pointer text-gray-500"
@@ -96,7 +96,7 @@ const UploadModel = ({ open, onCancel, onSubmit }) => {
             disabled={!file}
             className="bg-blue-600 text-white px-4 py-2 text-sm rounded disabled:bg-gray-300 disabled:cursor-not-allowed"
           >
-            Upload
+            {replaceMode ? 'Replace' : 'Upload'}
           </button>
         </div>
       </div>

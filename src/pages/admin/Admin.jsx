@@ -11,13 +11,9 @@ import UserTab from '@/components/admin/users/editusers/tabs/UserTab';
 import RolesTab from '@/components/admin/users/editusers/tabs/RolesTab';
 import LocationsTab from '@/components/admin/users/editusers/tabs/LocationsTab';
 import MentoringTab from '@/components/admin/users/editusers/tabs/MentoringTab';
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useSelector, useDispatch } from 'react-redux';
-import { fetchUsers } from '@/features/users/userThunk';
-import { fetchRoles, defaultPrivilegesStructure,fetchRoleList } from '@/features/roles/roleThunk';
-
-import { showLoader,hideLoader } from '@/features/loader/loaderSlice';
+import { useDispatch } from 'react-redux';
 import EditMentoringCategory from '../../components/admin/mentoringcategory/EditMentoringCategory';
 
 let adminDataFetched = false;
@@ -25,30 +21,12 @@ let adminDataFetched = false;
 const AdminPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const dispatch = useDispatch();
+
   
-  const {users, initialFetchDone} = useSelector((state) => state.users);
-  const {roles, rolelist, defaultPrvillages} = useSelector((state) => state.roles);
 
   
   // Fetch admin data on mount if not already loaded
-  useEffect(() => {
- 
-    
-    const fetchData = async () => {
-      dispatch(showLoader());
-      try {
-        if (users.length === 0) await dispatch(fetchUsers());
-        if (roles.length === 0) await dispatch(fetchRoles());
-        if (rolelist.length === 0) await dispatch(fetchRoleList());
-        if (defaultPrvillages.length === 0) await dispatch(defaultPrivilegesStructure());
-      } finally {
-        dispatch(hideLoader());
-      }
-    };
-    
-    fetchData();
-  }, [dispatch]);
+  
   
   useEffect(() => {
     if (location.pathname === '/admin' || location.pathname === '/admin/') {

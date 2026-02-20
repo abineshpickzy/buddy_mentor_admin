@@ -2,6 +2,7 @@ import { X } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { CanModule } from "@/permissions";
 
+
 const Sidebar = ({ open, onClose, items }) => {
   return (
     <div

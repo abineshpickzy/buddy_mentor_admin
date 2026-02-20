@@ -91,6 +91,8 @@ const Privileges = () => {
   const [expanded, setExpanded] = useState(
     new Set(collectExpandablePaths(defaultPrivileges))
   );
+  const [originalChecked, setOriginalChecked] = useState(new Set());
+  const [hasChanges, setHasChanges] = useState(false);
 
   useEffect(() => {
     console.log("Active Role Privileges:", activeRole);
@@ -99,8 +101,16 @@ const Privileges = () => {
 
   useEffect(() => {
     const checkedPaths = collectCheckedFromUserPrivilege(activeRolePrivilege);
-    setChecked(new Set(checkedPaths));
+    const checkedSet = new Set(checkedPaths);
+    setChecked(checkedSet);
+    setOriginalChecked(checkedSet);
   }, [activeRolePrivilege]);
+
+  useEffect(() => {
+    const checkedArray = Array.from(checked).sort();
+    const originalArray = Array.from(originalChecked).sort();
+    setHasChanges(JSON.stringify(checkedArray) !== JSON.stringify(originalArray));
+  }, [checked, originalChecked]);
 
   /* ---------- Expand / Collapse ---------- */
 
@@ -300,7 +310,8 @@ const savePrivileges = async () => {
            <Can permission={PERMISSIONS.ROLES_EDIT}>
             <button
             onClick={savePrivileges}
-            className="px-4 py-1 bg-primary text-white text-base font-medium rounded-md hover:bg-primary-50"
+            disabled={!hasChanges}
+            className="px-4 py-1 bg-primary text-white text-base font-medium rounded-md hover:bg-primary-50 disabled:bg-gray-300 disabled:cursor-not-allowed"
           >
             Save
           </button>

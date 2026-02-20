@@ -21,6 +21,10 @@ export const store = configureStore({
     products: productsReducer,
     upload: uploadReducer
   },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: false,
+    }),
 });
 
 export default store;

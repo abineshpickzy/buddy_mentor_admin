@@ -2,15 +2,17 @@ import React, { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { X } from "lucide-react";
 import { previewFile } from "@/features/upload/uploadThunk";
+import {Can} from "@/permissions";
+import {PERMISSIONS} from "@/permissions/permissions";
 
-const PreviewModal = ({ open, onClose, file }) => {
+const PreviewModal = ({ open, onClose, file, onReplace, productType }) => {
   const dispatch = useDispatch();
 
   const [previewUrl, setPreviewUrl] = useState(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!open || !file?.file_name) return;
+    if (!open || !file?.file_name || file.file_name === 'null' || file.file_name === null) return;
 
     let objectUrl = null;
 
@@ -34,7 +36,14 @@ const PreviewModal = ({ open, onClose, file }) => {
       }
     };
 
-    fetchFile();
+    if(file?.type?.startsWith("video")) {
+      console.log(file);
+        setPreviewUrl(`https://videodelivery.net/${file.cloudflare_uid}/iframe`);
+    }
+    else {
+      fetchFile();
+    }
+   
 
     // cleanup memory when modal closes
     return () => {
@@ -69,17 +78,17 @@ const PreviewModal = ({ open, onClose, file }) => {
         <img
           src={previewUrl || file.src}
           alt={file.file_name}
-          className="max-w-full max-h-[80vh] object-contain"
+          className="max-w-full max-h-[80vh] min-h-[50vh] object-contain"
         />
       );
     }
 
     if (file.type?.startsWith("video")) {
       return (
-        <video
+        <iframe
           src={previewUrl || file.src}
           controls
-          className="w-full max-h-[80vh]"
+          className="w-full object-contain min-h-[50vh] max-h-[80vh]"
         />
       );
     }
@@ -87,7 +96,7 @@ const PreviewModal = ({ open, onClose, file }) => {
     return (
       <iframe
         src={previewUrl || file.src}
-        className="w-full h-[80vh]"
+        className="w-full min-h-[80vh] max-h-[80vh]"
         title={file.file_name}
       />
     );
@@ -120,6 +129,20 @@ const PreviewModal = ({ open, onClose, file }) => {
         <div className="p-6 flex justify-center items-center">
           {renderContent()}
         </div>
+
+        {/* Footer with Replace Button */}
+        {onReplace && (
+          <div className="sticky bottom-0 bg-white border-t px-6 py-4 flex justify-end">
+            <Can permission={productType === 0 ? PERMISSIONS.MENTORING_PRODUCT_CORE_FOUNDATION_EDIT : PERMISSIONS.MENTORING_PRODUCT_PROGRAM_EDIT}>
+               <button
+              onClick={onReplace}
+              className="bg-blue-600 text-white px-4 py-2 text-sm rounded hover:bg-blue-700"
+            >
+              Replace
+            </button>
+            </Can>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { X, Search } from "lucide-react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { fetchUsers } from "@/features/users/userThunk";
 
 const AssignAdminModal = ({ open, onClose, onAssign }) => {
   const [selectedUsers, setSelectedUsers] = useState([]);
@@ -9,23 +10,31 @@ const AssignAdminModal = ({ open, onClose, onAssign }) => {
   
   const { users } = useSelector((state) => state.users);
   const { activeRole } = useSelector((state) => state.roles);
-  const {user} = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
 
-  
-useEffect(() => {
-  if (!users || !activeRole) return;
+  useEffect(() => {
+    if (users.length === 0) {
+      dispatch(fetchUsers());
+    }
+  }, [dispatch, users.length]);
 
-  const assignedUserIds = new Set(activeRole.users?.map(u => u._id) || []);
-
-  const unassignedUsers = users.filter(
-    u => u._id !== user._id && !assignedUserIds.has(u._id)
-  );
-
-  setAvailableUsers(unassignedUsers);
-
-}, [users, activeRole, user]);
+  useEffect(() => {
+    if (!activeRole || !users) return;
+    setAvailableUsers(users);
+    
+    // Pre-check users already assigned to this role
+    const assignedUserIds = activeRole.users?.map(u => u._id) || [];
+    setSelectedUsers(assignedUserIds);
+  }, [users, activeRole, open]);
 
   if (!open) return null;
+
+
+
+
+  const isUserAlreadyAssigned = (userId) => {
+    return activeRole?.users?.some(u => u._id === userId) || false;
+  };
 
   const filteredUsers = availableUsers.filter(user => {
     const searchLower = searchTerm.toLowerCase();
@@ -45,9 +54,12 @@ useEffect(() => {
   };
 
   const handleAssign = () => {
-    if (selectedUsers.length === 0) return;
-    console.log("Selected user IDs to assign:", selectedUsers);
-    onAssign(selectedUsers);
+    const alreadyAssignedIds = activeRole?.users?.map(u => u._id) || [];
+    const newlySelectedUsers = selectedUsers.filter(id => !alreadyAssignedIds.includes(id));
+    
+    if (newlySelectedUsers.length === 0) return;
+    console.log("Newly selected user IDs to assign:", newlySelectedUsers);
+    onAssign(newlySelectedUsers);
     setSelectedUsers([]);
     setSearchTerm("");
   };
@@ -57,6 +69,9 @@ useEffect(() => {
     setSearchTerm("");
     onClose();
   };
+
+  const alreadyAssignedIds = activeRole?.users?.map(u => u._id) || [];
+  const newlySelectedCount = selectedUsers.filter(id => !alreadyAssignedIds.includes(id)).length;
 
   return (
     <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
@@ -78,6 +93,7 @@ useEffect(() => {
         <div className="mb-4">
           <div className="relative">
             <input
+             
               type="text"
               placeholder="Search users..."
               value={searchTerm}
@@ -106,11 +122,15 @@ useEffect(() => {
                     type="checkbox"
                     checked={selectedUsers.includes(user._id)}
                     onChange={() => handleUserToggle(user._id)}
-                    className="rounded"
+                    disabled={isUserAlreadyAssigned(user._id)}
+                    className="rounded disabled:opacity-50 disabled:cursor-not-allowed"
                   />
                   <div className="flex-1">
                     <div className="text-sm font-medium">
                       {user.first_name} {user.last_name}
+                      {isUserAlreadyAssigned(user._id) && (
+                        <span className="ml-2 text-xs text-gray-500">(Already assigned)</span>
+                      )}
                     </div>
                     <div className="text-xs text-gray-500">{user.email_id}</div>
                   </div>
@@ -130,10 +150,10 @@ useEffect(() => {
           </button>
           <button
             onClick={handleAssign}
-            disabled={selectedUsers.length === 0}
+            disabled={newlySelectedCount === 0}
             className="bg-blue-600 text-white px-4 py-2 text-sm rounded disabled:bg-gray-300 disabled:cursor-not-allowed"
           >
-            Assign ({selectedUsers.length})
+            Assign ({newlySelectedCount})
           </button>
         </div>
       </div>

@@ -1,6 +1,8 @@
 import { useParams, NavLink, Outlet, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+
+import {fetchUser} from "@/features/users/userThunk";
 
 const TABS = [
   { key: "user", label: "User", path: "user" },
@@ -12,15 +14,23 @@ const TABS = [
 const EditUserLayout = () => {
   const { userId } = useParams();
   const location = useLocation();
-  const users = useSelector((state) => state.users.users);
   const [user, setUser] = useState(null);
  
-  useEffect(() => {
-    const foundUser = users.find((u) => u._id === userId || u.id === userId);
-    if (foundUser) {
-      setUser(foundUser);
+  const dispatch = useDispatch();
+
+  const fetchUserData = async () => {
+    if (!userId) return;
+    try {
+      const userData = await dispatch(fetchUser(userId)).unwrap();
+      setUser(userData.data);
+    } catch (error) {
+      console.error("Failed to fetch user data:", error);
     }
-  }, [userId, users]);
+  };
+
+  useEffect(() => {
+    fetchUserData();
+  }, [dispatch, userId]);
 
   const isActiveTab = (tabPath) => {
     const pathParts = location.pathname.split('/');
@@ -57,7 +67,7 @@ const EditUserLayout = () => {
 
       {/* Content */}
       <div className="p-6 border border-gray-200">
-        <Outlet context={{ user }} />
+        <Outlet context={{ user, refetchUser: fetchUserData }} />
       </div>
     </div>
   );

@@ -1,6 +1,6 @@
 // features/auth/authSlice.js
 import { createSlice } from "@reduxjs/toolkit";
-import {  loginAdmin } from "./authThunk";
+import { loginAdmin } from "./authThunk";
 
 const token = localStorage.getItem("admin_token");
 const userData = localStorage.getItem("admin_user");
@@ -11,7 +11,7 @@ const initialState = {
   isAuthenticated: !!token,
   loading: false,
   error: null,
-  captchaRequired: false, 
+  captchaRequired: false,
 };
 
 const authSlice = createSlice({
@@ -25,6 +25,11 @@ const authSlice = createSlice({
       state.captchaRequired = false;
       localStorage.clear();
     },
+
+    updateUserProduct(state, action) {
+      state.user.product = action.payload;
+      localStorage.setItem("admin_user", JSON.stringify(state.user));
+    }
   },
   extraReducers: (builder) => {
     builder
@@ -37,12 +42,12 @@ const authSlice = createSlice({
         state.user = action.payload.data;
         state.token = action.payload.data.auth_token;
         state.isAuthenticated = true;
-        state.captchaRequired = false; 
+        state.captchaRequired = false;
       })
       .addCase(loginAdmin.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload?.message || "Login failed";
- 
+
         if (action.payload?.captchaRequired === true) {
           state.captchaRequired = true;
         }
@@ -50,5 +55,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { logout } = authSlice.actions;
+export const { logout, updateUserProduct } = authSlice.actions;
 export default authSlice.reducer;

@@ -1,13 +1,36 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Edit, Trash2, Lock } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { viewUserImage } from "@/features/users/userThunk";
 import {Can} from "@/permissions";
 import { PERMISSIONS } from "@/permissions/permissions";
 
 const UserRow = ({ user, index }) => {
-    
-  
+  const [profileImage, setProfileImage] = useState("https://cdn-icons-png.flaticon.com/512/8847/8847419.png");
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (user.profile_image && user.profile_image !== 'null' && user.profile_image !== null) {
+      dispatch(viewUserImage({ file: user.profile_image, width: 100 })).unwrap()
+        .then(blob => {
+          if (blob) {
+            const imageUrl = URL.createObjectURL(blob);
+            setProfileImage(imageUrl);
+          }
+        })
+        .catch(() => {
+          setProfileImage("https://cdn-icons-png.flaticon.com/512/8847/8847419.png");
+        });
+    }
+
+    return () => {
+      if (profileImage !== "https://cdn-icons-png.flaticon.com/512/8847/8847419.png") {
+        URL.revokeObjectURL(profileImage);
+      }
+    };
+  }, [user.profile_image, dispatch]);
   
   return (
     <tr className="border-t border-gray-200 even:bg-gray-100 hover:bg-gray-50">
@@ -18,9 +41,9 @@ const UserRow = ({ user, index }) => {
       <td className="p-2">
         <div className="flex justify-center">
           <img
-            src={user.profile || "https://cdn-icons-png.flaticon.com/512/8847/8847419.png"}
-            alt={user.firstName || "User"}
-            className="w-8 h-8 rounded-full"
+            src={profileImage}
+            alt={user.first_name || "User"}
+            className="w-8 h-8 rounded-full object-cover"
           />
         </div>
       </td>

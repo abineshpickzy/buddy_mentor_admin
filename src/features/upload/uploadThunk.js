@@ -80,3 +80,16 @@ export const previewFile = createAsyncThunk(
     }
   }
 );
+
+// replace asset file
+export const replaceAssetFile = createAsyncThunk(
+  "upload/replaceAssetFile",
+  async ({nodeId,assetId,payload}, { rejectWithValue }) => {
+    try {
+      const response = await axios.put(`ast/${nodeId}/${assetId}/rplc`, payload);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+)

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Outlet, useNavigate, useLocation, useParams, useOutletContext } from 'react-router-dom';
 
+
 const Settings = () => {
     const navigate = useNavigate();
     const location = useLocation();
