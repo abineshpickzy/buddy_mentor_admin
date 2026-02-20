@@ -17,7 +17,7 @@ const UserTab = () => {
     last_name: user?.last_name || "",
     email_id: user?.email_id || "",
     mobile_number: user?.mobile_number || "",
-    programCode: user?.programCode || "",
+    // programCode: user?.programCode || "",
     country: user?.country || "",
     state: user?.state || "",
     password: "",
@@ -43,7 +43,7 @@ const UserTab = () => {
         last_name: user.last_name || "",
         email_id: user.email_id || "",
         mobile_number: user.mobile_number || "",
-        programCode: user.programCode || "",
+        // programCode: user.programCode || "",
         country: user.country || "",
         state: user.state || "",
         password: "",
@@ -206,14 +206,14 @@ const UserTab = () => {
               layout="row"
               error={errors.mobile_number}
             />
-            <Input
+            {/* <Input
               label="Program code*"
               name="programCode"
               value={form.programCode}
               onChange={handleChange}
               layout="row"
               error={errors.programCode}
-            />
+            /> */}
 
             <Select
               label="Country*"

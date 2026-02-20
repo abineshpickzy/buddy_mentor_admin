@@ -3,7 +3,7 @@ import CategoryItem from "./CategoryItem";
 import { Plus } from "lucide-react";
 import ConfirmModal from "./ConfirmModel";
 
-const CategoryTree = ({ value = [], onChange, editMode = false, onDeleteNode, nodeType }) => {
+const CategoryTree = ({ value = [], onChange, editMode = false, viewMode = false, onDeleteNode, nodeType }) => {
   const [rootName, setRootName] = useState("");
   const [deleteModal, setDeleteModal] = useState({ open: false, path: null, name: "", nodeId: null });
 
@@ -97,23 +97,24 @@ const CategoryTree = ({ value = [], onChange, editMode = false, onDeleteNode, no
   return (
     <div className="w-full md:min-w-[300px] lg:min-w-[400px] ">
       {/* Add root */}
-      <div className="flex items-center gap-2 mb-2">
-        <input
-          className="w-full bg-white border border-gray-300 px-3 py-2 text-sm 
-          focus:outline-none focus:ring-1 focus:ring-gray-500"
-          placeholder="Add Program or Category name"
-          value={rootName}
-          onChange={(e) => setRootName(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && addRoot()}
-        />
-        <Plus
-          size={18}
-           
+      {!viewMode && (
+        <div className="flex items-center gap-2 mb-2">
+          <input
+            className="w-full bg-white border border-gray-300 px-3 py-2 text-sm 
+            focus:outline-none focus:ring-1 focus:ring-gray-500"
+            placeholder="Add Program or Category name"
+            value={rootName}
+            onChange={(e) => setRootName(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && addRoot()}
+          />
+          <Plus
+            size={18}
             strokeWidth={5}
-          className="text-green-500 cursor-pointer shrink-0"
-          onClick={addRoot}
-        />
-      </div>
+            className="text-green-500 cursor-pointer shrink-0"
+            onClick={addRoot}
+          />
+        </div>
+      )}
 
       {/* Tree */}
       <div className="border border-gray-300 mr-6 bg-white py-4 pr-4 mt-4 overflow-x-auto">
@@ -129,6 +130,7 @@ const CategoryTree = ({ value = [], onChange, editMode = false, onDeleteNode, no
             node={cat}
             path={[index]}
             editMode={editMode}
+            viewMode={viewMode}
             onAdd={(path, name) =>
               setCategories(addChild(categories, path, name))
             }

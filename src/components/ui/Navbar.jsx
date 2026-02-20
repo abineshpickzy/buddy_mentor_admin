@@ -46,7 +46,7 @@ const Navbar = ( { onMenuClick } ) => {
 
   const tabs = [
     { label: "Mentees Dashboard", link: "/dashboard/overview", module:"admin" },
-    { label: "Accounting FP", link: "/account" ,module:"accounting"},
+    { label: "Accounting FP", link: "/account" ,module:"account_fp"},
     { label: "Admin", link: "/admin" ,module: "admin"}
   ];
 

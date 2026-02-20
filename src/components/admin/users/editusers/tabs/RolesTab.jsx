@@ -40,6 +40,21 @@ const RolesTab = () => {
   }, [selectedRoles, originalRoles]);
 
   const toggleRole = (roleId) => {
+    const role = roles.find(r => r._id === roleId);
+    
+    // If selecting a super admin role, uncheck all others
+    if (role?.is_super_admin && !selectedRoles.includes(roleId)) {
+      setSelectedRoles([roleId]);
+      return;
+    }
+    
+    // If unchecking a super admin role
+    if (role?.is_super_admin && selectedRoles.includes(roleId)) {
+      setSelectedRoles([]);
+      return;
+    }
+    
+    // Normal toggle for non-super admin roles
     setSelectedRoles((prev) =>
       prev.includes(roleId)
         ? prev.filter((r) => r !== roleId)
@@ -62,6 +77,11 @@ const RolesTab = () => {
     }
   };
 
+  const hasSuperAdminSelected = selectedRoles.some(roleId => {
+    const role = roles.find(r => r._id === roleId);
+    return role?.is_super_admin;
+  });
+
   return (
     <div className="p-6">
       {/* Roles list */}
@@ -75,6 +95,7 @@ const RolesTab = () => {
               type="checkbox"
               checked={selectedRoles.includes(role._id)}
               onChange={() => toggleRole(role._id)}
+              disabled={hasSuperAdminSelected && !role.is_super_admin}
             />
             {role.name}
           </label>

@@ -58,9 +58,11 @@
 
    export const deleteRole = createAsyncThunk(
     "roles/deleteRole",
-    async (roleId, { rejectWithValue }) => {  
+    async (roleId, {dispatch, rejectWithValue }) => {  
       try {
-        const response = await axios.delete(`/role/${roleId}/del`);
+        const response = await axios.delete(`/role/${roleId}/dl`);
+        dispatch(fetchRoles());
+        dispatch(fetchRoleList());
         return response.data;
       } catch (error) {
         return rejectWithValue(error.response.data);

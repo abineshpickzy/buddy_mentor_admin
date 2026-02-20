@@ -14,7 +14,7 @@ const UserList = ({ users }) => {
           <tr>
             <th className="p-2">S.no</th>
             <th className="p-2">Profile</th>
-            <Can permission={PERMISSIONS.USERS_EDIT}><th className="p-2">Action</th></Can>
+            <th className="p-2">Action</th>
             <th className="p-2 text-left">First name</th>
             <th className="p-2 text-left">Last name</th>
             <th className="p-2 text-left">Email</th>
@@ -29,13 +29,21 @@ const UserList = ({ users }) => {
 
         {/* Table Body */}
         <tbody>
-          {users?.map((user, index) => (
-            <UserRow
-              key={user._id}
-              user={user}
-              index={index}
-            />
-          ))}
+          {users?.length === 0 ? (
+            <tr>
+              <td colSpan="11" className="p-4 text-center text-gray-500">
+                No users found
+              </td>
+            </tr>
+          ) : (
+            users?.map((user, index) => (
+              <UserRow
+                key={user._id}
+                user={user}
+                index={index}
+              />
+            ))
+          )}
         </tbody>
       </table>
     </div>

@@ -93,3 +93,18 @@ export const replaceAssetFile = createAsyncThunk(
     }
   }
 )
+
+
+
+// toggle downloadable
+export const toggleDownloadable = createAsyncThunk(
+  "upload/toggleDownloadable",
+  async ({nodeId,assetId,payload}, { rejectWithValue }) => {
+    try {
+      const response = await axios.put(`ast/${nodeId}/${assetId}/ed`, payload);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+)

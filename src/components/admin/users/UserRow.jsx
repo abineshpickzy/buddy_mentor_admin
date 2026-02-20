@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Edit, Trash2, Lock } from "lucide-react";
+import { Edit, Trash2, Lock, Eye } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { viewUserImage } from "@/features/users/userThunk";
@@ -49,13 +49,15 @@ const UserRow = ({ user, index }) => {
       </td>
 
       {/* Action */}
-       <Can permission={PERMISSIONS.USERS_EDIT}>
-        <td className="p-2"  onClick={() => navigate(`/admin/users/edit/${user._id || user.id}/user`)}>
-        <div className="flex justify-center" >
-          <Edit size={16} className="text-blue-500 cursor-pointer" />
+      <td className="p-2 min-w-[100px]">
+        <div className="flex justify-center gap-4">
+       
+          <Can permission={PERMISSIONS.USERS_EDIT}>
+            <Edit size={16} className="text-blue-500 cursor-pointer" onClick={() => navigate(`/admin/users/edit/${user._id || user.id}/user`)} />
+          </Can>
+             <Eye size={16} className="text-blue-500 cursor-pointer" onClick={() => navigate(`/admin/users/view/${user._id || user.id}/user`)} />
         </div>
       </td>
-       </Can>
 
       <td className="p-2">{user.first_name || "Not found"}</td>
       <td className="p-2">{user.last_name || "Not found"}</td>

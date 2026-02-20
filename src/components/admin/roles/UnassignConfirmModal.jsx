@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { X } from "lucide-react";
 
-const UnassignConfirmModal = ({ open, onCancel, onConfirm }) => {
+const UnassignConfirmModal = ({ open, onCancel, onConfirm, title = "Unassign Admins", message = "Are you sure you want to unassign the selected admin(s) from the role?" }) => {
  
   if (!open) return null;
 
@@ -17,7 +17,7 @@ const UnassignConfirmModal = ({ open, onCancel, onConfirm }) => {
         {/* Header */}
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-sm font-semibold text-gray-700">
-            Unassign Admins
+            {title}
           </h2>
           <X
             size={18}
@@ -29,7 +29,7 @@ const UnassignConfirmModal = ({ open, onCancel, onConfirm }) => {
         {/* Body */}
         <div className="mb-6">
           <p className="text-sm text-gray-600 mb-3">
-           Are you sure you want to unassign the selected admin(s) from the role?
+            {message}
           </p>
 
          

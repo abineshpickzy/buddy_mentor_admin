@@ -1,15 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Eye, Edit } from "lucide-react";
 import { Can } from '@/permissions';
 import { PERMISSIONS } from "../../../permissions/permissions";
 import { usePermission } from '@/permissions';
 import { useNavigate } from "react-router-dom";
 import { useDispatch,useSelector } from "react-redux";
 import { listProducts, viewProductImage } from "@/features/products/productThunk";
+import NoImageAvailable from "@/assets/No_Image_Available.jpg";
 
 const ProductIcon = ({ product_icon }) => {
-  const [iconUrl, setIconUrl] = useState("https://cdn-icons-png.flaticon.com/512/3875/3875172.png");
+  const [iconUrl, setIconUrl] = useState(NoImageAvailable);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -22,12 +23,12 @@ const ProductIcon = ({ product_icon }) => {
           }
         })
         .catch(() => {
-          setIconUrl("https://cdn-icons-png.flaticon.com/512/3875/3875172.png");
+          setIconUrl(NoImageAvailable);
         });
     }
 
     return () => {
-      if (iconUrl !== "https://cdn-icons-png.flaticon.com/512/3875/3875172.png") {
+      if (iconUrl !== NoImageAvailable) {
         URL.revokeObjectURL(iconUrl);
       }
     };
@@ -113,38 +114,59 @@ const MentoringCategory = () => {
               <th className="p-2">Icon</th>
               <th className="p-2">Category name</th>
               <th className="p-2">Status</th>
-              {(editPermission || deletePermission) && <th className="p-2">Action</th>}
+              <th className="p-2">Action</th>
               <th></th>
             </tr>
           </thead>
 
           <tbody>
-            {productlist?.map((item, index) => (
-              <tr
-                key={item._id}
-                className=" text-sm even:bg-gray-100"
-              >
-                <td className="p-2">{index + 1}</td>
-                <td className="p-2 font-medium">
-                  <ProductIcon product_icon={item.image} />
+            {productlist?.length === 0 ? (
+              <tr>
+                <td colSpan="6" className="p-4 text-center text-gray-500">
+                  No products found
                 </td>
-                <td className="p-2">{item.name}</td>
-                <td className="p-2 text-green-600 capitalize">
-                  {item.status == 1 ? "live" : "open"}
-                </td>
-                {editPermission && <td className="p-2 flrx text-blue-600">
-                  <button className="hover:underline cursor-pointer" onClick={()=>navigate(`/admin/mentoring-product/edit/${item._id}`) }>edit</button>
-
-                </td>
-                }
-                {deletePermission &&
-                  <td>
-                    <button className="text-red-500 hover:underline cursor-pointer">
-                      delete
-                    </button>
-                  </td>}
               </tr>
-            ))}
+            ) : (
+              productlist?.map((item, index) => (
+                <tr
+                  key={item._id}
+                  className=" text-sm even:bg-gray-100"
+                >
+                  <td className="p-2">{index + 1}</td>
+                  <td className="p-2 font-medium">
+                    <ProductIcon product_icon={item.image} />
+                  </td>
+                  <td className="p-2">{item.name}</td>
+                  <td className="p-2 text-green-600 capitalize">
+                    {item.status == 1 ? "live" : "open"}
+                  </td>
+                  <td className="p-2">
+                    <div className="flex gap-4 items-center">
+                     
+                      <Can permission={PERMISSIONS.MENTORING_PROGRAM_EDIT}>
+                        <Edit
+                          size={16}
+                          className="text-blue-500 cursor-pointer"
+                          onClick={() => navigate(`/admin/mentoring-product/edit/${item._id}`)}
+                        />
+                      </Can>
+                       <Eye
+                        size={16}
+                        className="text-blue-500 cursor-pointer"
+                        onClick={() => navigate(`/admin/mentoring-product/view/${item._id}`)}
+                      />
+                    </div>
+                  </td>
+                  {deletePermission && (
+                    <td>
+                      <button className="text-red-500 hover:underline cursor-pointer">
+                        delete
+                      </button>
+                    </td>
+                  )}
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>

@@ -19,7 +19,7 @@ const AddUserPage = () => {
         last_name: "",
         email_id: "",
         mobile_number: "",
-        programCode: "",
+        // programCode: "",
         country: "",
         state: "",
         password: "",
@@ -59,7 +59,7 @@ const AddUserPage = () => {
         if (!form.email_id.trim()) newErrors.email_id = "Email is required";
         else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email_id)) newErrors.email_id = "Invalid email format";
         if (!form.mobile_number.trim()) newErrors.mobile_number = "Mobile number is required";
-        if (!form.programCode.trim()) newErrors.programCode = "Program code is required";
+        // if (!form.programCode.trim()) newErrors.programCode = "Program code is required";
         if (!form.country) newErrors.country = "Country is required";
         if (!form.state) newErrors.state = "State is required";
         if (!form.password) newErrors.password = "Password is required";
@@ -80,6 +80,10 @@ const AddUserPage = () => {
             console.log("Validation failed:", errors);
             return;
         }
+        if (!profileImage) {
+            dispatch(addToast({ type: "error", message: "Please select a profile image." }));
+            return;
+        }
         
         console.log("Validation passed, creating user...");
         
@@ -88,7 +92,7 @@ const AddUserPage = () => {
             last_name: form.last_name,
             email_id: form.email_id,
             mobile_number: Number(form.mobile_number),
-            programCode: form.programCode,
+            // programCode: form.programCode,
             country: form.country,
             state: form.state,
             password: md5(form.password),
@@ -149,7 +153,7 @@ const AddUserPage = () => {
                         
                         <Input label="Mobile no*" name="mobile_number" type="number" value={form.mobile_number} onChange={handleChange} layout="row" error={errors.mobile_number} />
                         
-                        <Input label="Program code*" name="programCode" value={form.programCode} onChange={handleChange} layout="row" error={errors.programCode} />
+                        {/* <Input label="Program code*" name="programCode" value={form.programCode} onChange={handleChange} layout="row" error={errors.programCode} /> */}
 
                         <Select
                             label="Country*"

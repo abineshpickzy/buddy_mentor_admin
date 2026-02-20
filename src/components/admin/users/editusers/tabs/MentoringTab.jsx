@@ -160,7 +160,7 @@ const MentoringTab = () => {
                     <td className="p-2">{i + 1}</td>
                     <td className="p-2">{cat.name}</td>
                     <td className="p-2">
-                      {cat.is_active ? "Active" : "Inactive"}
+                      {cat.status === 1 ? "Active" : "Inactive"}
                     </td>
                     <td className="p-2">
                       <Edit

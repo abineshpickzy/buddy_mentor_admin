@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Plus, Pencil, Trash2, ChevronDown, ChevronRight } from "lucide-react";
 
-const CategoryItem = ({ node, path, editMode, onAdd, onEdit, onDelete }) => {
+const CategoryItem = ({ node, path, editMode, viewMode = false, onAdd, onEdit, onDelete }) => {
   const [open, setOpen] = useState(true);
   const [isAdding, setIsAdding] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -52,35 +52,37 @@ const CategoryItem = ({ node, path, editMode, onAdd, onEdit, onDelete }) => {
         </div>
 
         {/* Actions */}
-        <div className="flex gap-2">
-          <Plus
-            size={15}
-            strokeWidth={5}
-            className="text-green-600 cursor-pointer"
-            onClick={() => setIsAdding(true)}
-          />
+        {!viewMode && (
+          <div className="flex gap-2">
+            <Plus
+              size={15}
+              strokeWidth={5}
+              className="text-green-600 cursor-pointer"
+              onClick={() => setIsAdding(true)}
+            />
 
-          <Pencil
-            size={15}
+            <Pencil
+              size={15}
               strokeWidth={3}
-            className="text-blue-600 cursor-pointer"
-            onClick={() => {
-              setIsEditing(true);
-              setEditValue(node.name);
-            }}
-          />
+              className="text-blue-600 cursor-pointer"
+              onClick={() => {
+                setIsEditing(true);
+                setEditValue(node.name);
+              }}
+            />
 
-          <Trash2
-            size={15}
-            strokeWidth={2.5}
-            className="text-red-600 cursor-pointer"
-            onClick={() => onDelete(path, node.name, node._id)}
-          />
-        </div>
+            <Trash2
+              size={15}
+              strokeWidth={2.5}
+              className="text-red-600 cursor-pointer"
+              onClick={() => onDelete(path, node.name, node._id)}
+            />
+          </div>
+        )}
       </div>
 
       {/* Add child */}
-      {isAdding && (
+      {isAdding && !viewMode && (
         <div className="ml-6 my-1 flex items-center gap-1">
           <input
             className="border border-gray-300 px-2 py-1 text-sm w-[200px]
@@ -127,6 +129,7 @@ const CategoryItem = ({ node, path, editMode, onAdd, onEdit, onDelete }) => {
             node={child}
             path={[...path, index]}
             editMode={editMode}
+            viewMode={viewMode}
             onAdd={onAdd}
             onEdit={onEdit}
             onDelete={onDelete}

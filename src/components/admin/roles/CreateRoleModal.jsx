@@ -1,9 +1,19 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { X } from "lucide-react";
 
-const CreateRoleModal = ({ open, onClose, onCreate }) => {
+const CreateRoleModal = ({ open, onClose, onCreate, editMode = false, initialData = null }) => {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+
+  useEffect(() => {
+    if (editMode && initialData) {
+      setName(initialData.name || "");
+      setDescription(initialData.description || "");
+    } else {
+      setName("");
+      setDescription("");
+    }
+  }, [editMode, initialData, open]);
 
   if (!open) return null;
 
@@ -22,7 +32,7 @@ const CreateRoleModal = ({ open, onClose, onCreate }) => {
         {/* Header */}
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-sm font-semibold text-gray-700">
-            Create new role
+            {editMode ? "Edit role" : "Create new role"}
           </h2>
           <X
             size={18}
@@ -65,7 +75,7 @@ const CreateRoleModal = ({ open, onClose, onCreate }) => {
             onClick={handleCreate}
             className="bg-blue-600 text-white px-4 py-1 text-sm rounded"
           >
-            Create
+            {editMode ? "Update" : "Create"}
           </button>
         </div>
       </div>

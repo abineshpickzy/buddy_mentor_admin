@@ -8,7 +8,7 @@ import { addNode ,getAssertFiles} from "@/features/products/productThunk";
 import { showLoader, hideLoader } from "@/features/loader/loaderSlice";
 import { addToast } from "@/features/toast/toastSlice";
 import { addFile, setStatus, deleteFile } from "@/features/upload/uploadSlice";
-import { uploadFile, saveVideoFile, cancelUpload, replaceAssetFile } from "@/features/upload/uploadThunk";
+import { uploadFile, saveVideoFile, cancelUpload, replaceAssetFile ,toggleDownloadable} from "@/features/upload/uploadThunk";
 import { saveAssert } from "@/features/upload/uploadThunk";
 import UploadList from "@/components/dashboard/product/upload/UploadList";
 import AssertList from "@/components/dashboard/product/upload/AssertList";
@@ -131,7 +131,9 @@ const ProgramDetails = () => {
               dispatch(deleteFile({ uid: uid }));
               delete activeUploadsRef.current[uid];
             } catch (error) {
+
               console.error("Error replacing file:", error);
+              dispatch(deleteFile({ uid: uid }));
               dispatch(addToast({ message: `Failed to replace file ${file.name}`, type: "error" }));
             }
           },
@@ -260,10 +262,24 @@ const ProgramDetails = () => {
   };
 
   // Handle toggle downloadable
-  const handleToggleDownloadable = (fileId, newValue) => {
-    setAssertFiles(prevFiles => 
-      prevFiles.map(f => f._id === fileId ? { ...f, is_downloadable: newValue } : f)
-    );
+   const handleToggleDownloadable = async (newAssert, file) => {
+      setAssertFiles(newAssert);
+      console.log(file);
+    try {
+            const data = {
+          nodeId: nodeId,
+          assetId: file._id,
+          payload: { 
+            is_downloadable: !file.is_downloadable,
+            product_type: 1
+           }
+      }
+      console.log(data)
+      await dispatch(toggleDownloadable(data)).unwrap();
+
+    } catch (error) {
+      console.error("Error toggling downloadable:", error);
+    }
   };
 
   // cancel upload
