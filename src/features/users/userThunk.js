@@ -91,3 +91,12 @@ export const viewUserImage = createAsyncThunk(
     }
   }
 );
+
+export const checkUserEmail = createAsyncThunk("users/checkUserEmail", async (email, { rejectWithValue }) => {
+  try {
+    const response = await axios.post("/user/chk", { qry: email });
+    return response.data;
+  } catch (error) {
+    return rejectWithValue(error.message);
+  }
+});

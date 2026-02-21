@@ -11,7 +11,6 @@ import Dashboard from '@/pages/dashboard/Dashboard';
 import Admin from '@/pages/admin/Admin';
 import AccountFP from './pages/accountfp/AccountFP';
 import ProtectedRoute from './routes/ProtectedRoute'
-import FullScreenLoader from '@/components/ui/FullScreenLoader';
 import {addToast} from '@/features/toast/toastSlice'
 import ScrollToTop from '@/components/ScrollToTop'
 

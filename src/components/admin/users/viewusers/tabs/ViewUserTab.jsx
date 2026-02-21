@@ -4,6 +4,7 @@ import Select from "@/components/ui/Select";
 import { useOutletContext } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { viewUserImage } from "@/features/users/userThunk";
+import NoImageAvailable from "@/assets/No_Image_Available.jpg";
 
 const ViewUserTab = () => {
   const { user } = useOutletContext();
@@ -41,7 +42,10 @@ const ViewUserTab = () => {
           })
           .catch(error => {
             console.error("Error loading profile image:", error);
+            setPreview(NoImageAvailable);
           });
+      } else {
+        setPreview(NoImageAvailable);
       }
     }
   }, [user]);

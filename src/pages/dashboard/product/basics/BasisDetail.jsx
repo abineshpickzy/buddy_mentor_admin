@@ -425,7 +425,7 @@ const BasisDetail = () => {
 
       {/* ================= BREADCRUMBS ================= */}
       {breadcrumbs.length > 0 && (
-        <div className="py-2">
+        <div className="">
           <span
             className="text-primary/75 cursor-pointer hover:underline pr-2"
             onClick={() => navigate(`/dashboard/${product.product._id}/basis`)}
@@ -470,11 +470,7 @@ const BasisDetail = () => {
       {/* ================= ASSETS TABLE SECTION ================= */}
       <div className=" rounded-lg ">
 
-        <div className="flex items-center justify-between">
-          <div className=" pb-4 border-b border-gray-200 text-lg font-semibold text-primary">
-            Assets
-          </div>
-        </div>
+        
 
         <AssertList 
           assets={assertFiles} 
@@ -517,7 +513,7 @@ const BasisDetail = () => {
         {nodes.length > 0 ? (
           <TreeMenu nodes={nodes} />
         ) : (
-          <p className="text-gray-500">No basic nodes available</p>
+          <p className="text-gray-500 py-4">No basic nodes available</p>
         )}
       </div>
 

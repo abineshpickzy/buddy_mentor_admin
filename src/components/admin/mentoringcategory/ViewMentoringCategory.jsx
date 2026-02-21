@@ -4,6 +4,7 @@ import { useParams, NavLink } from "react-router-dom";
 import CategoryTree from "./CategoryTree";
 import { fetchProductById, viewProductImage } from "../../../features/products/productThunk";
 import { showLoader, hideLoader } from "@/features/loader/loaderSlice";
+import NoImageAvailable from "@/assets/No_Image_Available.jpg";
 
 const ViewMentoringCategory = () => {
   const dispatch = useDispatch();
@@ -30,7 +31,10 @@ const ViewMentoringCategory = () => {
           })
           .catch(() => {
             console.error("Error loading product icon");
+            setPreview(NoImageAvailable);
           });
+      } else {
+        setPreview(NoImageAvailable);
       }
     } catch (error) {
       console.error("Fetch product error:", error);

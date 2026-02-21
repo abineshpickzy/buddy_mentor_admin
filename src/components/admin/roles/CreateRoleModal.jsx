@@ -1,9 +1,18 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { X } from "lucide-react";
 
 const CreateRoleModal = ({ open, onClose, onCreate, editMode = false, initialData = null }) => {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const textareaRef = useRef(null);
+
+  const adjustTextareaHeight = () => {
+    const textarea = textareaRef.current;
+    if (textarea) {
+      textarea.style.height = 'auto';
+      textarea.style.height = textarea.scrollHeight + 'px';
+    }
+  };
 
   useEffect(() => {
     if (editMode && initialData) {
@@ -14,6 +23,10 @@ const CreateRoleModal = ({ open, onClose, onCreate, editMode = false, initialDat
       setDescription("");
     }
   }, [editMode, initialData, open]);
+
+  useEffect(() => {
+    adjustTextareaHeight();
+  }, [description]);
 
   if (!open) return null;
 
@@ -26,8 +39,8 @@ const CreateRoleModal = ({ open, onClose, onCreate, editMode = false, initialDat
   };
 
   return (
-    <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
-      <div className="bg-white w-[420px] rounded shadow-lg p-5 relative">
+    <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50 overflow-y-auto">
+      <div className="bg-white w-[50%]  rounded shadow-lg p-5 relative">
         
         {/* Header */}
         <div className="flex justify-between items-center mb-4">
@@ -46,16 +59,18 @@ const CreateRoleModal = ({ open, onClose, onCreate, editMode = false, initialDat
           <div>
             <label className="text-sm text-gray-600">Name</label>
             <input
-              className="w-full border px-3 py-2 text-sm rounded mt-1"
+              className="w-full border  px-3 py-2 text-sm mt-1"
               value={name}
               onChange={e => setName(e.target.value)}
             />
           </div>
 
+
           <div>
-            <label className="text-sm text-gray-600">Description</label>
+            <label className="text-sm text-gray-600 ">Description</label>
             <textarea
-              className="w-full border px-3 py-2 text-sm rounded mt-1 resize-none"
+              ref={textareaRef}
+              className="w-full border px-3  py-2 text-sm  mt-1 resize-none overflow-hidden"
               rows={3}
               value={description}
               onChange={e => setDescription(e.target.value)}

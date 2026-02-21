@@ -5,6 +5,7 @@ import CategoryTree from "./CategoryTree";
 import { fetchProductById, deleteBasicNode, deleteProgramNode, updateProduct, viewProductImage } from "../../../features/products/productThunk";
 import { addToast } from "@/features/toast/toastSlice";
 import { showLoader, hideLoader } from "@/features/loader/loaderSlice";
+import NoImageAvailable from "@/assets/No_Image_Available.jpg";
 
 const EditMentoringCategory = () => {
   const dispatch = useDispatch();
@@ -45,7 +46,10 @@ const EditMentoringCategory = () => {
           })
           .catch(() => {
             console.error("Error loading product icon");
+            setPreview(NoImageAvailable);
           });
+      } else {
+        setPreview(NoImageAvailable);
       }
     } catch (error) {
       console.error("Fetch product error:", error);

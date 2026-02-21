@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { FileText, VideoIcon, Image, ChevronDown, LayoutGrid, List, Edit } from 'lucide-react';
+import { FileText, VideoIcon, Image, ChevronDown, LayoutGrid, List, Edit ,File} from 'lucide-react';
 import PreviewModal from './PreviewModal';
 import { Can } from "@/permissions";
 import { PERMISSIONS } from "@/permissions/permissions";
@@ -22,7 +22,7 @@ const AssertList = ({ assets, onReplace, productType, onToggleDownloadable, onAd
   const dispatch =useDispatch();
 
   const filteredAssets = assets.filter(asset => {
-    if (!statusFilter) return true;
+    if (statusFilter === '' || statusFilter === '2') return true;
     return asset.status === statusFilter;
   });
 
@@ -57,6 +57,8 @@ const AssertList = ({ assets, onReplace, productType, onToggleDownloadable, onAd
   };
 
   const handleSelectAll = () => {
+
+
     if (selectedFiles.length === filteredAssets.length) {
       setSelectedFiles([]);
     } else {
@@ -83,9 +85,12 @@ const AssertList = ({ assets, onReplace, productType, onToggleDownloadable, onAd
   return (
     <div>
       {/* Filters */}
-      <div className="bg-white px-4 py-4 flex items-center justify-end gap-4">
+     
+     <div className="flex items-center justify-between ">
+       <div className="text-lg font-semibold text-gray-700">Asserts</div>
+        <div className=" py-4 flex items-center justify-end gap-4">
         {/* Status Filter  */}
-        <div className="flex items-center relative" style={{ minWidth: '200px', maxWidth: '400px' }}>
+        <div className="flex items-center relative" style={{ minWidth: '100px', maxWidth: '400px' }}>
           <label className="text-base font-semibold text-gray-600 mr-4">View   </label>
           <select
             value={statusFilter}
@@ -93,15 +98,17 @@ const AssertList = ({ assets, onReplace, productType, onToggleDownloadable, onAd
             className="appearance-none border border-gray-300 bg-white px-3 py-1 text-sm w-full focus:outline-none focus:ring-1 focus:ring-gray-500"
           >
             <option value="">All</option>
-            <option value="InReview">InReview</option>
-            <option value="Approved">Approved</option>
+            <option value="0">Draft</option>
+            <option value="1">InReview</option>
+            <option value="2">Approved</option>
+            <option value="3">Rejected</option>
           </select>
           <ChevronDown className="absolute right-2 pointer-events-none" size={16} />
         </div>
           <div/>
         {/* Assign to admins */}
         <div className="flex items-center gap-4">
-           <div className="flex items-center relative" style={{ minWidth: '300px', maxWidth: '400px' }}>
+           <div className="flex items-center relative" style={{ minWidth: '250px', maxWidth: '400px' }}>
           <label className="text-base font-semibold text-gray-600 mr-2 min-w-[80px]">Assign To   </label>
           <select
             value={selectedAssignee || ''}
@@ -128,7 +135,7 @@ const AssertList = ({ assets, onReplace, productType, onToggleDownloadable, onAd
           gridView ? (
             <List className="w-8 text-black cursor-pointer" onClick={() => setGridView(!gridView)} />
           ) : (
-            <LayoutGrid className=" w-8 text-black cursor-pointer " onClick={() => setGridView(!gridView)} />
+            <LayoutGrid className=" w-8 text-black cursor-pointer " fill="black" onClick={() => setGridView(!gridView)} />
           )
         }
         {onAddUpload && (
@@ -142,6 +149,7 @@ const AssertList = ({ assets, onReplace, productType, onToggleDownloadable, onAd
           </Can>
         )}
       </div>
+     </div>
 
       {gridView ? (
 
@@ -231,13 +239,13 @@ const AssertList = ({ assets, onReplace, productType, onToggleDownloadable, onAd
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="bg-[#9e9e9e] text-sm text-left text-white">
-                <th className="px-6 py-3"><input type="checkbox" checked={selectedFiles.length === filteredAssets.length} onChange={handleSelectAll} /></th>
+              <tr className="bg-[#9e9e9e] text-sm text-center text-white">
+                <th className="px-6 py-3"><input type="checkbox" checked={filteredAssets.length > 0 && selectedFiles.length === filteredAssets.length} onChange={handleSelectAll} /></th>
                 <th className="px-6 py-3">Sno</th>
                 <th className="px-6 py-3">Icon</th>
                 <th className="px-6 py-3">Asset Name</th>
                 <th className="px-6 py-3">Asset Type</th>
-                <th className="px-6 py-3 text-center">Is Downloadable</th>
+                <th className="px-6 py-3">Allow Download</th>
                 <th className="px-6 py-3">Status</th>
                 <Can permission={productType == 0 ? PERMISSIONS.MENTORING_PRODUCT_CORE_FOUNDATION_EDIT : PERMISSIONS.MENTORING_PRODUCT_PROGRAM_EDIT}><th className="px-6 py-3">Action</th></Can>
               </tr>
@@ -256,29 +264,29 @@ const AssertList = ({ assets, onReplace, productType, onToggleDownloadable, onAd
                     key={file._id || index}
                     className="text-sm odd:bg-[#e6e6e6] border-b-2 border-[#d8dbdd]"
                   >
-                    <td className="px-6 py-4"><input type="checkbox" checked={selectedFiles.includes(file)} onChange={() => handleSelectFile(file)} /></td>
+                    <td className="px-6 py-4 text-center"><input type="checkbox" checked={selectedFiles.includes(file)} onChange={() => handleSelectFile(file)} /></td>
                     {/* Sno */}
-                    <td className="px-6 py-4">{index + 1}</td>
+                    <td className="px-6 py-4 text-center">{index + 1}</td>
 
                     {/* Icon */}
-                    <td className="px-6 py-4">
+                    <td className="px-6 py-4 text-center">
                       {file.type?.startsWith("video") && (
-                        <VideoIcon size={20} className="text-blue-600" />
+                        <VideoIcon size={20} className="text-blue-600 mx-auto" />
                       )}
 
                       {file.type.startsWith("image") && (
-                        <Image size={20} className="text-green-600" />
+                        <Image size={20} className="text-green-600 mx-auto" />
                       )}
 
                       {!file.type?.startsWith("video") &&
                         !file.type.startsWith("image") && (
-                          <FileText size={20} className="text-gray-600" />
+                          <FileText size={20} className="text-gray-600 mx-auto" />
                         )}
                     </td>
 
                     {/* Asset Name */}
                     <td
-                      className="px-6 py-4 font-medium text-primary cursor-pointer hover:underline"
+                      className="px-6 py-4 text-center font-medium text-primary cursor-pointer hover:underline"
                       onClick={() => handleFileClick(file)}
                     >
                       {file.original_name ||
@@ -287,7 +295,7 @@ const AssertList = ({ assets, onReplace, productType, onToggleDownloadable, onAd
                     </td>
 
                     {/* Asset Type */}
-                    <td className="px-6 py-4 capitalize">
+                    <td className="px-6 py-4 text-center capitalize">
                       {file.type?.startsWith("video")
                         ? "Video"
                         : file.type?.startsWith("image")
@@ -296,23 +304,27 @@ const AssertList = ({ assets, onReplace, productType, onToggleDownloadable, onAd
                     </td>
 
                     {/* Is Downloadable */}
-                    <td className="px-6 py-4 text-center ">
+                    <td className="px-6 py-4 text-center">
 
                       <input type="checkbox" checked={file.is_downloadable} className='w-3 h-3' onChange={(e) => handleDownloadable(file, e)} />
 
                     </td>
 
                     {/* Status */}
-                    <td className="px-6 py-4">
-                      <span className=" py-1 text-xs rounded-full ">
-                        {file.status || "Approved"}
-                      </span>
+                    <td className="px-6 py-4 text-center">
+                      
+                        {file.status? file.status==0?  <span className='bg-yellow-500 text-xs rounded-xs text-white px-2 py-1'>Draft</span>
+                        :file.status==1 ? <span className='bg-[#03a9f4] text-xs rounded-xs text-white px-2 py-1'>In Review</span>
+                        :file.status==2 ? <span className='bg-green-600 text-xs rounded-xs text-white px-2 py-1'>Approved</span>
+                        :file.status==3 ? <div className='flex gap-2 items-center justify-center'> <span className='bg-red-600 text-xs rounded-xs text-white px-2 py-1'>Rejected</span> <File size={20} className='text-red-600'/></div>
+                        :<span className='bg-red-600 text-xs rounded-xs text-white px-2 py-1'>Cancelled</span> :  <span className='bg-green-600 text-xs rounded-xs text-white px-2 py-1'>Approved</span>}
+                      
                     </td>
 
                     {/* Action */}
                     <Can permission={productType === 0 ? PERMISSIONS.MENTORING_PRODUCT_CORE_FOUNDATION_EDIT : PERMISSIONS.MENTORING_PRODUCT_PROGRAM_EDIT}>
-                      <td className="px-6 py-4 text-blue-600 cursor-pointer hover:underline" onClick={(e) => handleEdit(file, e)}>
-                        <Edit size={20} />
+                      <td className="px-6 py-4 text-center text-blue-600 cursor-pointer hover:underline" onClick={(e) => handleEdit(file, e)}>
+                        Edit
                       </td>
                     </Can>
 

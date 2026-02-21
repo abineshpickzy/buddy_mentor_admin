@@ -8,6 +8,7 @@ import { CanModule } from "@/permissions";
 import {viewUserImage} from "@/features/users/userThunk";
 import { useState, useEffect } from "react";
 import ConfirmModal from "@/components/admin/mentoringcategory/ConfirmModel";
+import NoImageAvailable from "@/assets/No_Image_Available.jpg";
 
 
 const Navbar = ( { onMenuClick } ) => {
@@ -15,7 +16,7 @@ const Navbar = ( { onMenuClick } ) => {
   const dispatch = useDispatch(); 
 
   const {user} = useSelector((state) => state.auth);
-  const [profileImage, setProfileImage] = useState("https://i.pravatar.cc/40");
+  const [profileImage, setProfileImage] = useState(NoImageAvailable);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   useEffect(() => {
@@ -28,12 +29,12 @@ const Navbar = ( { onMenuClick } ) => {
           }
         })
         .catch(() => {
-          setProfileImage("https://i.pravatar.cc/40");
+          setProfileImage(NoImageAvailable);
         });
     }
 
     return () => {
-      if (profileImage !== "https://i.pravatar.cc/40") {
+      if (profileImage !== NoImageAvailable) {
         URL.revokeObjectURL(profileImage);
       }
     };
@@ -73,6 +74,7 @@ const Navbar = ( { onMenuClick } ) => {
 
             {/* Logo */}
              <img src={logo} alt="logo" className="w-8 h-8 rounded-full" />
+       
 
             {/* Tabs (Desktop) */}
             <nav className=" md:flex gap-2 ml-4">
@@ -107,13 +109,15 @@ const Navbar = ( { onMenuClick } ) => {
               <ChevronDown className="absolute right-2 pointer-events-none" size={16} />
             </div>
 
-            {/* Avatar */}
+            <div className="flex items-center gap-2">
+               {/* Avatar */}
             <img
               src={profileImage}
               alt="profile"
               className="w-8 h-8 rounded-full border object-fill"
             />
-            {/* {user?.user_name ||"Admin"} */}
+            {user?.user_name ||"Admin"}
+            </div>
 
             {/* Logout */}
             <button className=" md:flex items-center gap-1 rounded border-2 border-[#909090] px-6 py-1 bg-[#e0e0e0] text-sm font-medium" onClick={() => setShowLogoutModal(true)}>

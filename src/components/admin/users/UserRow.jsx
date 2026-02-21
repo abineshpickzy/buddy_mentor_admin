@@ -5,9 +5,10 @@ import { useDispatch } from "react-redux";
 import { viewUserImage } from "@/features/users/userThunk";
 import {Can} from "@/permissions";
 import { PERMISSIONS } from "@/permissions/permissions";
+import NoImageAvailable from "@/assets/No_Image_Available.jpg";
 
 const UserRow = ({ user, index }) => {
-  const [profileImage, setProfileImage] = useState("https://cdn-icons-png.flaticon.com/512/8847/8847419.png");
+  const [profileImage, setProfileImage] = useState(NoImageAvailable);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -21,12 +22,12 @@ const UserRow = ({ user, index }) => {
           }
         })
         .catch(() => {
-          setProfileImage("https://cdn-icons-png.flaticon.com/512/8847/8847419.png");
+          setProfileImage(NoImageAvailable);
         });
     }
 
     return () => {
-      if (profileImage !== "https://cdn-icons-png.flaticon.com/512/8847/8847419.png") {
+      if (profileImage !== NoImageAvailable) {
         URL.revokeObjectURL(profileImage);
       }
     };
