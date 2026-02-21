@@ -13,7 +13,7 @@ const Loader = () => {
         <img src={logo} alt="Loader" className="w-16 h-16 animate-pulse" />
         
        </div>
-        <div className='animate-pulse text-white font-semibold font-montserrat'>Loading...</div>
+        <div className='animate-pulse text-white font-semibold'>Loading...</div>
     </div>
   );
 };

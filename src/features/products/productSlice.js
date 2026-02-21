@@ -1,9 +1,10 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { listProducts, viewProductImage } from "./productThunk";
+import { listProducts, viewProductImage , fetchAssignees} from "./productThunk";
 
 const initialState = {
     products: [],
     productlist: [],
+    assignees : [],
     loading: false,
     error: null,
 };
@@ -34,6 +35,17 @@ const productSlice = createSlice({
                 state.loading = false;
             })
             .addCase(viewProductImage.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload;
+            })
+            .addCase(fetchAssignees.pending, (state) => {
+                state.loading = true;
+            })
+            .addCase(fetchAssignees.fulfilled, (state, action) => {
+                state.loading = false;
+                state.assignees = action.payload.assinee;
+            })
+            .addCase(fetchAssignees.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.payload;
             });

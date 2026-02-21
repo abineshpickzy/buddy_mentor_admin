@@ -1,4 +1,4 @@
-import { Menu, LogOut } from "lucide-react";
+import { Menu, LogOut, ChevronDown } from "lucide-react";
 import logo  from "@/assets/logo.png";
 import { NavLink, useLocation } from "react-router-dom";
 import {logout} from "@/features/auth/authSlice";
@@ -53,19 +53,22 @@ const Navbar = ( { onMenuClick } ) => {
   return (
     <>
       {/* NAVBAR */}
-      <header className="sticky top-0 z-50 bg-gray-300 border-b max-w-screen">
-        <div className="flex items-center justify-between px-4 py-4">
+      <header className="sticky top-0 z-50 bg-[#bdbdbd] max-w-screen">
+        <div className="flex items-center justify-between px-4 py-3">
 
           {/* LEFT */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-4">
            <button
-            className="p-1 hover:bg-gray-400 rounded"
+            className="rounded text-white p-1"
             onClick={() => {
               console.log('Menu clicked');
               onMenuClick();
             }}
           >
-            <Menu size={22}  />
+            <Menu size={22} 
+            strokeWidth={3}
+              className=""
+  />
           </button>
 
             {/* Logo */}
@@ -78,11 +81,11 @@ const Navbar = ( { onMenuClick } ) => {
                   <NavLink
                     // key={tab.label}
                     to={tab.link}
-                    className={`px-4 py-1 rounded text-sm font-medium
+                    className={`px-8 py-1 rounded text-sm font-medium
                       ${
                         isActiveTab(tab.link)
                           ? "bg-blue-500 text-white"
-                          : "bg-white border"
+                          : "bg-[#f5f5f5] border-2 border-[#909090] "
                       }`}
                   >
                     {tab.label}
@@ -93,13 +96,16 @@ const Navbar = ( { onMenuClick } ) => {
           </div>
 
           {/* RIGHT */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-6">
             {/* Country */}
-            <select className=" md:block border px-2 py-1 text-sm bg-white">
-              <option>India</option>
-              <option>USA</option>
-              <option>UK</option>
-            </select>
+            <div className="flex items-center relative" style={{ minWidth: '150px' }}>
+              <select
+                className="appearance-none rounded-xs border-2 border-[#909090] bg-white px-3 py-1 text-sm font-medium w-full focus:outline-none focus:ring-1 focus:ring-gray-500"
+              >
+                <option value="INDIA">India</option>
+              </select>
+              <ChevronDown className="absolute right-2 pointer-events-none" size={16} />
+            </div>
 
             {/* Avatar */}
             <img
@@ -107,10 +113,10 @@ const Navbar = ( { onMenuClick } ) => {
               alt="profile"
               className="w-8 h-8 rounded-full border object-fill"
             />
-            {user?.user_name ||"Admin"}
+            {/* {user?.user_name ||"Admin"} */}
 
             {/* Logout */}
-            <button className=" md:flex items-center gap-1 border px-3 py-1 bg-white text-sm" onClick={() => setShowLogoutModal(true)}>
+            <button className=" md:flex items-center gap-1 rounded border-2 border-[#909090] px-6 py-1 bg-[#e0e0e0] text-sm font-medium" onClick={() => setShowLogoutModal(true)}>
               <LogOut size={16} />
               Logout
             </button>

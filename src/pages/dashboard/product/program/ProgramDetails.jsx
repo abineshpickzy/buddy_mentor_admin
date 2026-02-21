@@ -386,7 +386,7 @@ const ProgramDetails = () => {
   }, [loading, dispatch]);
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-4">
 
       {/* ================= BREADCRUMBS ================= */}
       {breadcrumbs.length > 0 && (
@@ -436,20 +436,18 @@ const ProgramDetails = () => {
       <div className=" rounded-lg">
 
         <div className="flex items-center justify-between">
-          <div className=" py-4 border-b border-gray-200 text-lg font-semibold text-primary">
+          <div className=" pb-4 border-b border-gray-200 text-lg font-semibold text-primary">
           Assets
         </div>
-        <Can permission={PERMISSIONS.MENTORING_PRODUCT_PROGRAM_EDIT}>
-           <button
-            className="bg-blue-500 text-sm font-semibold  hover:bg-blue-600 text-white px-10 py-[6px] rounded-md"
-            onClick={() => setIsUploadModelOpen(true)}
-          >
-            Add / Upload
-          </button>
-        </Can>
         </div>
 
-        <AssertList assets={assertFiles} onReplace={handleReplace} productType={1} onToggleDownloadable={handleToggleDownloadable} />
+        <AssertList 
+          assets={assertFiles} 
+          onReplace={handleReplace} 
+          productType={1} 
+          onToggleDownloadable={handleToggleDownloadable}
+          onAddUpload={() => setIsUploadModelOpen(true)}
+        />
 
         {/* Uploading Files */}
         {uploadingFile.length > 0 && (

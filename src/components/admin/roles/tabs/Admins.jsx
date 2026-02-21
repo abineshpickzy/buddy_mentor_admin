@@ -38,9 +38,9 @@ const Admins = ({ onSelectionChange }) => {
 
     return (
         <div className="">
-            <table className="w-full text-sm ">
-                <thead className="bg-gray-200">
-                    <tr>
+            <table className="w-full">
+                <thead>
+                    <tr className="bg-[#9e9e9e] text-sm text-left text-white">
                         <th className="p-2 w-10">
                             <input 
                                 type="checkbox" 
@@ -51,8 +51,8 @@ const Admins = ({ onSelectionChange }) => {
                                 onChange={(e) => handleSelectAll(e.target.checked)}
                             />
                         </th>
-                        <th className="text-left p-2">Name</th>
-                        <th className="text-left p-2">Email id</th>
+                        <th className="p-2">Name</th>
+                        <th className="p-2">Email id</th>
                     </tr>
                 </thead>
 
@@ -65,7 +65,7 @@ const Admins = ({ onSelectionChange }) => {
                         </tr>
                     ) : (
                         admins.map(admin => (
-                            <tr key={admin._id} className="even:bg-gray-100">
+                            <tr key={admin._id} className="text-sm odd:bg-[#e6e6e6] border-b-2 border-[#d8dbdd]">
                                 <td className="p-2 text-center">
                                     <input 
                                        disabled={admin._id==user._id}

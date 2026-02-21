@@ -128,3 +128,13 @@ export const editNode = createAsyncThunk("products/editNode", async (payload, { 
         return rejectWithValue(error.message);
     }
 });
+
+//  fetch product admins
+export const fetchAssignees = createAsyncThunk("products/fetchAssignees", async (id, { rejectWithValue }) => {
+    try {
+        const response = await axios.get(`user/${id}/asg/rv/ls`);
+        return response.data;
+    } catch (error) {
+        return rejectWithValue(error.message);
+    }
+})

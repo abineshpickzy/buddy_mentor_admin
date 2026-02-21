@@ -16,8 +16,8 @@ export const adminSidebarItems = [
 ];
 
 export const accountFPSidebarItems = [
-  { label: "Financial Overview", icon: Calculator, link: "/account/overview" },
-  { label: "Transactions", icon: BookOpen, link: "/account/transactions" },
-  { label: "Reports", icon: Settings, link: "/account/reports" },
-  { label: "Settings", icon: Settings, link: "/account/settings" },
+  { label: "Financial Overview", icon: Calculator, link: "/account/overview", module:"account_fp.overview" },
+  { label: "Transactions", icon: BookOpen, link: "/account/transactions", module:"account_fp.transactions" },
+  { label: "Reports", icon: Settings, link: "/account/reports", module:"account_fp.reports" },
+  { label: "Settings", icon: Settings, link: "/account/settings", module:"account_fp.settings" },
 ];

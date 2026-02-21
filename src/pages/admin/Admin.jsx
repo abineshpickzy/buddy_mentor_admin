@@ -18,27 +18,30 @@ import ViewUserTab from '@/components/admin/users/viewusers/tabs/ViewUserTab';
 import ViewRolesTab from '@/components/admin/users/viewusers/tabs/ViewRolesTab';
 import ViewLocationsTab from '@/components/admin/users/viewusers/tabs/ViewLocationsTab';
 import ViewMentoringTab from '@/components/admin/users/viewusers/tabs/ViewMentoringTab';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
+import useModuleAccess from '@/permissions/useModuleAccess';
 
 let adminDataFetched = false;
 
 const AdminPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const checkModule = useModuleAccess();
 
-  
+  const firstAvailableRoute = useMemo(() => {
+    const availableItem = adminSidebarItems.find(item => 
+      !item.module || checkModule(item.module)
+    );
+    return availableItem?.link || '/admin';
+  }, [checkModule]);
 
-  
-  // Fetch admin data on mount if not already loaded
-  
-  
   useEffect(() => {
     if (location.pathname === '/admin' || location.pathname === '/admin/') {
-      navigate('/admin/mentoring-product', { replace: true });
+      navigate(firstAvailableRoute, { replace: true });
     }
-  }, [location.pathname, navigate]);
+  }, [location.pathname, navigate, firstAvailableRoute]);
 
 
   return (
@@ -50,7 +53,6 @@ const AdminPage = () => {
           <Route path="mentoring-product/view/:productId" element={<ViewMentoringCategory />} />
           
           <Route path="roles-permissions" element={<Roles />} />
-
           <Route path="users" element={<Users />} />
           <Route path="users/new" element={<AddUserPage />} />
           <Route path="users/edit/:userId" element={<EditUserPage />}>

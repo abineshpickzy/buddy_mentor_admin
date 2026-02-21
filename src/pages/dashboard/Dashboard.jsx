@@ -3,7 +3,7 @@ import Layout from '@/components/layout/Layout';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Box, LayoutDashboard, } from 'lucide-react';
+import { BookText, LayoutDashboard, } from 'lucide-react';
 import ProductLayout from '../../components/layout/productlayout/ProductLayout';
 import DashboardOverview from './overview/Overview';
 import Overview from './product/Overview';
@@ -25,18 +25,23 @@ const Dashboard = () => {
   const { productlist } = useSelector((state) => state.products);
   const { user } = useSelector((state) => state.auth);
 
+  const colors = [ 'text-green-600',  'text-pink-600', 'text-black', 'text-yellow-600','text-blue-600','text-purple-600','text-indigo-600'];
+
   const dashboardSidebarItems = [
     {
       label: "Dashboard",
+
       icon: LayoutDashboard,
       link: "/dashboard/overview",
+      isdefault: true
     },
     ...productlist
       .filter(product => user?.product?.includes(product._id))
-      .map(product => ({
+      .map((product, index) => ({
         label: product.name,
-        icon: Box,
+        icon: BookText,
         link: `/dashboard/${product._id}`,
+        iconClass: colors[index % colors.length],
       }))
   ];
 

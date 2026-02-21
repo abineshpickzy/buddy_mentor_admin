@@ -17,13 +17,17 @@
 
 /* 4. Base Element Styles LAST */
 @layer base {
-  p, li, span, a, button, label, input, textarea,td {
+  /* p, li, span, a, button, label, input, textarea,td,th {
     @apply font-roboto;
-  }
+  } */
   
-  h1, h2, h3, h4, h5, h6 {
+  /* h1, h2, h3, h4, h5, h6 { */
     /* Use @apply instead of standard CSS to let Tailwind handle precedence */
-    @apply font-montserrat;
+    /* @apply font-roboto;
+  } */
+
+  * {
+    @apply font-roboto;
   }
 
   *::-webkit-scrollbar {

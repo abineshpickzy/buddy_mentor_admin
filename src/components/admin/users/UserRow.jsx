@@ -33,7 +33,7 @@ const UserRow = ({ user, index }) => {
   }, [user.profile_image, dispatch]);
   
   return (
-    <tr className="border-t border-gray-200 even:bg-gray-100 hover:bg-gray-50">
+    <tr className="text-sm odd:bg-[#e6e6e6] border-b-2 border-[#d8dbdd]">
       
       <td className="p-2 text-center">{index + 1}</td>
 

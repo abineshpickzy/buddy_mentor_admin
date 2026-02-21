@@ -7,18 +7,18 @@ import { PERMISSIONS } from "@/permissions/permissions";
 const UserList = ({ users }) => {
   return (
     <div className="bg-white overflow-x-auto">
-      <table className="w-full border-collapse text-sm">
+      <table className="w-full border-collapse">
         
         {/* Table Head */}
-        <thead className="bg-gray-200 text-gray-700">
-          <tr>
+        <thead>
+          <tr className="bg-[#9e9e9e] text-sm text-left text-white">
             <th className="p-2">S.no</th>
             <th className="p-2">Profile</th>
             <th className="p-2">Action</th>
-            <th className="p-2 text-left">First name</th>
-            <th className="p-2 text-left">Last name</th>
-            <th className="p-2 text-left">Email</th>
-            <th className="p-2 text-left">Admin ID</th>
+            <th className="p-2">First name</th>
+            <th className="p-2">Last name</th>
+            <th className="p-2">Email</th>
+            <th className="p-2">Admin ID</th>
             <th className="p-2">Last Connection</th>
             <th className="p-2">Created</th>
             <th className="p-2">Status</th>

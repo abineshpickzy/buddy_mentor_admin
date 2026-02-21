@@ -48,9 +48,7 @@ const Users = () => {
   };
 
   useEffect (() => {
-     if(users.length === 0){
        dispatch(fetchUsers());
-     }
      if(rolelist.length === 0){
        dispatch(fetchRoleList());
      }

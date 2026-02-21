@@ -76,6 +76,7 @@ const BasisDetail = () => {
   const handleUploadSubmit = async (file, isDownloadable = false) => {
 
     console.log("Uploaded file:", file);
+    
 
     if (!file) return;
 
@@ -261,6 +262,7 @@ const BasisDetail = () => {
       formData.append("file", file);
       formData.append("parent_id", nodeId);
       formData.append("product_type", 0);
+      formData.append("is_downloadable", isDownloadable);
       console.log("Form Data:", formData.get("file"));
       try {
         await dispatch(saveAssert(formData)).unwrap();
@@ -419,7 +421,7 @@ const BasisDetail = () => {
   }, [loading, dispatch]);
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-4">
 
       {/* ================= BREADCRUMBS ================= */}
       {breadcrumbs.length > 0 && (
@@ -469,20 +471,18 @@ const BasisDetail = () => {
       <div className=" rounded-lg ">
 
         <div className="flex items-center justify-between">
-          <div className=" py-4 border-b border-gray-200 text-lg font-semibold text-primary">
+          <div className=" pb-4 border-b border-gray-200 text-lg font-semibold text-primary">
             Assets
           </div>
-         <Can permission={PERMISSIONS.MENTORING_PRODUCT_CORE_FOUNDATION_EDIT}>
-           <button
-            className="bg-blue-500 text-sm font-semibold  hover:bg-blue-600 text-white px-10 py-[6px] rounded-md"
-            onClick={() => setIsUploadModelOpen(true)}
-          >
-            Add / Upload
-          </button>
-         </Can>
         </div>
 
-        <AssertList assets={assertFiles} onReplace={handleReplace} productType={0} onToggleDownloadable={handleToggleDownloadable} />
+        <AssertList 
+          assets={assertFiles} 
+          onReplace={handleReplace} 
+          productType={0} 
+          onToggleDownloadable={handleToggleDownloadable}
+          onAddUpload={() => setIsUploadModelOpen(true)}
+        />
 
         {/* Uploading Files */}
         {uploadingFile.length > 0 && (

@@ -38,7 +38,7 @@ const ProductIcon = ({ product_icon }) => {
     <img
       src={iconUrl}
       alt="Product icon"
-      className="w-8 h-8 object-cover rounded"
+      className="w-8 object-cover "
     />
   );
 };
@@ -73,7 +73,7 @@ const MentoringCategory = () => {
         <h2 className="text-lg font-semibold">Mentoring Products</h2>
       </div>
 
-      <div className="flex justify-between items-center bg-gray-100 p-4 mb-2 ">
+      <div className="flex justify-between items-center bg-[#f5f5f5] p-3 mb-1 ">
 
         {/* Filter */}
         <div className="flex items-center gap-2">
@@ -82,7 +82,7 @@ const MentoringCategory = () => {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="appearance-none border border-gray-300  bg-white px-3 py-1 pr-8 text-base cursor-pointer focus:outline-none focus:ring-1 focus:ring-gray-500"
+              className="appearance-none min-w-[200px] border border-gray-300  bg-white px-3 py-1 pr-8 text-base cursor-pointer focus:outline-none focus:ring-1 focus:ring-gray-500"
             >
               {/* <option>Open</option> */}
               <option>Live</option>
@@ -97,7 +97,7 @@ const MentoringCategory = () => {
         {/* Add Button */}
         <div>
           <Can permission={PERMISSIONS.MENTORING_PROGRAM_CREATE}>
-            <NavLink to="/admin/mentoring-product/add" className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md text-sm flex items-center gap-1">
+            <NavLink to="/admin/mentoring-product/add" className="bg-green-600 hover:bg-green-700 text-white px-12 py-1 rounded-sm text-md flex items-center gap-1">
               <span className="text-lg leading-none">+</span> New
             </NavLink>
           </Can>
@@ -109,7 +109,7 @@ const MentoringCategory = () => {
       <div className="overflow-x-auto">
         <table className="w-full border-collapse">
           <thead>
-            <tr className="bg-gray-200 text-sm text-left">
+            <tr className="bg-[#9e9e9e] text-sm text-left text-white ">
               <th className="p-2 w-12">Sno</th>
               <th className="p-2">Icon</th>
               <th className="p-2">Category name</th>
@@ -130,10 +130,10 @@ const MentoringCategory = () => {
               productlist?.map((item, index) => (
                 <tr
                   key={item._id}
-                  className=" text-sm even:bg-gray-100"
+                  className=" text-sm odd:bg-[#e6e6e6] border-b-2 border-[#d8dbdd] "
                 >
                   <td className="p-2">{index + 1}</td>
-                  <td className="p-2 font-medium">
+                  <td className="px-2">
                     <ProductIcon product_icon={item.image} />
                   </td>
                   <td className="p-2">{item.name}</td>

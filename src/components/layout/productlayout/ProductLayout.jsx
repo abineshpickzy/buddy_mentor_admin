@@ -2,7 +2,7 @@
 import { NavLink, useParams, Outlet } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { useState, useEffect } from "react";
-import {fetchProductById} from "@/features/products/productThunk";
+import {fetchProductById, fetchAssignees} from "@/features/products/productThunk";
 import {CanModule} from "@/permissions";
 
 
@@ -27,9 +27,19 @@ const ProductLayout = () => {
       console.error("Failed to fetch product:", error);
     }
   };
+  
+  const loadAssignees = async () => {
+    try {
+      const result = await dispatch(fetchAssignees(productId)).unwrap();
+      console.log(result)
+    } catch (error) {
+      console.error("Failed to fetch assignees:", error);
+    }
+  };
 
   useEffect(() => {
-    fetchProduct();
+     fetchProduct();
+     loadAssignees();
   }, [productId]);
 
   return (

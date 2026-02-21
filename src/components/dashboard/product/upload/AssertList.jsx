@@ -1,17 +1,25 @@
 
 import React, { useState } from 'react';
-import { FileText, VideoIcon, Image, ChevronDown, LayoutGrid, List } from 'lucide-react';
+import { FileText, VideoIcon, Image, ChevronDown, LayoutGrid, List, Edit } from 'lucide-react';
 import PreviewModal from './PreviewModal';
 import { Can } from "@/permissions";
 import { PERMISSIONS } from "@/permissions/permissions";
+import { addToast } from '@/features/toast/toastSlice';
+
+import { useSelector, useDispatch } from 'react-redux';
 
 
 
-const AssertList = ({ assets, onReplace, productType, onToggleDownloadable }) => {
+const AssertList = ({ assets, onReplace, productType, onToggleDownloadable, onAddUpload }) => {
   const [previewFile, setPreviewFile] = useState(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [statusFilter, setStatusFilter] = useState('');
   const [gridView, setGridView] = useState(false);
+  const [selectedFiles, setSelectedFiles] = useState([]);
+  const [selectedAssignee , setSelectedAssignee] = useState(null);
+
+  const {assignees} = useSelector((state) => state.products);
+  const dispatch =useDispatch();
 
   const filteredAssets = assets.filter(asset => {
     if (!statusFilter) return true;
@@ -40,12 +48,45 @@ const AssertList = ({ assets, onReplace, productType, onToggleDownloadable }) =>
     onToggleDownloadable?.(updatedAssets, file);
   };
 
+  const handleSelectFile = (file) => {
+    if (selectedFiles.includes(file)) {
+      setSelectedFiles(selectedFiles.filter(f => f !== file));
+    } else {
+      setSelectedFiles([...selectedFiles, file]);
+    }
+  };
+
+  const handleSelectAll = () => {
+    if (selectedFiles.length === filteredAssets.length) {
+      setSelectedFiles([]);
+    } else {
+      setSelectedFiles(filteredAssets);
+    }
+  };
+
+  const handleAssign = () => {
+
+    if(selectedFiles.length === 0){
+      dispatch(addToast({ type: "error", message: "Please select at least one file" }));
+      return
+    }
+    if(selectedAssignee === null || selectedAssignee === undefined || selectedAssignee === ''){
+      dispatch(addToast({ type: "error", message: "Please select an assignee" }));
+      return
+    }
+    console.log("selectedAssignee", selectedAssignee, selectedFiles)
+    setSelectedFiles([]);
+    setSelectedAssignee(null);
+    
+  };
+
   return (
     <div>
       {/* Filters */}
-      <div className="bg-white px-4 py-4 flex items-center justify-between">
+      <div className="bg-white px-4 py-4 flex items-center justify-end gap-4">
+        {/* Status Filter  */}
         <div className="flex items-center relative" style={{ minWidth: '200px', maxWidth: '400px' }}>
-          <label className="text-sm font-medium text-gray-600 mr-2">View:</label>
+          <label className="text-base font-semibold text-gray-600 mr-4">View   </label>
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
@@ -57,21 +98,55 @@ const AssertList = ({ assets, onReplace, productType, onToggleDownloadable }) =>
           </select>
           <ChevronDown className="absolute right-2 pointer-events-none" size={16} />
         </div>
+          <div/>
+        {/* Assign to admins */}
+        <div className="flex items-center gap-4">
+           <div className="flex items-center relative" style={{ minWidth: '300px', maxWidth: '400px' }}>
+          <label className="text-base font-semibold text-gray-600 mr-2 min-w-[80px]">Assign To   </label>
+          <select
+            value={selectedAssignee || ''}
+            onChange={(e) => setSelectedAssignee(e.target.value)}
+            className="appearance-none border border-gray-300 bg-white px-3 py-1 text-sm w-full focus:outline-none focus:ring-1 focus:ring-gray-500"
+          >
+            <option value="" className=''>Select Assignee</option>
+            {assignees?.map((assignee) => (
+              <option key={assignee._id} value={assignee._id}>
+                {assignee.user_name}
+              </option>
+            ))}
+          </select>
+          <ChevronDown className="absolute right-2 pointer-events-none" size={16} />
+        </div>
+        <button
+          className="bg-[#03a9f4] text-sm font-semibold hover:bg-[#03a9f4] cursor-pointer text-white px-4 py-[6px] rounded-md" 
+          onClick={handleAssign}>
+            Assign 
+          </button>
+
+        </div>
         {
           gridView ? (
-            <List className="w-8 text-black cursor-pointer" fill onClick={() => setGridView(!gridView)} />
+            <List className="w-8 text-black cursor-pointer" onClick={() => setGridView(!gridView)} />
           ) : (
-
-            <LayoutGrid className=" w-8 text-black cursor-pointer " fill onClick={() => setGridView(!gridView)} />
+            <LayoutGrid className=" w-8 text-black cursor-pointer " onClick={() => setGridView(!gridView)} />
           )
-
         }
+        {onAddUpload && (
+          <Can permission={productType === 0 ? PERMISSIONS.MENTORING_PRODUCT_CORE_FOUNDATION_EDIT : PERMISSIONS.MENTORING_PRODUCT_PROGRAM_EDIT}>
+            <button
+              className="bg-blue-500 text-sm font-semibold hover:bg-blue-600 text-white px-10 py-[6px] rounded-md"
+              onClick={onAddUpload}
+            >
+              Add / Upload
+            </button>
+          </Can>
+        )}
       </div>
 
       {gridView ? (
 
         /* ================= GRID VIEW ================= */
-        <div className="py-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div className="py-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 3xl:grid-cols-4 gap-4">
           {filteredAssets.length === 0 ? (
             <div className="col-span-full text-center text-gray-500">
               No assets found
@@ -84,7 +159,7 @@ const AssertList = ({ assets, onReplace, productType, onToggleDownloadable }) =>
                 onClick={() => handleFileClick(file)}
               >
                 {/* LEFT SIDE PREVIEW */}
-                <div className="w-28 h-24 flex items-center justify-center bg-gray-100 rounded-md flex-shrink-0">
+                <div className="w-28 h-full flex items-center justify-center bg-gray-100 rounded-md flex-shrink-0">
                   {file.type?.startsWith("video") ? (
                     <VideoIcon size={40} className="text-blue-600" />
                   ) : file.type?.startsWith("image") ? (
@@ -99,8 +174,16 @@ const AssertList = ({ assets, onReplace, productType, onToggleDownloadable }) =>
 
                   {/* Top Section */}
                   <div>
-                    <div className="text-base font-semibold text-gray-800">
+                    <div className='flex items-start justify-between'>
+                      <div className="text-base font-semibold text-gray-800">
                       {file.original_name || file.file_name || file.name}
+
+                    </div>
+                      <Can permission={productType === 0 ? PERMISSIONS.MENTORING_PRODUCT_CORE_FOUNDATION_EDIT : PERMISSIONS.MENTORING_PRODUCT_PROGRAM_EDIT}>
+                      <span className=" text-blue-600 cursor-pointer hover:underline" onClick={(e) => handleEdit(file, e)}>
+                        <Edit size={20}/>
+                      </span>
+                    </Can>
                     </div>
 
                     <div className="text-sm text-gray-500 mt-1">
@@ -130,10 +213,11 @@ const AssertList = ({ assets, onReplace, productType, onToggleDownloadable }) =>
                           className="w-3 h-3"
                           onChange={(e) => handleDownloadable(file, e)}
                         />
-                        Download
+                        Downloadable
                       </label>
 
                     </div>
+                  
                   </div>
 
                 </div>
@@ -145,9 +229,10 @@ const AssertList = ({ assets, onReplace, productType, onToggleDownloadable }) =>
         /* ================= LIST VIEW ================= */
 
         <div className="overflow-x-auto">
-          <table className="w-full text-sm text-left">
-            <thead className="bg-gray-300 text-gray-600 uppercase text-xs">
-              <tr>
+          <table className="w-full">
+            <thead>
+              <tr className="bg-[#9e9e9e] text-sm text-left text-white">
+                <th className="px-6 py-3"><input type="checkbox" checked={selectedFiles.length === filteredAssets.length} onChange={handleSelectAll} /></th>
                 <th className="px-6 py-3">Sno</th>
                 <th className="px-6 py-3">Icon</th>
                 <th className="px-6 py-3">Asset Name</th>
@@ -169,8 +254,9 @@ const AssertList = ({ assets, onReplace, productType, onToggleDownloadable }) =>
                 filteredAssets.map((file, index) => (
                   <tr
                     key={file._id || index}
-                    className="even:bg-gray-200 "
+                    className="text-sm odd:bg-[#e6e6e6] border-b-2 border-[#d8dbdd]"
                   >
+                    <td className="px-6 py-4"><input type="checkbox" checked={selectedFiles.includes(file)} onChange={() => handleSelectFile(file)} /></td>
                     {/* Sno */}
                     <td className="px-6 py-4">{index + 1}</td>
 
@@ -226,7 +312,7 @@ const AssertList = ({ assets, onReplace, productType, onToggleDownloadable }) =>
                     {/* Action */}
                     <Can permission={productType === 0 ? PERMISSIONS.MENTORING_PRODUCT_CORE_FOUNDATION_EDIT : PERMISSIONS.MENTORING_PRODUCT_PROGRAM_EDIT}>
                       <td className="px-6 py-4 text-blue-600 cursor-pointer hover:underline" onClick={(e) => handleEdit(file, e)}>
-                        Edit
+                        <Edit size={20} />
                       </td>
                     </Can>
 
