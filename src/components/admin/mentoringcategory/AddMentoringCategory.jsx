@@ -3,7 +3,6 @@ import { useDispatch } from "react-redux";
 import CategoryTree from "./CategoryTree";
 import { checkAvailability,createProduct } from "../../../features/products/productThunk";
 import {addToast} from "@/features/toast/toastSlice";
-import {showLoader,hideLoader} from "@/features/loader/loaderSlice";
 import { NavLink, useNavigate } from "react-router-dom";
 
 const AddMentoringCategory = () => {
@@ -95,17 +94,12 @@ const handleImageUpload = (e) => {
 
      console.log("fd :",fd);
      try {
-  
-      dispatch(showLoader());
       await dispatch(createProduct(fd)).unwrap();
       dispatch(addToast({message:"Product Created Successfully",type:"success"}));
       setCategoryName("");
       navigator("/admin/mentoring-product");
      } catch (error) {
       dispatch(addToast({message:"Failed to create category",type:"error"}));
-     }
-     finally{
-      dispatch(hideLoader());
      }
   };
   return (

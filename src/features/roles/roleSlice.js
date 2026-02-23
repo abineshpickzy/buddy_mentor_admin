@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { fetchRoles , fetchRoleList, defaultPrivilegesStructure } from "./roleThunk";
+import { fetchRoles, fetchRoleList, defaultPrivilegesStructure, createRole, updateRole, deleteRole, unassignAdminsFromRole, assignAdminsToRole } from "./roleThunk";
 
 const initialState = {
   roles: [],
@@ -60,15 +60,68 @@ const roleSlice = createSlice({
           state.isLoading = false;
           state.error = action.payload;
         })
+        .addCase(defaultPrivilegesStructure.pending, (state) => {
+          state.isLoading = true;
+        })
         .addCase(defaultPrivilegesStructure.fulfilled, (state, action) => {
+          state.isLoading = false;
           state.defaultPrvillages = action.payload.privileges;
         })
         .addCase(defaultPrivilegesStructure.rejected, (state, action) => {
+          state.isLoading = false;
           state.error = action.payload;
         })
-
-
-    },
+        .addCase(createRole.pending, (state) => {
+          state.isLoading = true;
+        })
+        .addCase(createRole.fulfilled, (state) => {
+          state.isLoading = false;
+        })
+        .addCase(createRole.rejected, (state, action) => {
+          state.isLoading = false;
+          state.error = action.payload;
+        })
+        .addCase(updateRole.pending, (state) => {
+          state.isLoading = true;
+        })
+        .addCase(updateRole.fulfilled, (state) => {
+          state.isLoading = false;
+        })
+        .addCase(updateRole.rejected, (state, action) => {
+          state.isLoading = false;
+          state.error = action.payload;
+        })
+        .addCase(deleteRole.pending, (state) => {
+          state.isLoading = true;
+        })
+        .addCase(deleteRole.fulfilled, (state) => {
+          state.isLoading = false;
+        })
+        .addCase(deleteRole.rejected, (state, action) => {
+          state.isLoading = false;
+          state.error = action.payload;
+        })
+        .addCase(unassignAdminsFromRole.pending, (state) => {
+          state.isLoading = true;
+        })
+        .addCase(unassignAdminsFromRole.fulfilled, (state) => {
+          state.isLoading = false;
+        })
+        .addCase(unassignAdminsFromRole.rejected, (state, action) => {
+          state.isLoading = false;
+          state.error = action.payload;
+        })
+        .addCase(assignAdminsToRole.pending, (state) => {
+          state.isLoading = true;
+        })
+        .addCase(assignAdminsToRole.fulfilled, (state) => {
+          state.isLoading = false;
+        })
+        .addCase(assignAdminsToRole.rejected, (state, action) => {
+          state.isLoading = false;
+          state.error = action.payload;
+        });
+}
 });
 
 export const { setActiveRole } = roleSlice.actions;

@@ -1,6 +1,6 @@
 import React from 'react';
 import { useParams, useOutletContext, useNavigate } from 'react-router-dom';
-import { BookOpen, FolderTree, Video, FileText, Image as ImageIcon } from 'lucide-react';
+import { BookOpen, FolderTree, Video as VideoIcon, FileText, Image as ImageIcon } from 'lucide-react';
 
 const Overview = () => {
     const { productId } = useParams();
@@ -101,7 +101,7 @@ const Overview = () => {
                         className="flex flex-col items-center gap-2 p-4 border-2 border-gray-200 rounded-lg hover:border-green-500 hover:bg-green-50 transition-all"
                         onClick={() => navigate(`/dashboard/${productId}/settings`)}
                     >
-                        <Video className="text-green-500" size={32} />
+                        <VideoIcon className="text-green-500" size={32} />
                         <span className="text-sm font-medium text-gray-700">Media Assets</span>
                     </button>
                     <button 

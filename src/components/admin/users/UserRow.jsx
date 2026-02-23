@@ -36,22 +36,22 @@ const UserRow = ({ user, index }) => {
   return (
     <tr className="text-sm odd:bg-[#e6e6e6] border-b-2 border-[#d8dbdd]">
       
-      <td className="p-2 text-center">{index + 1}</td>
+      <td className="p-2 text-left">{index + 1}</td>
 
       {/* Profile */}
-      <td className="p-2">
-        <div className="flex justify-center">
+      <td className="p-2 text-left">
+        <div className="flex justify-start">
           <img
             src={profileImage}
             alt={user.first_name || "User"}
-            className="w-8 h-8 rounded-full object-cover"
+            className="w-6 h-6 rounded-full object-cover"
           />
         </div>
       </td>
 
       {/* Action */}
-      <td className="p-2 min-w-[100px]">
-        <div className="flex justify-center gap-4">
+      <td className="p-2 min-w-[100px] text-left">
+        <div className="flex justify-start gap-4">
        
           <Can permission={PERMISSIONS.USERS_EDIT}>
             <Edit size={16} className="text-blue-500 cursor-pointer" onClick={() => navigate(`/admin/users/edit/${user._id || user.id}/user`)} />
@@ -60,17 +60,17 @@ const UserRow = ({ user, index }) => {
         </div>
       </td>
 
-      <td className="p-2">{user.first_name || "Not found"}</td>
-      <td className="p-2">{user.last_name || "Not found"}</td>
-      <td className="p-2 truncate max-w-[160px]">
+      <td className="p-2 text-left">{user.first_name || "Not found"}</td>
+      <td className="p-2 text-left">{user.last_name || "Not found"}</td>
+      <td className="p-2 truncate max-w-[160px] text-left">
         {user.email_id || user.email || "Not found"}
       </td>
-      <td className="p-2">{user.adminId || "Not found"}</td>
-      <td className="p-2 text-center">{user.log?.recent ? new Date(user.log.recent).toLocaleDateString('en-GB') : "Not found"}</td>
-      <td className="p-2 text-center">{user.created?.at ? new Date(user.created.at).toLocaleDateString('en-GB') : "Not found"}</td>
+      <td className="p-2 text-left">{user.adminId || "Not found"}</td>
+      <td className="p-2 text-left">{user.log?.recent ? new Date(user.log.recent).toLocaleDateString('en-GB') : "Not found"}</td>
+      <td className="p-2 text-left">{user.created?.at ? new Date(user.created.at).toLocaleDateString('en-GB') : "Not found"}</td>
 
       {/* Status */}
-      <td className="p-2 text-center">
+      <td className="p-2 text-left">
         <span
           className={`px-2 py-1 rounded text-xs ${
             (user.status || "Inactive") === "Active"
@@ -83,16 +83,16 @@ const UserRow = ({ user, index }) => {
       </td>
 
       {/* Lock */}
-      <td className="p-2">
-        <div className="flex justify-center">
+      <td className="p-2 text-left">
+        <div className="flex justify-start">
           <Lock size={16} className="text-yellow-500 cursor-pointer" />
         </div>
       </td>
 
       {/* Delete */}
       <Can permission={PERMISSIONS.USERS_DELETE}>
-           <td className="p-2">
-        <div className="flex justify-center">
+           <td className="p-2 text-left">
+        <div className="flex justify-start">
           <Trash2 size={16} className="text-red-500 cursor-pointer" />
         </div>
       </td>

@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { createUser, fetchUsers, editUser, fetchUser, viewUserImage } from "./userThunk";
+import { createUser, fetchUsers, editUser, fetchUser, viewUserImage, getUserLocation, checkUserEmail } from "./userThunk";
 
 const initialState = {
   users: [],
@@ -66,16 +66,36 @@ const userSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
-      .addCase(viewUserImage.pending, (state) => {
+      // .addCase(viewUserImage.pending, (state) => {
+      //   state.loading = true;
+      // })
+      // .addCase(viewUserImage.fulfilled, (state) => {
+      //   state.loading = false;
+      // })
+      .addCase(viewUserImage.rejected, (state, action) => {
+        // state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(getUserLocation.pending, (state) => {
         state.loading = true;
       })
-      .addCase(viewUserImage.fulfilled, (state) => {
+      .addCase(getUserLocation.fulfilled, (state) => {
         state.loading = false;
       })
-      .addCase(viewUserImage.rejected, (state, action) => {
+      .addCase(getUserLocation.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });
+      // .addCase(checkUserEmail.pending, (state) => {
+      //   state.loading = true;
+      // })
+      // .addCase(checkUserEmail.fulfilled, (state) => {
+      //   state.loading = false;
+      // })
+      // .addCase(checkUserEmail.rejected, (state, action) => {
+      //   state.loading = false;
+      //   state.error = action.payload;
+      // });
   },
 });
 

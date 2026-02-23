@@ -2,11 +2,11 @@ import { useState } from "react";
 import { ChevronRight, ChevronDown } from "lucide-react";
 import { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { updateRole } from "@/features/roles/roleThunk";
+import { updateRole ,defaultPrivilegesStructure} from "@/features/roles/roleThunk";
 import { addToast } from "@/features/toast/toastSlice";
-import { showLoader, hideLoader } from "@/features/loader/loaderSlice";
 import {Can} from "@/permissions";
 import { PERMISSIONS } from "@/permissions/permissions";
+
 /* ------------------ DATA (UNCHANGED) ------------------ */
 
 
@@ -284,12 +284,11 @@ const savePrivileges = async () => {
   const result = buildResult(defaultPrivileges);
   
   console.log("Saved Privileges:", result);
-  dispatch(showLoader());
   try {
     await dispatch(updateRole({roleId:activeRole._id,roleData:{privileges:result}})).unwrap();
     dispatch(addToast({ type: "success", message: "Privileges saved successfully" }));
-  } finally {
-    dispatch(hideLoader());
+  } catch (error) {
+    console.error(error);
   }
 };
 

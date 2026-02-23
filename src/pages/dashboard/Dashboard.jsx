@@ -1,12 +1,11 @@
 import Layout from '@/components/layout/Layout';
-// import { dashboardSidebarItems } from '@/data/sidebarData';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { BookText, LayoutDashboard, } from 'lucide-react';
 import ProductLayout from '../../components/layout/productlayout/ProductLayout';
 import DashboardOverview from './overview/Overview';
-import Overview from './product/Overview';
+import Overview from './product/overview/Overview';
 
 import Basis from './product/basics/Basis';
 import BasisDetail from './product/basics/BasisDetail';
@@ -16,7 +15,7 @@ import Settings from './product/settings/Settings';
 import CoreFoundationSettings from './product/settings/CoreFoundationSettings';
 import ProgramSettings from './product/settings/ProgramSettings';
 import { listProducts } from '@/features/products/productThunk';
-import { showLoader, hideLoader } from "@/features/loader/loaderSlice";
+import Review from '@/pages/dashboard/product/review/Review';
 
 
 const Dashboard = () => {
@@ -47,15 +46,10 @@ const Dashboard = () => {
 
   const fetchProductlist = async () => {
     try {
-      dispatch(showLoader());
       await dispatch(listProducts()).unwrap();
     } catch (error) {
       console.error("Error fetching product list:", error);
     }
-    finally {
-      dispatch(hideLoader());
-    }
-
   };
 
   useEffect(() => {
@@ -77,6 +71,7 @@ const Dashboard = () => {
           <Route path="basis/:nodeId" element={<BasisDetail />} />
           <Route path="program" element={<Program />} />
           <Route path="program/:nodeId" element={<ProgramDetails />} />
+          <Route path="review" element={<Review/>} />
           <Route path="settings" element={<Settings />}>
             <Route index element={<Navigate to="core-foundation" replace />} />
             <Route path="core-foundation" element={<CoreFoundationSettings />} />

@@ -10,7 +10,6 @@ import { setActiveRole } from "@/features/roles/roleSlice";
 import { createRole, unassignAdminsFromRole, assignAdminsToRole, updateRole, deleteRole } from "@/features/roles/roleThunk";
 import { fetchRoles, defaultPrivilegesStructure } from "@/features/roles/roleThunk";
 import { addToast } from "@/features/toast/toastSlice";
-import { showLoader, hideLoader } from "@/features/loader/loaderSlice";
 import { Can } from "@/permissions";
 import { PERMISSIONS } from "@/permissions/permissions";
 
@@ -36,10 +35,10 @@ const Roles = () => {
     if (!roles.length) {
       dispatch(fetchRoles());
     }
-    if (defaultPrvillages.length === 0) {
+
+    if (!defaultPrvillages.length) {
       dispatch(defaultPrivilegesStructure());
     }
-
 
   }, [dispatch]);
 
@@ -58,7 +57,6 @@ const Roles = () => {
 
   const createrole = async (roleData) => {
     if (editMode) {
-      dispatch(showLoader());
       try {
         await dispatch(updateRole({ roleId: activeRole._id, roleData })).unwrap();
         dispatch(addToast({ type: "success", message: "Role updated successfully" }));
@@ -66,8 +64,6 @@ const Roles = () => {
         setEditMode(false);
       } catch (error) {
         dispatch(addToast({ type: "error", message: "Failed to update role" }));
-      } finally {
-        dispatch(hideLoader());
       }
     } else {
       const roleWithCreator = { ...roleData, created_by: user._id };
@@ -79,37 +75,32 @@ const Roles = () => {
 
   const assignAdmin = async (selectedUserIds) => {
     console.log("Selected user IDs to assign:", selectedUserIds);
-    dispatch(showLoader());
     try {
       await dispatch(assignAdminsToRole({ roleId: activeRole._id, users: selectedUserIds })).unwrap();
       setShowAssign(false);
-    } finally {
-      dispatch(hideLoader());
+    } catch (error) {
+      console.error(error);
     }
   };
 
   const unassignAdmin = async () => {
     console.log("Selected admin IDs to unassign:", selectedAdmins);
     setShowUnassign(false);
-    dispatch(showLoader());
     try {
       await dispatch(unassignAdminsFromRole({ roleId: activeRole._id, users: selectedAdmins })).unwrap();
-    } finally {
-      dispatch(hideLoader());
+    } catch (error) {
+      console.error(error);
     }
   };
 
   const handleDeleteRole = async () => {
     setShowDeleteConfirm(false);
-    dispatch(showLoader());
     try {
       await dispatch(deleteRole(activeRole._id)).unwrap();
       dispatch(addToast({ type: "success", message: "Role deleted successfully" }));
       dispatch(setActiveRole(null));
     } catch (error) {
       dispatch(addToast({ type: "error", message: "Failed to delete role" }));
-    } finally {
-      dispatch(hideLoader());
     }
   };
 

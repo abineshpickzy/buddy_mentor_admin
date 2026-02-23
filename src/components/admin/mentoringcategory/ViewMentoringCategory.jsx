@@ -3,7 +3,6 @@ import { useDispatch } from "react-redux";
 import { useParams, NavLink } from "react-router-dom";
 import CategoryTree from "./CategoryTree";
 import { fetchProductById, viewProductImage } from "../../../features/products/productThunk";
-import { showLoader, hideLoader } from "@/features/loader/loaderSlice";
 import NoImageAvailable from "@/assets/No_Image_Available.jpg";
 
 const ViewMentoringCategory = () => {
@@ -16,7 +15,6 @@ const ViewMentoringCategory = () => {
 
   const fetchProduct = async () => {
     try {
-      dispatch(showLoader());
       const result = await dispatch(fetchProductById(productId)).unwrap();
       setCategoryName(result.data.product.name || "");
       setBasis(result.data.basics || []);
@@ -38,8 +36,6 @@ const ViewMentoringCategory = () => {
       }
     } catch (error) {
       console.error("Fetch product error:", error);
-    } finally {
-      dispatch(hideLoader());
     }
   };
 

@@ -3,7 +3,6 @@ import { useNavigate ,NavLink } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { createUser, checkUserEmail } from "@/features/users/userThunk";
 import { addToast } from "@/features/toast/toastSlice";
-import { showLoader, hideLoader } from "@/features/loader/loaderSlice";
 
 import Input from "@/components/ui/Input";
 import Select from "../../../../components/ui/Select";
@@ -131,7 +130,6 @@ const AddUserPage = () => {
         });
         fd.append("profile_image", profileImage);
         console.log(fd)
-        dispatch(showLoader());
         try {
             const response = await dispatch(createUser(fd)).unwrap();
             dispatch(addToast({ type: "success", message: "User created successfully!" }));
@@ -141,8 +139,6 @@ const AddUserPage = () => {
         } catch (error) {
             console.error("Failed to create user:", error);
             dispatch(addToast({ type: "error", message: "Failed to create user. Please try again." }));
-        } finally {
-            dispatch(hideLoader());
         }
     };
 

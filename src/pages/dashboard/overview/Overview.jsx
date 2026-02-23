@@ -1,5 +1,5 @@
 import { useSelector } from "react-redux";
-import { Users, BookOpen, Video, FileText, TrendingUp, Clock } from "lucide-react";
+import { Users, BookOpen, Video ,BookText, FileText, TrendingUp, Clock } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const Overview = () => {
@@ -13,7 +13,7 @@ const Overview = () => {
 
   const stats = [
     { label: "Assigned Products", value: assignedProducts.length, icon: BookOpen, color: "bg-blue-500" },
-    { label: "Total Products", value: productlist.length, icon: Video, color: "bg-green-500" },
+    { label: "Total Products", value: productlist.length, icon: BookText, color: "bg-green-500" },
     // { label: "Active Sessions", value: "12", icon: Users, color: "bg-purple-500" },
     // { label: "Completion Rate", value: "78%", icon: TrendingUp, color: "bg-orange-500" },
   ];

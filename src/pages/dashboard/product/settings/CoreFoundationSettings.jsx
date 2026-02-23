@@ -4,7 +4,6 @@ import TreeNode from "./SettingsTree";
 import { editNode } from "@/features/products/productThunk";
 import { useDispatch } from "react-redux";
 import { addToast } from "@/features/toast/toastSlice";
-import { showLoader, hideLoader } from "@/features/loader/loaderSlice";
 
 const CoreFoundationSettings = () => {
   const context = useOutletContext();
@@ -14,7 +13,7 @@ const CoreFoundationSettings = () => {
 
   const editNodeHandler = async (data) => {
     try {
-      dispatch(showLoader());
+    
       const { nodeid, ...nodeData } = data;
       await dispatch(editNode({ id: nodeid, data: nodeData })).unwrap();
       await fetchProduct();
@@ -22,9 +21,7 @@ const CoreFoundationSettings = () => {
     } catch (error) {
       console.error("Failed to update node:", error);
       dispatch(addToast({ type: "error", message: "Failed to update node" }));
-    } finally {
-      dispatch(hideLoader());
-    }
+    } 
   };
   
   return (

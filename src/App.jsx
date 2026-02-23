@@ -13,13 +13,30 @@ import AccountFP from './pages/accountfp/AccountFP';
 import ProtectedRoute from './routes/ProtectedRoute'
 import {addToast} from '@/features/toast/toastSlice'
 import ScrollToTop from '@/components/ScrollToTop'
-
+import { hideLoader, showLoader } from '@/features/loader/loaderSlice'
 function AppContent() {
   const dispatch = useDispatch();
   const { isBootstrapped, isBootstrapping, bootstrapFailed } = useSelector(
     (state) => state.app
   );
   const hasBootstrapped = useRef(false);
+
+  // Centralized loading state from all slices
+  const isLoading = useSelector((state) => 
+    state.users.loading || 
+    state.products.loading || 
+    state.roles.isLoading || 
+    state.upload.loading || 
+    state.auth.loading
+  );
+
+  useEffect(() => {
+    if(isLoading) {
+      dispatch(showLoader());
+    } else {
+      dispatch(hideLoader());
+    }
+  }, [isLoading, dispatch]);
 
   useEffect(() => {
     if (hasBootstrapped.current) return;

@@ -4,7 +4,7 @@ import { X, Upload } from "lucide-react";
 const UploadModel = ({ open, onCancel, onSubmit, replaceMode = false, originalFile = null }) => {
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
-  const [downloadable,setDownloadable] = useState(false);
+  const [downloadable, setDownloadable] = useState(false);
 
   if (!open) return null;
 
@@ -26,7 +26,7 @@ const UploadModel = ({ open, onCancel, onSubmit, replaceMode = false, originalFi
   };
 
   const handleCancel = () => {
-    
+
     if (preview) URL.revokeObjectURL(preview);
     setFile(null);
     setPreview(null);
@@ -74,13 +74,15 @@ const UploadModel = ({ open, onCancel, onSubmit, replaceMode = false, originalFi
               </>
             )}
           </label>
+          {
+            !replaceMode && <div className="flex items-center justify-end pt-4">
+              <label className="flex items-center gap-2 text-sm">
+                <input type="checkbox" name="download" checked={downloadable} onChange={() => setDownloadable(prev => !prev)} />
+                downloadable
+              </label>
+            </div>
+          }
 
-          <div className="flex items-center justify-end pt-4">
-            <label className="flex items-center gap-2 text-sm">
-              <input type="checkbox" name="download" checked={downloadable} onChange={() => setDownloadable(prev => !prev)} />
-              downloadable
-            </label>
-        </div>
         </div>
 
         {/* Footer */}

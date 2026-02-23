@@ -6,6 +6,7 @@ const initialState = {
   isBootstrapped: false,
   bootstrapFailed: false,
   error: null,
+  loading: false,
 };
 
 const appSlice = createSlice({
@@ -22,18 +23,21 @@ const appSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(bootstrapApp.pending, (state) => {
+        state.loading = true;
         state.isBootstrapping = true;
         state.error = null;
       })
       .addCase(bootstrapApp.fulfilled, (state) => {
         state.isBootstrapping = false;
         state.isBootstrapped = true;
+        state.loading=false;
       })
       .addCase(bootstrapApp.rejected, (state, action) => {
         state.isBootstrapped = false;
         state.isBootstrapping = false;
         state.bootstrapFailed = true;
         state.error = action.payload;
+        state.loading=false;
       });
   },
 });

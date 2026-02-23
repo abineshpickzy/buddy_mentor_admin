@@ -5,13 +5,13 @@ import NewModel from "@/components/dashboard/product/NewModel";
 import UploadModel from "@/components/dashboard/product/upload/UploadModel";
 import { useDispatch, useSelector } from "react-redux";
 import { addNode ,getAssertFiles} from "@/features/products/productThunk";
-import { showLoader, hideLoader } from "@/features/loader/loaderSlice";
 import { addToast } from "@/features/toast/toastSlice";
 import { addFile, setStatus, deleteFile } from "@/features/upload/uploadSlice";
 import { uploadFile, saveVideoFile, cancelUpload, replaceAssetFile ,toggleDownloadable} from "@/features/upload/uploadThunk";
 import { saveAssert } from "@/features/upload/uploadThunk";
 import UploadList from "@/components/dashboard/product/upload/UploadList";
 import AssertList from "@/components/dashboard/product/upload/AssertList";
+import LogsList from "@/components/dashboard/product/upload/LogsList";
 import CancelConfirmModal from "@/components/dashboard/product/CancelConfirmModel";
 import { PERMISSIONS } from "@/permissions/permissions";
 import {Can} from "@/permissions";
@@ -55,7 +55,7 @@ const ProgramDetails = () => {
     }
 
     try {
-      dispatch(showLoader());
+    
       await dispatch(addNode(payload)).unwrap();
       await refetchProduct();
       dispatch(addToast({ message: "Node Added Successfully", type: "success" }));
@@ -64,9 +64,6 @@ const ProgramDetails = () => {
     catch (error) {
       console.error("Error adding program:", error);
       dispatch(addToast({ message: "Failed to add new Node", type: "error" }));
-    }
-    finally {
-      dispatch(hideLoader());
     }
   }
 
@@ -125,7 +122,7 @@ const ProgramDetails = () => {
               if (currentNodeIdRef.current === newFile.nodeId) {
                 setAssertFiles((prevFiles) => [
                   ...prevFiles.filter(f => f._id !== replacingFile._id),
-                  { id: uid, name: file.name, type: file.type, src: URL.createObjectURL(file) }
+                  { _id: replacingFile._id, name: file.name, type: file.type, src: URL.createObjectURL(file) }
                 ]);
               }
               dispatch(deleteFile({ uid: uid }));
@@ -160,7 +157,7 @@ const ProgramDetails = () => {
           dispatch(addToast({ message: `File ${file.name} Replaced Successfully`, type: "success" }));
           setAssertFiles((prevFiles) => [
             ...prevFiles.filter(f => f._id !== replacingFile._id),
-            { _id: file.name, name: file.name, type: file.type, src: URL.createObjectURL(file) }
+            { _id: replacingFile._id, name: file.name, type: file.type, src: URL.createObjectURL(file) }
           ]);
           setIsUploadModelOpen(false);
         } catch (error) {
@@ -213,19 +210,23 @@ const ProgramDetails = () => {
               file_name: file.name,
               type: "video",
               product_type: 1,
-              is_downloadable: isDownloadable
+              is_downloadable: isDownloadable,
+              product_id: product.product._id
             }
-            await dispatch(saveVideoFile(payload)).unwrap();
+            const res = await dispatch(saveVideoFile(payload)).unwrap();
+            const asset_id = res.asset_id;
             dispatch(setStatus({ uid: uid, status: "Completed", progress: 100 }));
             dispatch(addToast({ message: `File ${file.name} Uploaded Successfully`, type: "success" }));
             if (currentNodeIdRef.current === newFile.nodeId) {
-              setAssertFiles((prevFiles) => [...prevFiles, { id: uid, name: file.name, type: file.type, src: URL.createObjectURL(file) }]);
+              setAssertFiles((prevFiles) => [...prevFiles, { _id: asset_id, name: file.name, type: file.type, src: URL.createObjectURL(file) }]);
             }
             dispatch(deleteFile({ uid: uid }));
             delete activeUploadsRef.current[uid];
 
           } catch (error) {
             console.error("Error saving file:", error);
+             dispatch(setStatus({ uid: uid, status: "Failed", progress: 0 }));
+            delete activeUploadsRef.current[uid];
             dispatch(addToast({ message: `Failed to upload file ${file.name}`, type: "error" }));
           }
         },
@@ -240,10 +241,12 @@ const ProgramDetails = () => {
       formData.append("file", file);
       formData.append("parent_id", nodeId);
       formData.append("product_type", 1);
+      formData.append("product_id", product.product._id);
       try {
-        await dispatch(saveAssert(formData)).unwrap();
+        const res = await dispatch(saveAssert(formData)).unwrap();
+        const asset_id = res.asset_id;
         dispatch(addToast({ message: `File ${file.name} Uploaded Successfully`, type: "success" }));
-        setAssertFiles((prevFiles) => [...prevFiles, { _id: file.name, name: file.name, type: file.type, src: URL.createObjectURL(file) }]);
+        setAssertFiles((prevFiles) => [...prevFiles, { _id: asset_id, name: file.name, type: file.type, src: URL.createObjectURL(file) }]);
         setIsUploadModelOpen(false);
       } catch (error) {
         console.error("Error uploading file:", error);
@@ -375,15 +378,6 @@ const ProgramDetails = () => {
     setUploadingFile(currentFiles.filter((file) => file.nodeId === nodeId));
   }, [currentFiles, nodeId]);
 
-  const { loading } = useSelector(state => state.upload);
-  // loader
-  useEffect(() => {
-    if (loading) {
-      dispatch(showLoader());
-    } else {
-      dispatch(hideLoader());
-    }
-  }, [loading, dispatch]);
 
   return (
     <div className="space-y-4">
@@ -435,7 +429,7 @@ const ProgramDetails = () => {
       {/* ================= ASSETS TABLE SECTION ================= */}
       <div className=" rounded-lg">
 
-      
+
         <AssertList 
           assets={assertFiles} 
           onReplace={handleReplace} 
@@ -454,6 +448,10 @@ const ProgramDetails = () => {
           </div>
         )}
       </div>
+
+        {/* logs list  */}
+      <LogsList  />
+      
 
       {/* ================= TREE SECTION ================= */}
       <div className="pt-6  border-t-2 border-gray-300">

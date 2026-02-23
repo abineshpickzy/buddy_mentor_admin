@@ -4,7 +4,6 @@ import TreeMenu from "@/components/dashboard/product/TreeMenu";
 import NewModel from "@/components/dashboard/product/NewModel";
 import { useDispatch } from "react-redux";
 import { addNode } from "@/features/products/productThunk";
-import { showLoader, hideLoader } from "@/features/loader/loaderSlice";
 import { addToast } from "@/features/toast/toastSlice";
 import { PERMISSIONS } from "@/permissions/permissions";
 import {Can} from "@/permissions";
@@ -26,7 +25,6 @@ const Basis = () => {
     }
     console.log("Submitted payload:", payload);
     try {
-      dispatch(showLoader());
       await dispatch(addNode(payload)).unwrap();
       await refetchProduct();
       dispatch(addToast({ message: "Node Added Successfully", type: "success" }));
@@ -35,9 +33,6 @@ const Basis = () => {
     catch (error) {
       console.error("Error adding basic program:", error);
       dispatch(addToast({ message: "Failed to add new Node", type: "error" }));
-    }
-    finally {
-      dispatch(hideLoader());
     }
   };
 

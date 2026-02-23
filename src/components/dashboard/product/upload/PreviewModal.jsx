@@ -37,7 +37,8 @@ const PreviewModal = ({ open, onClose, file, onReplace, productType }) => {
     };
 
     if(file?.type?.startsWith("video")) {
-      console.log(file);
+      console.log(file)
+      if(file?.cloudflare_uid)
         setPreviewUrl(`https://videodelivery.net/${file.cloudflare_uid}/iframe`);
     }
     else {

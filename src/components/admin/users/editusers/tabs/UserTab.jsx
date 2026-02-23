@@ -5,7 +5,6 @@ import { useParams, useOutletContext } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { editUser, checkUserEmail } from "@/features/users/userThunk";
 import { addToast } from "@/features/toast/toastSlice";
-import { showLoader, hideLoader } from "@/features/loader/loaderSlice";
 import { viewUserImage } from "@/features/users/userThunk";
 import md5 from "md5";
 import NoImageAvailable from "@/assets/No_Image_Available.jpg";
@@ -26,7 +25,6 @@ const UserTab = () => {
   });
 
   const [errors, setErrors] = useState({});
-  const [loading, setLoading] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
   const [initialForm, setInitialForm] = useState({});
   const { userId } = useParams();
@@ -123,6 +121,7 @@ const UserTab = () => {
 
     setProfileImage(file);
     setPreview(URL.createObjectURL(file));
+    setHasChanges(true);
   };
 
   const validateForm = () => {
@@ -155,8 +154,6 @@ const UserTab = () => {
       return;
     }
 
-    setLoading(true);
-    dispatch(showLoader());
     try {
       const userData = { ...form };
       delete userData.forcePasswordChange;
@@ -187,9 +184,6 @@ const UserTab = () => {
     } catch (error) {
       console.error("Failed to update user:", error);
       dispatch(addToast({ type: "error", message: "Failed to update user. Please try again." }));
-    } finally {
-      setLoading(false);
-      dispatch(hideLoader());
     }
   };
 
@@ -319,10 +313,10 @@ const UserTab = () => {
 
             <button
               onClick={handleSave}
-              disabled={loading || !hasChanges}
+              disabled={!hasChanges}
               className="mt-6 px-6 py-2 bg-blue-600 text-white rounded disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? "Saving..." : "Save user"}
+              Save user
             </button>
           </div>
 

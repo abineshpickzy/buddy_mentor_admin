@@ -13,10 +13,10 @@ const AssignAdminModal = ({ open, onClose, onAssign }) => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (users.length === 0) {
+    if (open) {
       dispatch(fetchUsers());
     }
-  }, [dispatch, users.length]);
+  }, [open, dispatch]);
 
   useEffect(() => {
     if (!activeRole || !users) return;

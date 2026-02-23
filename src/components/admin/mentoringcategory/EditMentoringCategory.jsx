@@ -4,7 +4,6 @@ import { useParams, useNavigate, NavLink } from "react-router-dom";
 import CategoryTree from "./CategoryTree";
 import { fetchProductById, deleteBasicNode, deleteProgramNode, updateProduct, viewProductImage } from "../../../features/products/productThunk";
 import { addToast } from "@/features/toast/toastSlice";
-import { showLoader, hideLoader } from "@/features/loader/loaderSlice";
 import NoImageAvailable from "@/assets/No_Image_Available.jpg";
 
 const EditMentoringCategory = () => {
@@ -21,7 +20,6 @@ const EditMentoringCategory = () => {
 
   const fetchProduct = async () => {
     try {
-      dispatch(showLoader());
       const result = await dispatch(fetchProductById(productId)).unwrap();
       console.log("Fetched product data:", result);
       console.log("Product name:", result.data.product.name);
@@ -54,8 +52,6 @@ const EditMentoringCategory = () => {
     } catch (error) {
       console.error("Fetch product error:", error);
       dispatch(addToast({ message: "Failed to fetch product", type: "error" }));
-    } finally {
-      dispatch(hideLoader());
     }
   };
 
@@ -139,7 +135,6 @@ const EditMentoringCategory = () => {
 
 
     try {
-      dispatch(showLoader());
       console.log("Calling updateProduct with id:", productId);
 
       const result = await dispatch(updateProduct({ id: productId, data: fd })).unwrap();
@@ -149,8 +144,6 @@ const EditMentoringCategory = () => {
     } catch (error) {
       console.error("Update error:", error);
       dispatch(addToast({ message: error?.message || "Failed to update category", type: "error" }));
-    } finally {
-      dispatch(hideLoader());
     }
   };
 

@@ -10,8 +10,12 @@ const TABS = [
   { key: "overview", label: "Overview", module:"mentoring_product.overview" },
   { key: "basis", label: "Basis" ,module:"mentoring_product.core_foundation" },
   { key: "program", label: "Program" ,module:"mentoring_product.program" },
+  { key: "review", label: "Review" ,module:"mentoring_product.review" },
   { key: "settings", label: "Settings" ,module:"mentoring_product.settings" },
+  
 ];
+
+
 
 const ProductLayout = () => {
   const { productId } = useParams();
@@ -36,10 +40,20 @@ const ProductLayout = () => {
       console.error("Failed to fetch assignees:", error);
     }
   };
+  
+  const loadReviewAssets = async () => {
+    try {
+      // const result = await dispatch(fetchReviewAssets(productId)).unwrap();
+      console.log("review assets")
+    } catch (error) {
+      console.error("Failed to fetch assets:", error);
+    }
+  };
 
   useEffect(() => {
      fetchProduct();
      loadAssignees();
+     loadReviewAssets();
   }, [productId]);
 
   return (
