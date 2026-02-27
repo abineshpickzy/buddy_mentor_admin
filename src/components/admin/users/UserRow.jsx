@@ -3,7 +3,7 @@ import { Edit, Trash2, Lock, Eye } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { viewUserImage } from "@/features/users/userThunk";
-import {Can} from "@/permissions";
+import { Can } from "@/permissions";
 import { PERMISSIONS } from "@/permissions/permissions";
 import NoImageAvailable from "@/assets/No_Image_Available.jpg";
 
@@ -32,14 +32,14 @@ const UserRow = ({ user, index }) => {
       }
     };
   }, [user.profile_image, dispatch]);
-  
+
   return (
-    <tr className="text-sm odd:bg-[#e6e6e6] border-b-2 border-[#d8dbdd]">
-      
-      <td className="p-2 text-left">{index + 1}</td>
+    <tr className="text-sm text-gray-600 odd:bg-[#ededed] border-b-2 border-[#d8dbdd]">
+
+      <td className="px-2 py-2 text-left">{index + 1}</td>
 
       {/* Profile */}
-      <td className="p-2 text-left">
+      <td className="px-2 py-2 text-left">
         <div className="flex justify-start">
           <img
             src={profileImage}
@@ -50,53 +50,52 @@ const UserRow = ({ user, index }) => {
       </td>
 
       {/* Action */}
-      <td className="p-2 min-w-[100px] text-left">
+      <td className="px-2 py-2 min-w-[100px] text-left">
         <div className="flex justify-start gap-4">
-       
+
           <Can permission={PERMISSIONS.USERS_EDIT}>
             <Edit size={16} className="text-blue-500 cursor-pointer" onClick={() => navigate(`/admin/users/edit/${user._id || user.id}/user`)} />
           </Can>
-             <Eye size={16} className="text-blue-500 cursor-pointer" onClick={() => navigate(`/admin/users/view/${user._id || user.id}/user`)} />
+          <Eye size={16} className="text-blue-500 cursor-pointer" onClick={() => navigate(`/admin/users/view/${user._id || user.id}/user`)} />
         </div>
       </td>
 
-      <td className="p-2 text-left">{user.first_name || "Not found"}</td>
-      <td className="p-2 text-left">{user.last_name || "Not found"}</td>
-      <td className="p-2 truncate max-w-[160px] text-left">
+      <td className="px-2 py-2 text-left">{user.first_name || "Not found"}</td>
+      <td className="px-2 py-2 text-left">{user.last_name || "Not found"}</td>
+      <td className="px-2 py-2 truncate max-w-[160px] text-left">
         {user.email_id || user.email || "Not found"}
       </td>
-      <td className="p-2 text-left">{user.adminId || "Not found"}</td>
-      <td className="p-2 text-left">{user.log?.recent ? new Date(user.log.recent).toLocaleDateString('en-GB') : "Not found"}</td>
-      <td className="p-2 text-left">{user.created?.at ? new Date(user.created.at).toLocaleDateString('en-GB') : "Not found"}</td>
+      {/* <td className="px-2 py-2 text-left">{user.adminId || "Not found"}</td> */}
+      <td className="px-2 py-2 text-left">{user.log?.recent ? new Date(user.log.recent).toLocaleDateString('en-GB') : "Not found"}</td>
+      <td className="px-2 py-2 text-left">{user.created?.at ? new Date(user.created.at).toLocaleDateString('en-GB') : "Not found"}</td>
 
       {/* Status */}
-      <td className="p-2 text-left">
+      <td className="px-2 py-2 text-left">
         <span
-          className={`px-2 py-1 rounded text-xs ${
-            (user.status || "Inactive") === "Active"
-              ? "bg-green-100 text-green-700"
-              : "bg-gray-200 text-gray-600"
-          }`}
+          className={`px-2 py-2 rounded text-xs ${(user.status || "Inactive") === "Active"
+            ? "bg-green-100 text-green-700"
+            : "bg-gray-200 text-gray-600"
+            }`}
         >
           {user.log?.is_active ? "Active" : "Inactive"}
         </span>
       </td>
 
       {/* Lock */}
-      <td className="p-2 text-left">
+      <td className="px-2 py-2 text-left">
         <div className="flex justify-start">
           <Lock size={16} className="text-yellow-500 cursor-pointer" />
         </div>
       </td>
 
       {/* Delete */}
-      <Can permission={PERMISSIONS.USERS_DELETE}>
-           <td className="p-2 text-left">
-        <div className="flex justify-start">
-          <Trash2 size={16} className="text-red-500 cursor-pointer" />
-        </div>
-      </td>
-      </Can>
+      {/* <Can permission={PERMISSIONS.USERS_DELETE}>
+        <td className="px-2 py-2 text-left">
+          <div className="flex justify-start">
+            <Trash2 size={16} className="text-red-500 cursor-pointer" />
+          </div>
+        </td>
+      </Can> */}
     </tr>
   );
 };

@@ -7,7 +7,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { addNode, getAssertFiles } from "@/features/products/productThunk";
 import { addToast } from "@/features/toast/toastSlice";
 import { addFile, setStatus, deleteFile } from "@/features/upload/uploadSlice";
-import { uploadFile, saveVideoFile, saveAssert, cancelUpload, replaceAssetFile,toggleDownloadable } from "@/features/upload/uploadThunk";
+import { uploadFile, saveVideoFile, saveAssert, cancelUpload, replaceAssetFile, toggleDownloadable } from "@/features/upload/uploadThunk";
 import UploadList from "@/components/dashboard/product/upload/UploadList";
 import AssertList from "@/components/dashboard/product/upload/AssertList";
 import LogsList from "@/components/dashboard/product/upload/LogsList";
@@ -44,6 +44,7 @@ const BasisDetail = () => {
   const [cancellingUid, setCancellingUid] = useState(null);
   const [replaceMode, setReplaceMode] = useState(false);
   const [replacingFile, setReplacingFile] = useState(null);
+  const [logRefetchTrigger, setLogRefetchTrigger] = useState(0);
 
 
   const handleNewSubmit = async (data) => {
@@ -51,7 +52,8 @@ const BasisDetail = () => {
     const payload = {
       parent_id: nodeId,
       name: data.name,
-      type: 0
+      type: 0,
+      mentee_engagement: data.mentee_engagement
     }
 
     console.log("Submitted payload:", payload);
@@ -68,11 +70,11 @@ const BasisDetail = () => {
   }
 
 
-  // Upload file
+  // Upload file/replace
   const handleUploadSubmit = async (file, isDownloadable = false) => {
 
     console.log("Uploaded file:", file);
-    
+
 
     if (!file) return;
 
@@ -125,10 +127,19 @@ const BasisDetail = () => {
               await dispatch(replaceAssetFile(replacePayload)).unwrap();
               dispatch(setStatus({ uid: uid, status: "Completed", progress: 100 }));
               dispatch(addToast({ message: `File ${file.name} Replaced Successfully`, type: "success" }));
+              setLogRefetchTrigger(prev => prev + 1);
               if (currentNodeIdRef.current === newFile.nodeId) {
                 setAssertFiles((prevFiles) => [
                   ...prevFiles.filter(f => f._id !== replacingFile._id),
-                  { _id: replacingFile._id, name: file.name, type: file.type, src: URL.createObjectURL(file) }
+                  {
+                    _id: replacingFile._id,
+                    name: file.name,
+                    is_downloadable: replacingFile.is_downloadable,
+                    review_status: 0,
+                    ...(replacingFile.assignee_id && { assignee_id: replacingFile.assignee_id }),
+                    type: file.type,
+                    src: URL.createObjectURL(file)
+                  }
                 ]);
               }
               dispatch(deleteFile({ uid: uid }));
@@ -165,11 +176,20 @@ const BasisDetail = () => {
 
           await dispatch(replaceAssetFile(replacePayload)).unwrap();
           dispatch(addToast({ message: `File ${file.name} Replaced Successfully`, type: "success" }));
+          setLogRefetchTrigger(prev => prev + 1);
           setAssertFiles((prevFiles) => [
             ...prevFiles.filter(f => f._id !== replacingFile._id),
-            { _id: replacingFile._id, name: file.name,is_downloadable: replaceAssetFile.is_downloadable, type: file.type, src: URL.createObjectURL(file) }
+            {
+              _id: replacingFile._id,
+              name: file.name,
+              is_downloadable: replacingFile.is_downloadable,
+              review_status: 0,
+              ...(replacingFile.assignee_id && { assignee_id: replacingFile.assignee_id }),
+              type: file.type,
+              src: URL.createObjectURL(file)
+            }
           ]);
-          setIsUploadModelOpen(false); 
+          setIsUploadModelOpen(false);
         } catch (error) {
           console.error("Error replacing file:", error);
           dispatch(addToast({ message: `Failed to replace file ${file.name}`, type: "error" }));
@@ -231,14 +251,15 @@ const BasisDetail = () => {
               type: "video",
               product_type: 0,
               is_downloadable: isDownloadable,
-              product_id:product.product._id
+              product_id: product.product._id
             }
-            const res= await dispatch(saveVideoFile(payload)).unwrap();
-            const asset_id=res.asset_id;
+            const res = await dispatch(saveVideoFile(payload)).unwrap();
+            const asset_id = res.asset_id;
             dispatch(setStatus({ uid: uid, status: "Completed", progress: 100 }));
             dispatch(addToast({ message: `File ${file.name} Uploaded Successfully`, type: "success" }));
+            setLogRefetchTrigger(prev => prev + 1);
             if (currentNodeIdRef.current === newFile.nodeId) {
-              setAssertFiles((prevFiles) => [...prevFiles, { _id: asset_id, name: file.name, type: file.type,is_downloadable: isDownloadable, src: URL.createObjectURL(file) }]);
+              setAssertFiles((prevFiles) => [...prevFiles, { _id: asset_id, name: file.name, type: file.type, is_downloadable: isDownloadable, review_status: 0, src: URL.createObjectURL(file) }]);
             }
             dispatch(deleteFile({ uid: uid }));
             delete activeUploadsRef.current[uid];
@@ -261,13 +282,14 @@ const BasisDetail = () => {
       formData.append("parent_id", nodeId);
       formData.append("product_type", 0);
       formData.append("is_downloadable", isDownloadable);
-      formData.append("product_id",product.product._id);
+      formData.append("product_id", product.product._id);
       console.log("Form Data:", formData.get("file"));
       try {
-      const res =  await dispatch(saveAssert(formData)).unwrap();
-      const asset_id=res.asset_id;
+        const res = await dispatch(saveAssert(formData)).unwrap();
+        const asset_id = res.asset_id;
         dispatch(addToast({ message: `File ${file.name} Uploaded Successfully`, type: "success" }));
-        setAssertFiles((prevFiles) => [...prevFiles, { _id:asset_id, name: file.name, type: file.type, src: URL.createObjectURL(file) }]);
+        setLogRefetchTrigger(prev => prev + 1);
+        setAssertFiles((prevFiles) => [...prevFiles, { _id: asset_id, name: file.name, type: file.type, is_downloadable: isDownloadable, review_status: 0, src: URL.createObjectURL(file) }]);
         setIsUploadModelOpen(false);
       } catch (error) {
         console.error("Error uploading file:", error);
@@ -289,16 +311,16 @@ const BasisDetail = () => {
 
   // Handle toggle downloadable
   const handleToggleDownloadable = async (newAssert, file) => {
-      setAssertFiles(newAssert);
-      console.log(file);
+    setAssertFiles(newAssert);
+    console.log(file);
     try {
-            const data = {
-          nodeId: nodeId,
-          assetId: file._id,
-          payload: { 
-            is_downloadable: !file.is_downloadable,
-            product_type: 0
-           }
+      const data = {
+        nodeId: nodeId,
+        assetId: file._id,
+        payload: {
+          is_downloadable: !file.is_downloadable,
+          product_type: 0
+        }
       }
       console.log(data)
       await dispatch(toggleDownloadable(data)).unwrap();
@@ -462,12 +484,13 @@ const BasisDetail = () => {
       {/* ================= ASSETS TABLE SECTION ================= */}
       <div className=" rounded-lg ">
 
-        
 
-        <AssertList 
-          assets={assertFiles} 
-          onReplace={handleReplace} 
-          productType={0} 
+
+        <AssertList
+          assets={assertFiles}
+          setAssets={setAssertFiles}
+          onReplace={handleReplace}
+          productType={0}
           onToggleDownloadable={handleToggleDownloadable}
           onAddUpload={() => setIsUploadModelOpen(true)}
         />
@@ -484,7 +507,9 @@ const BasisDetail = () => {
       </div>
 
       {/* logs list  */}
-      <LogsList  />
+      <LogsList refetchTrigger={logRefetchTrigger} />
+
+
 
       {/* ================= TREE SECTION ================= */}
       <div className="pt-6  border-t-2 border-gray-300">
@@ -493,20 +518,20 @@ const BasisDetail = () => {
           <h4 className="text-xl font-semibold text-gray-600 mb-4">
             {nodename || "Select a node to view details"}
           </h4>
-           <Can permission={PERMISSIONS.MENTORING_PRODUCT_CORE_FOUNDATION_CREATE}>
-          <button
-            className="bg-blue-500 text-sm font-semibold  hover:bg-blue-600 text-white px-10 py-[6px] rounded-md"
-            onClick={() => setIsNewModelOpen(true)}
-          >
-            New
-          </button>
-           </Can>
+          <Can permission={PERMISSIONS.MENTORING_PRODUCT_CORE_FOUNDATION_CREATE}>
+            <button
+              className="bg-blue-500 text-sm font-semibold  hover:bg-blue-600 text-white px-10 py-[6px] rounded-md"
+              onClick={() => setIsNewModelOpen(true)}
+            >
+              New
+            </button>
+          </Can>
 
         </div>
 
 
         {nodes.length > 0 ? (
-          <TreeMenu nodes={nodes} />
+          <div className="min-h-[100vh]"> <TreeMenu nodes={nodes} /></div>
         ) : (
           <p className="text-gray-500 py-4">No basic nodes available</p>
         )}

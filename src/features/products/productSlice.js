@@ -2,9 +2,9 @@ import { createSlice } from "@reduxjs/toolkit";
 import { createProduct, checkAvailability, listProducts, fetchProductById, deleteBasicNode, deleteProgramNode, updateProduct, addNode, getAssertFiles, viewProductImage, editNode, fetchAssignees } from "./productThunk";
 
 const initialState = {
-    products: [],
+    currentproduct: [],
     productlist: [],
-    assignees : [],
+    assignees : [],    
     loading: false,
     error: null,
 };
@@ -49,7 +49,7 @@ const productSlice = createSlice({
                 state.error = action.payload;
             })
             .addCase(fetchProductById.pending, (state) => {
-                state.loading = true;
+                state.loading = true;                
             })
             .addCase(fetchProductById.fulfilled, (state) => {
                 state.loading = false;

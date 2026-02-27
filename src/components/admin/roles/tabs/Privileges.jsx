@@ -2,9 +2,10 @@ import { useState } from "react";
 import { ChevronRight, ChevronDown } from "lucide-react";
 import { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { updateRole ,defaultPrivilegesStructure} from "@/features/roles/roleThunk";
+import { updateRole, defaultPrivilegesStructure } from "@/features/roles/roleThunk";
 import { addToast } from "@/features/toast/toastSlice";
-import {Can} from "@/permissions";
+import { Can, usePermission } from "@/permissions";
+
 import { PERMISSIONS } from "@/permissions/permissions";
 
 /* ------------------ DATA (UNCHANGED) ------------------ */
@@ -71,7 +72,7 @@ const collectCheckedFromUserPrivilege = (node, basePath = "") => {
 
   return paths;
 };
- 
+
 
 /* ------------------ COMPONENT ------------------ */
 
@@ -79,13 +80,13 @@ const Privileges = () => {
 
   const [activeRolePrivilege, setActiveRolePrivilege] = useState({});
   const defaultPrivileges = useSelector((state) => state.roles.defaultPrvillages);
-  const user=useSelector((state) => state.auth.user);
+  const user = useSelector((state) => state.auth.user);
 
   const { activeRole } = useSelector((state) => state.roles);
   const isEditable = activeRole?.is_editable !== false;
 
   const dispatch = useDispatch();
-
+  const permission = usePermission(PERMISSIONS.ROLES_EDIT);
 
   const [checked, setChecked] = useState(new Set());
   const [expanded, setExpanded] = useState(
@@ -205,7 +206,7 @@ const Privileges = () => {
                 {(isObject(value) || Array.isArray(value)) ? (
                   <input
                     type="checkbox"
-                    disabled={!isEditable}
+                    disabled={!isEditable || !permission}
                     ref={(el) => {
                       if (!el) return;
                       el.checked = allChecked;
@@ -233,7 +234,7 @@ const Privileges = () => {
                       >
                         <input
                           type="checkbox"
-                          disabled={!isEditable}
+                          disabled={!isEditable || !permission}
                           checked={checked.has(actionPath)}
                           onChange={() => toggleLeaf(actionPath)}
                           className="accent-black"
@@ -260,37 +261,37 @@ const Privileges = () => {
 
 
 
-/* ------------------ SAVE (FULL STRUCTURED JSON LIKE defaultPrivileges) ------------------ */
+  /* ------------------ SAVE (FULL STRUCTURED JSON LIKE defaultPrivileges) ------------------ */
 
-const savePrivileges = async () => {
-  const buildResult = (node, parentPath = "") => {
-    if (Array.isArray(node)) {
-      // Include only checked actions, empty array if none
-      return node.filter((action) => checked.has(`${parentPath}.${action}`));
-    } else if (isObject(node)) {
-      const obj = {};
-      Object.entries(node).forEach(([key, value]) => {
-        const currentPath = parentPath ? `${parentPath}.${key}` : key;
-        const result = buildResult(value, currentPath);
+  const savePrivileges = async () => {
+    const buildResult = (node, parentPath = "") => {
+      if (Array.isArray(node)) {
+        // Include only checked actions, empty array if none
+        return node.filter((action) => checked.has(`${parentPath}.${action}`));
+      } else if (isObject(node)) {
+        const obj = {};
+        Object.entries(node).forEach(([key, value]) => {
+          const currentPath = parentPath ? `${parentPath}.${key}` : key;
+          const result = buildResult(value, currentPath);
 
-        // Always include key
-        obj[key] = Array.isArray(value) ? result : result;
-      });
-      return obj;
+          // Always include key
+          obj[key] = Array.isArray(value) ? result : result;
+        });
+        return obj;
+      }
+      return node;
+    };
+
+    const result = buildResult(defaultPrivileges);
+
+    console.log("Saved Privileges:", result);
+    try {
+      await dispatch(updateRole({ roleId: activeRole._id, roleData: { privileges: result } })).unwrap();
+      dispatch(addToast({ type: "success", message: "Privileges saved successfully" }));
+    } catch (error) {
+      console.error(error);
     }
-    return node;
   };
-
-  const result = buildResult(defaultPrivileges);
-  
-  console.log("Saved Privileges:", result);
-  try {
-    await dispatch(updateRole({roleId:activeRole._id,roleData:{privileges:result}})).unwrap();
-    dispatch(addToast({ type: "success", message: "Privileges saved successfully" }));
-  } catch (error) {
-    console.error(error);
-  }
-};
 
 
   /* ------------------ UI ------------------ */
@@ -306,15 +307,15 @@ const savePrivileges = async () => {
 
       {isEditable && (
         <div className="mt-6">
-           <Can permission={PERMISSIONS.ROLES_EDIT}>
+          <Can permission={PERMISSIONS.ROLES_EDIT}>
             <button
-            onClick={savePrivileges}
-            disabled={!hasChanges}
-            className="px-4 py-1 bg-primary text-white text-base font-medium rounded-md hover:bg-primary-50 disabled:bg-gray-300 disabled:cursor-not-allowed"
-          >
-            Save
-          </button>
-           </Can>
+              onClick={savePrivileges}
+              disabled={!hasChanges}
+              className="px-4 py-1 bg-primary text-white text-base font-medium rounded-md hover:bg-primary-50 disabled:bg-gray-300 disabled:cursor-not-allowed"
+            >
+              Save
+            </button>
+          </Can>
         </div>
       )}
     </div>

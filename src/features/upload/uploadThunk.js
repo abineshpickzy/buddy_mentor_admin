@@ -71,10 +71,10 @@ export const previewFile = createAsyncThunk(
 
     try {
       const response = await axios.get(
-        "/ast/pvw/?" + params.toString(),{
-          responseType: "blob"
-        })
-      return response.data; 
+        "/ast/pvw/?" + params.toString(), {
+        responseType: "blob"
+      })
+      return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data);
     }
@@ -84,7 +84,7 @@ export const previewFile = createAsyncThunk(
 // replace asset file
 export const replaceAssetFile = createAsyncThunk(
   "upload/replaceAssetFile",
-  async ({nodeId,assetId,payload}, { rejectWithValue }) => {
+  async ({ nodeId, assetId, payload }, { rejectWithValue }) => {
     try {
       const response = await axios.put(`ast/${nodeId}/${assetId}/rplc`, payload);
       return response.data;
@@ -99,7 +99,7 @@ export const replaceAssetFile = createAsyncThunk(
 // toggle downloadable
 export const toggleDownloadable = createAsyncThunk(
   "upload/toggleDownloadable",
-  async ({nodeId,assetId,payload}, { rejectWithValue }) => {
+  async ({ nodeId, assetId, payload }, { rejectWithValue }) => {
     try {
       const response = await axios.put(`ast/${nodeId}/${assetId}/ed`, payload);
       return response.data;
@@ -108,3 +108,34 @@ export const toggleDownloadable = createAsyncThunk(
     }
   }
 )
+
+// assign asserts to reviewer
+
+export const assignAssertToReviewer = createAsyncThunk(
+  "upload/assignAssertToReviewer",
+  async ({ nodeId, payload }, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(`ast/${nodeId}/rv/asgn`, payload);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+)
+
+// get asserts logs 
+
+export const getAssertLogs = createAsyncThunk(
+  "upload/getAssertLogs",
+  async ({ nodeId, limit = 5, skip = 0 }, { rejectWithValue }) => {
+    const params = new URLSearchParams();
+    if (limit) params.append("limit", limit);
+    if (skip) params.append("skip", skip);
+    try {
+      const response = await axios.get(`ast/${nodeId}/lgs?${params.toString()}`);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+) 

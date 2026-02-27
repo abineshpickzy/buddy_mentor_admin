@@ -33,8 +33,8 @@ const ViewUserTab = () => {
         forcePasswordChange: user.forcePasswordChange ?? false,
       });
 
-      if (user.profile_image) {
-        dispatch(viewUserImage({file:user.profile_image})).unwrap()
+      if (user.profile_image && user.profile_image !== 'null' && user.profile_image !== null) {
+        dispatch(viewUserImage({ file: user.profile_image })).unwrap()
           .then(blob => {
             if (blob) {
               setPreview(URL.createObjectURL(blob));

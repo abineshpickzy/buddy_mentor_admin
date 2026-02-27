@@ -6,7 +6,7 @@ import { useDispatch } from "react-redux";
 import { addNode } from "@/features/products/productThunk";
 import { addToast } from "@/features/toast/toastSlice";
 import { PERMISSIONS } from "@/permissions/permissions";
-import {Can} from "@/permissions";
+import { Can } from "@/permissions";
 
 const Basis = () => {
   const { product, refetchProduct } = useOutletContext();
@@ -21,7 +21,8 @@ const Basis = () => {
     const payload = {
       parent_id: product.product._id,
       name: data.name,
-      type: 0
+      type: 0,
+      mentee_engagement: data.mentee_engagement
     }
     console.log("Submitted payload:", payload);
     try {
@@ -41,15 +42,15 @@ const Basis = () => {
       <h1 className="text-2xl font-semibold text-primary mb-4">Basic Programs  </h1>
 
       <div className=" max-w-lg flex items-center justify-between gap-8 pb-4 mb-4  border-b border-gray-200">
-      
-       <Can permission={PERMISSIONS.MENTORING_PRODUCT_CORE_FOUNDATION_CREATE}>
-         <button
-          className=" bg-blue-500 text-white py-1 px-6 rounded"
-          onClick={() => setIsNewModelOpen(true)}
-        >
-          New
-        </button>
-       </Can>
+
+        <Can permission={PERMISSIONS.MENTORING_PRODUCT_CORE_FOUNDATION_CREATE}>
+          <button
+            className=" bg-blue-500 text-white py-1 px-6 rounded"
+            onClick={() => setIsNewModelOpen(true)}
+          >
+            New
+          </button>
+        </Can>
       </div>
 
       {basics.length > 0 ? (

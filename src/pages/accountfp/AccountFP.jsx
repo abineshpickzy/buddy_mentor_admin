@@ -10,7 +10,7 @@ const AccountFP = () => {
     const checkModule = useModuleAccess();
 
     const firstAvailableRoute = useMemo(() => {
-        const availableItem = accountFPSidebarItems.find(item => 
+        const availableItem = accountFPSidebarItems.find(item =>
             !item.module || checkModule(item.module)
         );
         return availableItem?.link || '/account';
@@ -24,7 +24,7 @@ const AccountFP = () => {
 
     return (
         <Layout sidebarItems={accountFPSidebarItems}>
-            <h1 className="text-xl font-semibold">Accounting FP Content</h1>
+            <h1 className="text-xl font-semibold p-6">Accounting FP Content</h1>
         </Layout>
     );
 };

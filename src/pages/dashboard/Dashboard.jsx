@@ -16,6 +16,7 @@ import CoreFoundationSettings from './product/settings/CoreFoundationSettings';
 import ProgramSettings from './product/settings/ProgramSettings';
 import { listProducts } from '@/features/products/productThunk';
 import Review from '@/pages/dashboard/product/review/Review';
+import ReviewAssets from '@/pages/dashboard/product/review/ReviewAssets';
 
 
 const Dashboard = () => {
@@ -72,6 +73,7 @@ const Dashboard = () => {
           <Route path="program" element={<Program />} />
           <Route path="program/:nodeId" element={<ProgramDetails />} />
           <Route path="review" element={<Review/>} />
+          <Route path="review/:nodeId" element={<ReviewAssets/>} />
           <Route path="settings" element={<Settings />}>
             <Route index element={<Navigate to="core-foundation" replace />} />
             <Route path="core-foundation" element={<CoreFoundationSettings />} />

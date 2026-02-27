@@ -140,7 +140,7 @@ const MentoringTab = () => {
           <table className="w-full mt-4 text-sm ">
             <thead className="bg-gray-300 text-left">
               <tr className="">
-                <th className="p-2">Sno</th>
+                <th className="p-2">S.no</th>
                 <th className="p-2">Category Name</th>
                 <th className="p-2">Status</th>
                 <th className="p-2">Action</th>

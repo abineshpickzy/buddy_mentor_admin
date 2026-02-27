@@ -4,17 +4,17 @@ import TreeMenu from "@/components/dashboard/product/TreeMenu";
 import NewModel from "@/components/dashboard/product/NewModel";
 import UploadModel from "@/components/dashboard/product/upload/UploadModel";
 import { useDispatch, useSelector } from "react-redux";
-import { addNode ,getAssertFiles} from "@/features/products/productThunk";
+import { addNode, getAssertFiles } from "@/features/products/productThunk";
 import { addToast } from "@/features/toast/toastSlice";
 import { addFile, setStatus, deleteFile } from "@/features/upload/uploadSlice";
-import { uploadFile, saveVideoFile, cancelUpload, replaceAssetFile ,toggleDownloadable} from "@/features/upload/uploadThunk";
+import { uploadFile, saveVideoFile, cancelUpload, replaceAssetFile, toggleDownloadable } from "@/features/upload/uploadThunk";
 import { saveAssert } from "@/features/upload/uploadThunk";
 import UploadList from "@/components/dashboard/product/upload/UploadList";
 import AssertList from "@/components/dashboard/product/upload/AssertList";
 import LogsList from "@/components/dashboard/product/upload/LogsList";
 import CancelConfirmModal from "@/components/dashboard/product/CancelConfirmModel";
 import { PERMISSIONS } from "@/permissions/permissions";
-import {Can} from "@/permissions";
+import { Can } from "@/permissions";
 
 import * as tus from "tus-js-client";
 
@@ -42,20 +42,20 @@ const ProgramDetails = () => {
   const [isUploadModelOpen, setIsUploadModelOpen] = useState(false);
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [cancellingUid, setCancellingUid] = useState(null);
-  const [isDownloadable, setIsDownloadable] = useState(false);
   const [replaceMode, setReplaceMode] = useState(false);
   const [replacingFile, setReplacingFile] = useState(null);
+  const [logRefetchTrigger, setLogRefetchTrigger] = useState(0);
 
 
   const handleNewSubmit = async (data) => {
     const payload = {
       parent_id: nodeId,
       name: data.name,
-      type: 1
+      type: 1,
+      mentee_engagement: data.mentee_engagement
     }
 
     try {
-    
       await dispatch(addNode(payload)).unwrap();
       await refetchProduct();
       dispatch(addToast({ message: "Node Added Successfully", type: "success" }));
@@ -119,10 +119,19 @@ const ProgramDetails = () => {
               await dispatch(replaceAssetFile(replacePayload)).unwrap();
               dispatch(setStatus({ uid: uid, status: "Completed", progress: 100 }));
               dispatch(addToast({ message: `File ${file.name} Replaced Successfully`, type: "success" }));
+              setLogRefetchTrigger(prev => prev + 1);
               if (currentNodeIdRef.current === newFile.nodeId) {
                 setAssertFiles((prevFiles) => [
                   ...prevFiles.filter(f => f._id !== replacingFile._id),
-                  { _id: replacingFile._id, name: file.name, type: file.type, src: URL.createObjectURL(file) }
+                  {
+                    _id: replacingFile._id,
+                    name: file.name,
+                    is_downloadable: replacingFile.is_downloadable,
+                    review_status: 0,
+                    ...(replacingFile.assignee_id && { assignee_id: replacingFile.assignee_id }),
+                    type: file.type,
+                    src: URL.createObjectURL(file)
+                  }
                 ]);
               }
               dispatch(deleteFile({ uid: uid }));
@@ -155,9 +164,18 @@ const ProgramDetails = () => {
 
           await dispatch(replaceAssetFile(replacePayload)).unwrap();
           dispatch(addToast({ message: `File ${file.name} Replaced Successfully`, type: "success" }));
+          setLogRefetchTrigger(prev => prev + 1);
           setAssertFiles((prevFiles) => [
             ...prevFiles.filter(f => f._id !== replacingFile._id),
-            { _id: replacingFile._id, name: file.name, type: file.type, src: URL.createObjectURL(file) }
+            {
+              _id: replacingFile._id,
+              name: file.name,
+              is_downloadable: replacingFile.is_downloadable,
+              review_status: 0,
+              ...(replacingFile.assignee_id && { assignee_id: replacingFile.assignee_id }),
+              type: file.type,
+              src: URL.createObjectURL(file)
+            }
           ]);
           setIsUploadModelOpen(false);
         } catch (error) {
@@ -217,15 +235,16 @@ const ProgramDetails = () => {
             const asset_id = res.asset_id;
             dispatch(setStatus({ uid: uid, status: "Completed", progress: 100 }));
             dispatch(addToast({ message: `File ${file.name} Uploaded Successfully`, type: "success" }));
+            setLogRefetchTrigger(prev => prev + 1);
             if (currentNodeIdRef.current === newFile.nodeId) {
-              setAssertFiles((prevFiles) => [...prevFiles, { _id: asset_id, name: file.name, type: file.type, src: URL.createObjectURL(file) }]);
+              setAssertFiles((prevFiles) => [...prevFiles, { _id: asset_id, name: file.name, type: file.type, is_downloadable: isDownloadable, review_status: 0, src: URL.createObjectURL(file) }]);
             }
             dispatch(deleteFile({ uid: uid }));
             delete activeUploadsRef.current[uid];
 
           } catch (error) {
             console.error("Error saving file:", error);
-             dispatch(setStatus({ uid: uid, status: "Failed", progress: 0 }));
+            dispatch(setStatus({ uid: uid, status: "Failed", progress: 0 }));
             delete activeUploadsRef.current[uid];
             dispatch(addToast({ message: `Failed to upload file ${file.name}`, type: "error" }));
           }
@@ -241,12 +260,14 @@ const ProgramDetails = () => {
       formData.append("file", file);
       formData.append("parent_id", nodeId);
       formData.append("product_type", 1);
+      formData.append("is_downloadable", isDownloadable);
       formData.append("product_id", product.product._id);
       try {
         const res = await dispatch(saveAssert(formData)).unwrap();
         const asset_id = res.asset_id;
         dispatch(addToast({ message: `File ${file.name} Uploaded Successfully`, type: "success" }));
-        setAssertFiles((prevFiles) => [...prevFiles, { _id: asset_id, name: file.name, type: file.type, src: URL.createObjectURL(file) }]);
+        setLogRefetchTrigger(prev => prev + 1);
+        setAssertFiles((prevFiles) => [...prevFiles, { _id: asset_id, name: file.name, type: file.type, is_downloadable: isDownloadable, review_status: 0, src: URL.createObjectURL(file) }]);
         setIsUploadModelOpen(false);
       } catch (error) {
         console.error("Error uploading file:", error);
@@ -265,17 +286,17 @@ const ProgramDetails = () => {
   };
 
   // Handle toggle downloadable
-   const handleToggleDownloadable = async (newAssert, file) => {
-      setAssertFiles(newAssert);
-      console.log(file);
+  const handleToggleDownloadable = async (newAssert, file) => {
+    setAssertFiles(newAssert);
+    console.log(file);
     try {
-            const data = {
-          nodeId: nodeId,
-          assetId: file._id,
-          payload: { 
-            is_downloadable: !file.is_downloadable,
-            product_type: 1
-           }
+      const data = {
+        nodeId: nodeId,
+        assetId: file._id,
+        payload: {
+          is_downloadable: !file.is_downloadable,
+          product_type: 1
+        }
       }
       console.log(data)
       await dispatch(toggleDownloadable(data)).unwrap();
@@ -408,9 +429,9 @@ const ProgramDetails = () => {
                     isLast
                       ? undefined
                       : () =>
-                          navigate(
-                            `/dashboard/${product.product._id}/program/${node._id}`
-                          )
+                        navigate(
+                          `/dashboard/${product.product._id}/program/${node._id}`
+                        )
                   }
                 >
                   {node.name}
@@ -424,16 +445,17 @@ const ProgramDetails = () => {
         </div>
       )}
 
-   
+
 
       {/* ================= ASSETS TABLE SECTION ================= */}
       <div className=" rounded-lg">
 
 
-        <AssertList 
-          assets={assertFiles} 
-          onReplace={handleReplace} 
-          productType={1} 
+        <AssertList
+          assets={assertFiles}
+          setAssets={setAssertFiles}
+          onReplace={handleReplace}
+          productType={1}
           onToggleDownloadable={handleToggleDownloadable}
           onAddUpload={() => setIsUploadModelOpen(true)}
         />
@@ -449,31 +471,31 @@ const ProgramDetails = () => {
         )}
       </div>
 
-        {/* logs list  */}
-      <LogsList  />
-      
+      {/* logs list  */}
+      <LogsList refetchTrigger={logRefetchTrigger} />
+
 
       {/* ================= TREE SECTION ================= */}
       <div className="pt-6  border-t-2 border-gray-300">
-    
-         <div>
-          <h4 className="text-lg font-semibold text-primary mb-4">
-          {nodename || "Select a node to view details"}
-        </h4>
-         <Can permission={PERMISSIONS.MENTORING_PRODUCT_PROGRAM_CREATE}>
-           <button
-            className="bg-blue-500 text-sm font-semibold  hover:bg-blue-600 text-white px-10 py-[6px] rounded-md"
-            onClick={() => setIsNewModelOpen(true)}
-          >
-            New
-          </button>
-        
-         </Can>
-          </div>
-     
+
+        <div>
+          <h4 className="text-xl font-semibold text-gray-600 mb-4">
+            {nodename || "Select a node to view details"}
+          </h4>
+          <Can permission={PERMISSIONS.MENTORING_PRODUCT_PROGRAM_CREATE}>
+            <button
+              className="bg-blue-500 text-sm font-semibold  hover:bg-blue-600 text-white px-10 py-[6px] rounded-md"
+              onClick={() => setIsNewModelOpen(true)}
+            >
+              New
+            </button>
+
+          </Can>
+        </div>
+
 
         {nodes.length > 0 ? (
-          <TreeMenu nodes={nodes} type="program" />
+          <div className="min-h-[100vh]"><TreeMenu nodes={nodes} type="program" /></div>
         ) : (
           <p className="text-gray-500 py-4">No program nodes available</p>
         )}

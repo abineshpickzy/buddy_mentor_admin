@@ -66,7 +66,7 @@ const TreeMenu = ({
         }
         min-w-[250px]
         whitespace-nowrap
-        z-50
+        z-20
       `}
     >
       {sortedNodes.map((node) => {

@@ -110,7 +110,7 @@ const MentoringCategory = () => {
         <table className="w-full border-collapse">
           <thead>
             <tr className="bg-[#9e9e9e] text-sm text-left text-white ">
-              <th className="p-2 w-12">Sno</th>
+              <th className="p-2 w-12">S.no</th>
               <th className="p-2">Icon</th>
               <th className="p-2">Category name</th>
               <th className="p-2">Status</th>

@@ -11,7 +11,7 @@ import NoImageAvailable from "@/assets/No_Image_Available.jpg";
 
 const UserTab = () => {
   const { user, refetchUser } = useOutletContext();
- 
+
   const [form, setForm] = useState({
     first_name: user?.first_name || "",
     last_name: user?.last_name || "",
@@ -55,8 +55,8 @@ const UserTab = () => {
       setOriginalEmail(user.email_id || "");
       setHasChanges(false);
 
-      if (user.profile_image) {
-        dispatch(viewUserImage({file:user.profile_image})).unwrap()
+      if (user.profile_image && user.profile_image !== 'null' && user.profile_image !== null) {
+        dispatch(viewUserImage({ file: user.profile_image })).unwrap()
           .then(blob => {
             if (blob) {
               const imageUrl = URL.createObjectURL(blob);
@@ -135,10 +135,10 @@ const UserTab = () => {
       newErrors.email_id = "Email is invalid";
     }
 
-    if(form.password){
-       if(form.password !== form.confirmPassword ){
+    if (form.password) {
+      if (form.password !== form.confirmPassword) {
         newErrors.confirmPassword = "Passwords do not match";
-       };
+      };
     }
 
     setErrors(newErrors);
@@ -172,11 +172,11 @@ const UserTab = () => {
       if (profileImage) {
         fd.append("profile_image", profileImage);
       }
-       Object.keys(userData).forEach(key => {
-            fd.append(key, userData[key]);
+      Object.keys(userData).forEach(key => {
+        fd.append(key, userData[key]);
       });
 
-      const result = await dispatch(editUser({ userId: user._id, userData: fd})).unwrap();
+      const result = await dispatch(editUser({ userId: user._id, userData: fd })).unwrap();
       console.log("API result:", result);
       dispatch(addToast({ type: "success", message: "User updated successfully!" }));
       await refetchUser();

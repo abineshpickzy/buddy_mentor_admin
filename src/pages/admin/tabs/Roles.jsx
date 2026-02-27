@@ -178,27 +178,27 @@ const Roles = () => {
               Manage User
             </h2>
             {!activeRole?.is_default && (
-              
-                <div className="flex gap-3">
-                  <Can permission={PERMISSIONS.ROLES_EDIT}>
-                  <Pencil 
-                    size={18} 
-                    className="text-blue-500 cursor-pointer" 
+
+              <div className="flex gap-3">
+                <Can permission={PERMISSIONS.ROLES_EDIT}>
+                  <Pencil
+                    size={18}
+                    className="text-blue-500 cursor-pointer"
                     onClick={() => {
                       setEditMode(true);
                       setShowCreate(true);
                     }}
                   />
-                    </Can>
-                    <Can permission={PERMISSIONS.ROLES_DELETE}>
-                  <Trash2 
-                    size={18} 
-                    className="text-red-500 cursor-pointer" 
+                </Can>
+                <Can permission={PERMISSIONS.ROLES_DELETE}>
+                  <Trash2
+                    size={18}
+                    className="text-red-500 cursor-pointer"
                     onClick={() => setShowDeleteConfirm(true)}
                   />
-                  </Can>
-                </div>
-            
+                </Can>
+              </div>
+
             )}
           </div>
 
@@ -238,8 +238,8 @@ const Roles = () => {
                 </button>
                 <button
                   className={`border border-gray-300 rounded px-3 py-1 text-sm  ${selectedAdmins.length === 0
-                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                      : 'hover:bg-gray-50 cursor-pointer'
+                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                    : 'hover:bg-gray-50 cursor-pointer'
                     }`}
                   disabled={selectedAdmins.length === 0}
                   onClick={() => setShowUnassign(true)}

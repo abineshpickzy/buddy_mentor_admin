@@ -5,14 +5,16 @@ import Input from "@/components/ui/Input";
 const NewModel = ({ open, onCancel, onSubmit }) => {
   const [name, setName] = useState("");
   const [price, setPrice] = useState("");
+  const [menteeEngagement, setMenteeEngagement] = useState(false);
 
   if (!open) return null;
 
   const handleSubmit = () => {
-    const data = { name, price: price || undefined };
+    const data = { name, price: price || undefined, mentee_engagement: menteeEngagement };
     onSubmit(data);
     setName("");
     setPrice("");
+    setMenteeEngagement(false);
   };
 
   return (
@@ -43,6 +45,19 @@ const NewModel = ({ open, onCancel, onSubmit }) => {
             onChange={(e) => setPrice(e.target.value)}
             placeholder="Enter price"
           />
+
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              id="menteeEngagement"
+              checked={menteeEngagement}
+              onChange={(e) => setMenteeEngagement(e.target.checked)}
+              className="w-4 h-4 cursor-pointer"
+            />
+            <label htmlFor="menteeEngagement" className="text-sm text-gray-700 cursor-pointer">
+              Mentee Engagement
+            </label>
+          </div>
         </div>
 
         {/* Footer */}

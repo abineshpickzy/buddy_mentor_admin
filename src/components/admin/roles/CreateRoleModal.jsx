@@ -1,10 +1,13 @@
 import React, { useState, useEffect, useRef } from "react";
 import { X } from "lucide-react";
+import { useDispatch } from "react-redux";
+import { addToast } from "@/features/toast/toastSlice";
 
 const CreateRoleModal = ({ open, onClose, onCreate, editMode = false, initialData = null }) => {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const textareaRef = useRef(null);
+  const dispatch = useDispatch();
 
   const adjustTextareaHeight = () => {
     const textarea = textareaRef.current;
@@ -31,7 +34,14 @@ const CreateRoleModal = ({ open, onClose, onCreate, editMode = false, initialDat
   if (!open) return null;
 
   const handleCreate = () => {
-    if (!name.trim()) return;
+    if (!name.trim()) {
+      dispatch(addToast({ message: "Name is required", type: "error" }));
+      return;
+    }
+    if (!description.trim()) {
+      dispatch(addToast({ message: "Description is required", type: "error" }));
+      return;
+    }
     onCreate({ name, description });
     setName("");
     setDescription("");
@@ -41,7 +51,6 @@ const CreateRoleModal = ({ open, onClose, onCreate, editMode = false, initialDat
   return (
     <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50 overflow-y-auto">
       <div className="bg-white w-[50%]  rounded shadow-lg p-5 relative">
-        
         {/* Header */}
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-sm font-semibold text-gray-700">

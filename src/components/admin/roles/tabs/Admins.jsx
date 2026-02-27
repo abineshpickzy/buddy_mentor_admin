@@ -1,15 +1,19 @@
 import { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+import { PERMISSIONS } from "@/permissions/permissions";
+import { usePermission } from "@/permissions";
 
 const Admins = ({ onSelectionChange }) => {
     const { activeRole } = useSelector((state) => state.roles);
     const [admins, setAdmins] = useState([]);
     const [selectedAdmins, setSelectedAdmins] = useState([]);
     const { user } = useSelector((state) => state.auth);
-    
+
+    const permission = usePermission(PERMISSIONS.ROLES_EDIT);
+
 
     useEffect(() => {
-        if (activeRole){
+        if (activeRole) {
             console.log("Active role changed, assigned admins:", activeRole);
             setAdmins(activeRole?.users || []);
             setSelectedAdmins([]);
@@ -25,8 +29,8 @@ const Admins = ({ onSelectionChange }) => {
     };
 
     const handleSelectAdmin = (adminId, checked) => {
-        setSelectedAdmins(prev => 
-            checked 
+        setSelectedAdmins(prev =>
+            checked
                 ? [...prev, adminId]
                 : prev.filter(id => id !== adminId)
         );
@@ -42,9 +46,10 @@ const Admins = ({ onSelectionChange }) => {
                 <thead>
                     <tr className="bg-[#9e9e9e] text-sm text-left text-white">
                         <th className="p-2 w-10">
-                            <input 
-                                type="checkbox" 
+                            <input
+                                type="checkbox"
                                 checked={isAllSelected}
+                                disabled={!permission}
                                 ref={(el) => {
                                     if (el) el.indeterminate = isIndeterminate;
                                 }}
@@ -67,9 +72,9 @@ const Admins = ({ onSelectionChange }) => {
                         admins.map(admin => (
                             <tr key={admin._id} className="text-sm odd:bg-[#e6e6e6] border-b-2 border-[#d8dbdd]">
                                 <td className="p-2 text-center">
-                                    <input 
-                                       disabled={admin._id==user._id}
-                                        type="checkbox" 
+                                    <input
+                                        disabled={admin._id == user._id || !permission}
+                                        type="checkbox"
                                         checked={selectedAdmins.includes(admin._id)}
                                         onChange={(e) => handleSelectAdmin(admin._id, e.target.checked)}
                                     />

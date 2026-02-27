@@ -1,21 +1,21 @@
 import { Menu, LogOut, ChevronDown } from "lucide-react";
-import logo  from "@/assets/logo.png";
+import logo from "@/assets/logo.png";
 import { NavLink, useLocation } from "react-router-dom";
-import {logout} from "@/features/auth/authSlice";
+import { logout } from "@/features/auth/authSlice";
 import { useDispatch, useSelector } from "react-redux";
-import {PERMISSIONS} from "@/permissions/permissions";
+import { PERMISSIONS } from "@/permissions/permissions";
 import { CanModule } from "@/permissions";
-import {viewUserImage} from "@/features/users/userThunk";
+import { viewUserImage } from "@/features/users/userThunk";
 import { useState, useEffect } from "react";
 import ConfirmModal from "@/components/admin/mentoringcategory/ConfirmModel";
 import NoImageAvailable from "@/assets/No_Image_Available.jpg";
 
 
-const Navbar = ( { onMenuClick } ) => {
-  const location = useLocation();  
-  const dispatch = useDispatch(); 
+const Navbar = ({ onMenuClick }) => {
+  const location = useLocation();
+  const dispatch = useDispatch();
 
-  const {user} = useSelector((state) => state.auth);
+  const { user } = useSelector((state) => state.auth);
   const [profileImage, setProfileImage] = useState(NoImageAvailable);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
@@ -46,9 +46,9 @@ const Navbar = ( { onMenuClick } ) => {
   };
 
   const tabs = [
-    { label: "Mentees Dashboard", link: "/dashboard/overview", module:"admin" },
-    { label: "Accounting FP", link: "/account" ,module:"account_fp"},
-    { label: "Admin", link: "/admin" ,module: "admin"}
+    { label: "Mentees Dashboard", link: "/dashboard/overview", module: "admin" },
+    { label: "Accounting FP", link: "/account", module: "account_fp" },
+    { label: "Admin", link: "/admin", module: "admin" }
   ];
 
   return (
@@ -59,22 +59,22 @@ const Navbar = ( { onMenuClick } ) => {
 
           {/* LEFT */}
           <div className="flex items-center gap-4">
-           <button
-            className="rounded text-white p-1"
-            onClick={() => {
-              console.log('Menu clicked');
-              onMenuClick();
-            }}
-          >
-            <Menu size={22} 
-            strokeWidth={3}
-              className=""
-  />
-          </button>
+            <button
+              className="rounded text-white p-1"
+              onClick={() => {
+                console.log('Menu clicked');
+                onMenuClick();
+              }}
+            >
+              <Menu size={22}
+                strokeWidth={3}
+                className=""
+              />
+            </button>
 
             {/* Logo */}
-             <img src={logo} alt="logo" className="w-8 h-8 rounded-full" />
-       
+            <img src={logo} alt="logo" className="w-8 h-8 rounded-full" />
+
 
             {/* Tabs (Desktop) */}
             <nav className=" md:flex gap-2 ml-4">
@@ -84,15 +84,14 @@ const Navbar = ( { onMenuClick } ) => {
                     // key={tab.label}
                     to={tab.link}
                     className={`px-8 py-1 rounded text-sm font-medium
-                      ${
-                        isActiveTab(tab.link)
-                          ? "bg-blue-500 text-white"
-                          : "bg-[#f5f5f5] border-2 border-[#909090] "
+                      ${isActiveTab(tab.link)
+                        ? "bg-blue-500 text-white"
+                        : "bg-[#f5f5f5] border-2 border-[#909090] "
                       }`}
                   >
                     {tab.label}
                   </NavLink>
-                 </CanModule>
+                </CanModule>
               ))}
             </nav>
           </div>
@@ -110,13 +109,13 @@ const Navbar = ( { onMenuClick } ) => {
             </div>
 
             <div className="flex items-center gap-2">
-               {/* Avatar */}
-            <img
-              src={profileImage}
-              alt="profile"
-              className="w-8 h-8 rounded-full border object-fill"
-            />
-            {user?.user_name ||"Admin"}
+              {/* Avatar */}
+              <img
+                src={profileImage}
+                alt="profile"
+                className="w-8 h-8 rounded-full border object-fill p-1"
+              />
+              {user?.user_name || "Admin"}
             </div>
 
             {/* Logout */}
@@ -129,7 +128,7 @@ const Navbar = ( { onMenuClick } ) => {
       </header>
 
       <ConfirmModal
-        
+
         name="Logout"
         open={showLogoutModal}
         onCancel={() => setShowLogoutModal(false)}
@@ -139,7 +138,7 @@ const Navbar = ( { onMenuClick } ) => {
         }}
       />
 
-   
+
     </>
   );
 };

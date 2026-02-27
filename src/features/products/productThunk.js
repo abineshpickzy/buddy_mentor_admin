@@ -16,7 +16,7 @@ export const createProduct = createAsyncThunk("products/createProduct", async (p
 // check available 
 export const checkAvailability = createAsyncThunk("products/checkAvailability", async (productName, { rejectWithValue }) => {
     try {
-        const response = await axios.post(`/prd/chk`,productName);
+        const response = await axios.post(`/prd/chk`, productName);
         return response.data;
     } catch (error) {
         return rejectWithValue(error.message);
@@ -32,7 +32,7 @@ export const listProducts = createAsyncThunk("products/listProducts", async (_, 
         return rejectWithValue(error.message);
     }
 });
- 
+
 // fetch product By Id
 export const fetchProductById = createAsyncThunk("products/fetchProductById", async (id, { rejectWithValue }) => {
     try {
@@ -62,7 +62,7 @@ export const deleteProgramNode = createAsyncThunk("products/deleteProgramNode", 
 });
 
 
-export const updateProduct = createAsyncThunk("products/updateProduct", async ({id,data}, { dispatch, rejectWithValue }) => {
+export const updateProduct = createAsyncThunk("products/updateProduct", async ({ id, data }, { dispatch, rejectWithValue }) => {
     try {
         const response = await axios.put(`/prd/${id}/ed`, data);
         dispatch(listProducts());
@@ -85,10 +85,12 @@ export const addNode = createAsyncThunk("products/addNode", async (payload, { di
 
 // get Assert Files
 
-export const getAssertFiles = createAsyncThunk("products/getAssertFiles", async ({id,type}, { rejectWithValue }) => {
+export const getAssertFiles = createAsyncThunk("products/getAssertFiles", async ({ id, type, status }, { rejectWithValue }) => {
     try {
-        
-        const response = await axios.get(`/prd/${id}/lst?type=${type}`);
+        const params = new URLSearchParams();
+        params.append("type", type);
+        if (status) params.append("status", status);
+        const response = await axios.get(`/ast/${id}/lst?${params.toString()}`);
         return response.data;
     } catch (error) {
         return rejectWithValue(error.message);
@@ -97,26 +99,26 @@ export const getAssertFiles = createAsyncThunk("products/getAssertFiles", async 
 
 // view Product Image
 export const viewProductImage = createAsyncThunk(
-  "upload/viewProductImage",
-  async (payload, { rejectWithValue }) => {
-    const { file, width, height } = payload;
+    "upload/viewProductImage",
+    async (payload, { rejectWithValue }) => {
+        const { file, width, height } = payload;
 
-    const params = new URLSearchParams();
-    params.append("file", file);
+        const params = new URLSearchParams();
+        params.append("file", file);
 
-    if (width) params.append("width", width);
-    if (height) params.append("height", height);
+        if (width) params.append("width", width);
+        if (height) params.append("height", height);
 
-    try {
-      const response = await axios.get(
-        "prd/img/vw?" + params.toString(),{
-          responseType: "blob"
-        })
-      return response.data; 
-    } catch (error) {
-      return rejectWithValue(error.response?.data);
+        try {
+            const response = await axios.get(
+                "prd/img/vw?" + params.toString(), {
+                responseType: "blob"
+            })
+            return response.data;
+        } catch (error) {
+            return rejectWithValue(error.response?.data);
+        }
     }
-  }
 );
 
 // edit Node
@@ -133,6 +135,65 @@ export const editNode = createAsyncThunk("products/editNode", async (payload, { 
 export const fetchAssignees = createAsyncThunk("products/fetchAssignees", async (id, { rejectWithValue }) => {
     try {
         const response = await axios.get(`user/${id}/asg/rv/ls`);
+        return response.data;
+    } catch (error) {
+        return rejectWithValue(error.message);
+    }
+})
+
+// fetch review list
+
+export const fetchReviewList = createAsyncThunk("products/fetchReviewList", async (productId, { rejectWithValue }) => {
+    try {
+        const response = await axios.get(`ast/${productId}/rv/ls`);
+        return response.data;
+    } catch (error) {
+        return rejectWithValue(error.message);
+    }
+})
+
+// Reviewer Asset List
+
+export const fetchReviewerAssetList = createAsyncThunk("products/fetchReviewerAssetList", async ({ nodeId, product_type }, { rejectWithValue }) => {
+    const params = new URLSearchParams();
+    params.append("product_type", product_type);
+    try {
+        const response = await axios.get(`ast/${nodeId}/rv/ast/ls?${params.toString()}`);
+        return response.data;
+    } catch (error) {
+        return rejectWithValue(error.message);
+    }
+})
+
+// approve review assert 
+
+export const approveReviewAssert = createAsyncThunk("products/approveReviewAssert", async ({ parent_id, assetId, payload }, { rejectWithValue }) => {
+    try {
+        const response = await axios.post(`ast/${parent_id}/${assetId}/aprv`, payload);
+        return response.data;
+    } catch (error) {
+        return rejectWithValue(error.message);
+    }
+})
+
+// reject review assert
+export const rejectReviewAssert = createAsyncThunk("products/rejectReviewAssert", async ({ parent_id, assetId, payload }, { rejectWithValue }) => {
+    try {
+        const response = await axios.post(`ast/${parent_id}/${assetId}/rjct`, payload);
+        return response.data;
+    } catch (error) {
+        return rejectWithValue(error.message);
+    }
+})
+
+export const feedbackDownload = createAsyncThunk("products/feedbackDownload", async ({ file, type }, { rejectWithValue }) => {
+    try {
+        const params = new URLSearchParams();
+        params.append("file", file);
+        params.append("type", type);
+        const response = await axios.get(`ast/fb/dwn?${params.toString()}`, {
+            responseType: "blob"
+        });
         return response.data;
     } catch (error) {
         return rejectWithValue(error.message);
